@@ -1,0 +1,147 @@
+@if (campaign) {
+  <div class="page">
+    <app-top-nav activeTab="campanhas" [subTabs]="subTabs" [breadcrumb]="breadcrumb"></app-top-nav>
+
+    <div class="page-body page-body--profile">
+      <a [routerLink]="['/campanhas', campaignId]" class="back-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+        Voltar para candidatos
+      </a>
+
+      @if (profile) {
+        <div class="header">
+          <div class="header__identity">
+            <div class="header__avatar" [class.header__avatar--sand]="profile.accent === 'sand'">{{ profile.initials }}</div>
+            <div>
+              <h1 class="serif">{{ profile.name }}</h1>
+              <div class="header__meta">
+                <span class="phase-badge" [class.phase-badge--sand]="profile.accent === 'sand'">{{ profile.phaseLabel | uppercase }}</span>
+                <span class="dim">{{ profile.location }} · {{ profile.experienceLabel }}</span>
+              </div>
+            </div>
+          </div>
+          <div class="header__actions">
+            <button class="btn-ghost reject-btn" type="button">Reprovar nesta fase</button>
+            <button class="btn-primary approve-btn" type="button">Aprovar e avançar</button>
+          </div>
+        </div>
+
+        <div class="columns">
+          <!-- Original candidate data -->
+          <div class="card original-card">
+            <div class="original-card__header">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></svg>
+              <span class="origtitle">Dados originais do candidato</span>
+              <span class="source-tag">ENVIADO PELO CANDIDATO</span>
+            </div>
+
+            <section>
+              <div class="sectionlabel">Contato</div>
+              <div class="contact-list">
+                <span>{{ profile.contact.email }}</span>
+                <span>{{ profile.contact.phone }}</span>
+                <span>{{ profile.contact.linkedin }}</span>
+              </div>
+            </section>
+
+            <section>
+              <div class="sectionlabel">Resumo</div>
+              <p class="summary">{{ profile.summary }}</p>
+            </section>
+
+            <section>
+              <div class="sectionlabel">Experiência profissional</div>
+              <div class="experience-list">
+                @for (exp of profile.experience; track exp.company) {
+                  <div>
+                    <div class="experience-row">
+                      <span>{{ exp.role }} · {{ exp.company }}</span>
+                      <span class="experience-period">{{ exp.period }}</span>
+                    </div>
+                    <p class="experience-desc">{{ exp.description }}</p>
+                  </div>
+                }
+              </div>
+            </section>
+
+            <section>
+              <div class="sectionlabel">Formação</div>
+              <div class="education-row">
+                <span class="education-degree">{{ profile.education.degree }} · {{ profile.education.institution }}</span>
+                <span class="education-period">{{ profile.education.period }}</span>
+              </div>
+            </section>
+
+            <section>
+              <div class="sectionlabel">Habilidades</div>
+              <div class="skills">
+                @for (skill of profile.skills; track skill) {
+                  <span class="skill-tag">{{ skill }}</span>
+                }
+              </div>
+            </section>
+          </div>
+
+          <!-- AI analysis -->
+          <div class="card ai-card" [class.ai-card--sand]="profile.accent === 'sand'">
+            <div class="ai-card__header">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" [attr.stroke]="profile.accent === 'sand' ? '#a8674f' : '#8D9167'" stroke-width="2"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z" /></svg>
+              <span class="ai-card__title">Análise da IA · {{ profile.phaseLabel }}</span>
+              <span class="source-tag">GERADO AUTOMATICAMENTE</span>
+            </div>
+
+            <div class="match-box">
+              <div class="ring-lg" [style.background]="'conic-gradient(#8D9167 0deg ' + ringDeg + 'deg, rgba(21,26,34,0.1) ' + ringDeg + 'deg 360deg)'">
+                <div class="ring-lg__hole">
+                  <span class="serif">{{ profile.ai.matchPct }}%</span>
+                </div>
+              </div>
+              <div>
+                <div class="match-box__label">{{ profile.ai.matchLabel }}</div>
+                <div class="muted match-box__note">{{ profile.ai.matchNote }}</div>
+              </div>
+            </div>
+
+            <section>
+              <div class="list-heading">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3A4A2E" stroke-width="2.4"><path d="M20 6L9 17l-5-5" /></svg>
+                <span>Pontos fortes</span>
+              </div>
+              <ul class="point-list">
+                @for (s of profile.ai.strengths; track s) {
+                  <li><span class="point-marker point-marker--success">—</span>{{ s }}</li>
+                }
+              </ul>
+            </section>
+
+            <section>
+              <div class="list-heading">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [attr.stroke]="profile.accent === 'sand' ? '#a8674f' : '#a8674f'" stroke-width="2.4"><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" /></svg>
+                <span>Pontos de atenção</span>
+              </div>
+              <ul class="point-list">
+                @for (c of profile.ai.concerns; track c) {
+                  <li><span class="point-marker point-marker--sand">—</span>{{ c }}</li>
+                }
+              </ul>
+            </section>
+
+            <section class="justification">
+              <div class="justification__label">Justificativa da recomendação</div>
+              <p>{{ profile.ai.justification }}</p>
+            </section>
+
+            <div class="disclaimer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(21,26,34,0.4)" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+              <span>Esta análise é uma sugestão da IA com base nos critérios da campanha. A decisão de aprovar ou reprovar é sempre manual, feita por você.</span>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="card empty-state">
+          <p>Este candidato ainda não tem um perfil detalhado nesta prévia do protótipo. Os exemplos completos, com dados originais e análise da IA lado a lado, estão em Marina Albuquerque e Camila Duarte, na fase Entrevista Estruturada e Fit Cultural.</p>
+        </div>
+      }
+    </div>
+  </div>
+}

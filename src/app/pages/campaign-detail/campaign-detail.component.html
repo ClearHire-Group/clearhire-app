@@ -1,0 +1,104 @@
+@if (campaign) {
+  <div class="page">
+    <app-top-nav
+      activeTab="campanhas"
+      [subTabs]="subTabs"
+      [breadcrumb]="'Campanhas / ' + campaign.title"
+    ></app-top-nav>
+
+    <div class="page-body">
+      <div class="header">
+        <div>
+          <div class="header__title-row">
+            <h1 class="serif">{{ campaign.title }}</h1>
+            <span class="badge" [class.badge--accent]="campaign.status === 'ativa'" [class.badge--sand]="campaign.status === 'pausada'" [class.badge--success]="campaign.status === 'encerrada'">
+              {{ campaign.status === 'ativa' ? 'ATIVA' : campaign.status === 'pausada' ? 'PAUSADA' : 'ENCERRADA' }}
+            </span>
+          </div>
+          <span class="muted">{{ campaign.location }} · {{ campaign.meta }} · {{ campaign.totalCandidates }} candidatos no total</span>
+        </div>
+        <div class="header__actions">
+          <button class="btn-ghost" type="button">Pausar campanha</button>
+          <button class="btn-ghost" type="button">Editar campanha</button>
+        </div>
+      </div>
+
+      <!-- Funnel -->
+      <div class="funnel">
+        @for (phase of campaign.phases; track phase.key; let last = $last) {
+          <div
+            class="funnel__block"
+            [class.funnel__block--active]="phase.key === selectedPhase"
+            (click)="selectPhase(phase.key)"
+          >
+            <div class="funnel__block-top">
+              <span class="funnel__num" [class.funnel__num--active]="phase.key === selectedPhase">{{ phase.num }}</span>
+              <span class="funnel__label">{{ phase.label }}</span>
+            </div>
+            <div class="serif funnel__count">{{ phase.count }}</div>
+          </div>
+          @if (!last) {
+            <div class="funnel__arrow">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(21,26,34,0.2)" stroke-width="2.4"><path d="M9 6l6 6-6 6" /></svg>
+            </div>
+          }
+        }
+      </div>
+
+      <!-- Candidate table -->
+      <div class="card table-card">
+        <div class="table-card__header">
+          <div class="table-card__title">
+            <h2 class="serif">{{ activePhaseLabel }}</h2>
+            <span class="dim">mostrando {{ candidates.length }} de {{ activePhaseCount }} candidatos</span>
+          </div>
+          <div class="table-card__sort">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8D9167" stroke-width="2.2"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z" /></svg>
+            <span>ORDENADO POR MATCH DA IA</span>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th class="col-candidate">Candidato</th>
+              <th>Experiência</th>
+              <th>Localização</th>
+              <th>Match IA</th>
+              <th>Status</th>
+              <th class="col-action">Ação</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (c of candidates; track c.id) {
+              <tr>
+                <td>
+                  <div class="candidate-cell">
+                    <div class="avatar" [style.background]="c.avatarBg" [style.color]="c.avatarColor">{{ c.initials }}</div>
+                    <div class="candidate-cell__info">
+                      <span class="candidate-cell__name">{{ c.name }}</span>
+                      <span class="candidate-cell__email">{{ c.email }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="cell-text">{{ c.experience }}</span></td>
+                <td><span class="cell-text">{{ c.location }}</span></td>
+                <td>
+                  <div class="ring" [style]="c.ringStyle">
+                    <div class="ring__hole">
+                      <span>{{ c.pctLabel }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td><span class="status-pill" [style.color]="c.statusColor" [style.background]="c.statusBg">{{ c.status }}</span></td>
+                <td class="col-action">
+                  <a [routerLink]="['/campanhas', campaignId, 'candidatos', c.id]" class="btn-ghost view-btn">Ver perfil</a>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+}

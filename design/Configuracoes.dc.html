@@ -1,0 +1,145 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#F0F0E6;color:#151A22;font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+    ::-webkit-scrollbar{width:10px;height:10px}
+    ::-webkit-scrollbar-thumb{background:rgba(21,26,34,0.15);border-radius:8px}
+    a{color:#8D9167;text-decoration:none}
+    a:hover{color:#6f7352}
+    .serif{font-family:'Newsreader',Georgia,serif}
+    .nav-tab{display:flex;align-items:center;height:100%;padding:0 14px;font-size:14px;font-weight:500;color:rgba(240,240,230,0.6);border-bottom:2px solid transparent;white-space:nowrap}
+    .nav-tab:hover{color:#F0F0E6}
+    .nav-tab.active{color:#F0F0E6;border-bottom-color:#8D9167}
+    .subtab{display:flex;align-items:center;height:100%;padding:0 12px;font-size:13px;font-weight:600;color:rgba(240,240,230,0.5);border-bottom:2px solid transparent;white-space:nowrap}
+    .subtab:hover{color:#F0F0E6}
+    .subtab.active{color:#C09281;border-bottom-color:#C09281}
+    .subtab.disabled{color:rgba(240,240,230,0.25);cursor:default}
+    .card{background:#FFFFFF;border:1px solid rgba(21,26,34,0.08);border-radius:12px;box-shadow:0 1px 2px rgba(21,26,34,0.04)}
+    .btn-primary{background:#8D9167;color:#151A22;font-weight:700;font-size:13px;padding:11px 20px;border-radius:8px;border:none;cursor:pointer;font-family:'Manrope',sans-serif}
+    .btn-primary:hover{filter:brightness(1.08)}
+    .btn-ghost{background:transparent;color:#151A22;font-weight:600;font-size:13px;padding:11px 20px;border-radius:8px;border:1px solid rgba(21,26,34,0.15);cursor:pointer;font-family:'Manrope',sans-serif}
+    .muted{color:rgba(21,26,34,0.55)}
+    .dim{color:rgba(21,26,34,0.4)}
+    .fieldlabel{font-size:12.5px;font-weight:600;color:rgba(21,26,34,0.7);margin-bottom:8px;display:block}
+    .field{width:100%;background:#F7F7F1;border:1px solid rgba(21,26,34,0.14);border-radius:8px;padding:11px 14px;font-size:13.5px;color:#151A22;font-family:'Manrope',sans-serif}
+    textarea.field{resize:vertical;font-family:'Manrope',sans-serif;line-height:1.5}
+  </style>
+</helmet>
+
+<div style="min-height:100vh;background:#F0F0E6">
+
+  <!-- ===== NAV (dark) ===== -->
+  <div style="position:sticky;top:0;z-index:50;background:#151A22;border-bottom:1px solid rgba(240,240,230,0.08)">
+    <div style="display:flex;align-items:center;gap:28px;padding:0 32px;height:64px;max-width:1440px;margin:0 auto">
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <svg width="26" height="26" viewBox="0 0 360 360" style="flex-shrink:0">
+          <defs>
+            <linearGradient id="navFunnelGrad7" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8D9167"></stop>
+              <stop offset="100%" stop-color="#C09281"></stop>
+            </linearGradient>
+          </defs>
+          <circle cx="180" cy="180" r="180" fill="#151A22"></circle>
+          <polygon points="110,120 250,120 198,206 162,206" fill="url(#navFunnelGrad7)"></polygon>
+          <rect x="162" y="206" width="36" height="46" fill="url(#navFunnelGrad7)"></rect>
+          <circle cx="180" cy="266" r="10" fill="#F0F0E6"></circle>
+        </svg>
+        <span class="serif" style="font-size:19px;font-weight:600;color:#F0F0E6;letter-spacing:0.2px">Clearhire</span>
+      </div>
+      <nav style="display:flex;align-items:center;height:100%;flex:1">
+        <a href="#" class="nav-tab">Dashboard</a>
+        <a href="#" class="nav-tab">Campanhas</a>
+        <a href="#" class="nav-tab">Candidatos</a>
+        <a href="#" class="nav-tab">Relatórios</a>
+        <a href="#" class="nav-tab active">Configurações</a>
+      </nav>
+      <div style="display:flex;align-items:center;gap:14px;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(240,240,230,0.06);border:1px solid rgba(240,240,230,0.12);border-radius:8px;padding:7px 12px;width:220px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(240,240,230,0.4)" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+          <span style="font-size:13px;color:rgba(240,240,230,0.35)">Buscar candidatos, vagas…</span>
+        </div>
+        <button style="background:none;border:none;cursor:pointer;padding:6px;position:relative">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F0F0E6" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 01-3.4 0"></path></svg>
+          <span style="position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:#C09281;border:1.5px solid #151A22"></span>
+        </button>
+        <div style="width:32px;height:32px;border-radius:50%;background:#3A4A2E;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#F0F0E6;cursor:pointer">PS</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;height:100%;gap:2px;padding:0 32px;height:42px;max-width:1440px;margin:0 auto;border-top:1px solid rgba(240,240,230,0.06)">
+      <span class="subtab active">Perfil da Empresa</span>
+      <span class="subtab disabled">Equipe</span>
+      <span class="subtab disabled">Integrações</span>
+    </div>
+  </div>
+
+  <!-- ===== BODY (light) ===== -->
+  <div style="max-width:880px;margin:0 auto;padding:36px 32px 80px">
+
+    <h1 class="serif" style="font-size:30px;font-weight:600;color:#151A22;margin-bottom:6px">Perfil cultural da empresa</h1>
+    <p class="muted" style="font-size:14px;margin-bottom:32px">Este perfil é aplicado automaticamente à análise de Fit Cultural em toda nova campanha criada.</p>
+
+    <div class="card" style="padding:28px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;padding-bottom:22px;border-bottom:1px solid rgba(21,26,34,0.08)">
+        <div style="width:48px;height:48px;border-radius:10px;background:rgba(141,145,103,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8D9167" stroke-width="2"><path d="M3 21h18M6 21V8l6-5 6 5v13M10 21v-6h4v6"></path></svg>
+        </div>
+        <div>
+          <div style="font-size:16px;font-weight:700;color:#151A22">Aurora Tech</div>
+          <div class="dim" style="font-size:12.5px">Este perfil é compartilhado por todas as campanhas da empresa</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:24px">
+        <label class="fieldlabel">Valores organizacionais</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <span style="font-size:12.5px;font-weight:600;background:rgba(141,145,103,0.13);color:#6f7352;padding:7px 14px;border-radius:100px">Transparência radical</span>
+          <span style="font-size:12.5px;font-weight:600;background:rgba(141,145,103,0.13);color:#6f7352;padding:7px 14px;border-radius:100px">Autonomia com responsabilidade</span>
+          <span style="font-size:12.5px;font-weight:600;background:rgba(141,145,103,0.13);color:#6f7352;padding:7px 14px;border-radius:100px">Cuidado com o cliente</span>
+          <span style="font-size:12.5px;font-weight:600;background:rgba(141,145,103,0.13);color:#6f7352;padding:7px 14px;border-radius:100px">Comunicação direta</span>
+          <span style="font-size:12.5px;font-weight:600;background:rgba(141,145,103,0.13);color:#6f7352;padding:7px 14px;border-radius:100px">Diversidade e pertencimento</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:22px">
+        <label class="fieldlabel">Tom de comunicação</label>
+        <textarea class="field" rows="2">Direto, mas empático — evitamos jargão corporativo e valorizamos clareza em qualquer conversa, interna ou com candidatos.</textarea>
+      </div>
+
+      <div>
+        <label class="fieldlabel">O que a empresa considera importante</label>
+        <textarea class="field" rows="3">Times pequenos e autônomos, decisões descentralizadas, feedback contínuo e impacto mensurável — priorizamos resultado em vez de horas trabalhadas.</textarea>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(192,146,129,0.09);border:1px solid rgba(192,146,129,0.3);border-radius:10px;padding:16px 18px;margin-bottom:28px">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a8674f" stroke-width="2.2" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
+      <p style="font-size:13px;color:#151A22;line-height:1.55">Alterações aqui não afetam campanhas já em andamento — apenas novas campanhas herdarão a versão atualizada deste perfil.</p>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px">
+      <button class="btn-ghost">Descartar alterações</button>
+      <button class="btn-primary">Salvar perfil</button>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<div class="page">
+  <app-top-nav activeTab="dashboard" [subTabs]="subTabs" [dateChip]="true"></app-top-nav>
+
+  <div class="page-body">
+    <div class="page-header">
+      <h1 class="serif">Dashboard</h1>
+      <a href="javascript:void(0)" class="page-header__link">
+        Ver relatório completo
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8D9167" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+      </a>
+    </div>
+
+    <div class="metrics">
+      <div class="card metric">
+        <div class="metric__top">
+          <div class="metric__icon metric__icon--terracota">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#8D9167" stroke-width="2"><path d="M3 3v18h18" /><path d="M18 9l-5 5-4-4-4 4" /></svg>
+          </div>
+          <span class="chip chip--success">+1 esta semana</span>
+        </div>
+        <div class="serif metric__value">2</div>
+        <span class="muted metric__label">Campanhas ativas</span>
+      </div>
+
+      <div class="card metric">
+        <div class="metric__top">
+          <div class="metric__icon metric__icon--sand">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C09281" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>
+          </div>
+          <span class="chip chip--neutral">4 campanhas</span>
+        </div>
+        <div class="serif metric__value">187</div>
+        <span class="muted metric__label">Candidatos em processo</span>
+      </div>
+
+      <div class="card metric">
+        <div class="metric__top">
+          <div class="metric__icon metric__icon--success">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#3A4A2E" stroke-width="2"><path d="M20 6L9 17l-5-5" /></svg>
+          </div>
+          <span class="chip chip--neutral">meta: 12</span>
+        </div>
+        <div class="serif metric__value">4</div>
+        <span class="muted metric__label">Contratações no período</span>
+      </div>
+
+      <div class="card metric">
+        <div class="metric__top">
+          <div class="metric__icon metric__icon--neutral">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>
+          </div>
+          <span class="chip chip--success">-3 dias</span>
+        </div>
+        <div class="serif metric__value">19 dias</div>
+        <span class="muted metric__label">Tempo médio no funil</span>
+      </div>
+    </div>
+
+    <div class="panels">
+      <div class="card panel">
+        <div class="panel__header">
+          <h2 class="serif">Campanhas ativas</h2>
+          <a routerLink="/campanhas" class="panel__link">Ver todas →</a>
+        </div>
+
+        <div class="campaign-rows">
+          @for (c of activeCampaigns; track c.id) {
+            <div class="campaign-row" [class.campaign-row--paused]="c.status === 'pausada'">
+              <div class="campaign-row__top">
+                <div class="campaign-row__title">
+                  <span>{{ c.title }}</span>
+                  <span class="badge" [class.badge--accent]="c.status === 'ativa'" [class.badge--sand]="c.status === 'pausada'">
+                    {{ c.status === 'ativa' ? 'ATIVA' : 'PAUSADA' }}
+                  </span>
+                </div>
+                <span class="dim">{{ c.totalCandidates }} candidatos · {{ c.location.split(' · ')[0] }}</span>
+              </div>
+              <div>
+                <div class="campaign-row__progress-label">
+                  <span>{{ c.status === 'pausada' ? 'Pausada em: ' : 'Fase atual: ' }}{{ c.currentPhaseLabel }}</span>
+                  <span [class.text-accent]="c.status === 'ativa'" [class.text-sand]="c.status === 'pausada'">{{ c.funnelPercent }}% do funil</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" [class.progress-fill--sand]="c.status === 'pausada'" [style.width.%]="c.funnelPercent"></div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="card panel">
+        <h2 class="serif">Pendências de revisão</h2>
+        <p class="muted panel__subtitle">A IA organizou estas recomendações — a decisão é sempre sua.</p>
+
+        <div class="reviews">
+          <div class="review review--highlight">
+            <div class="review__tag">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8D9167" stroke-width="2.2"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z" /></svg>
+              <span>SUGESTÃO DA IA</span>
+            </div>
+            <p>Marina Albuquerque (94% match) está pronta para avançar de <strong>Triagem Técnica</strong> para <strong>Entrevista Estruturada</strong> em Eng. Software Sênior.</p>
+            <a routerLink="/campanhas/eng-software-senior-backend/candidatos/marina-albuquerque" class="btn-primary review__btn">Revisar candidata</a>
+          </div>
+
+          <div class="review">
+            <div class="review__tag review__tag--sand">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C09281" stroke-width="2.2"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z" /></svg>
+              <span>SUGESTÃO DA IA</span>
+            </div>
+            <p>7 novos candidatos foram analisados em <strong>Fit Cultural</strong> para Customer Success Pleno e aguardam sua triagem.</p>
+            <a routerLink="/campanhas/customer-success-pleno" class="btn-ghost review__btn">Ver candidatos</a>
+          </div>
+
+          <div class="review">
+            <div class="review__tag review__tag--sand">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#C09281" stroke-width="2.2"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z" /></svg>
+              <span>SUGESTÃO DA IA</span>
+            </div>
+            <p>2 candidatos em Entrevista Estruturada têm pareceres divergentes entre entrevistadores — recomenda-se revisão manual.</p>
+            <a routerLink="/campanhas/eng-software-senior-backend" class="btn-ghost review__btn">Ver detalhes</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

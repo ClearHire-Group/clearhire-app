@@ -1,0 +1,307 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#F0F0E6;color:#151A22;font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+    ::-webkit-scrollbar{width:10px;height:10px}
+    ::-webkit-scrollbar-thumb{background:rgba(21,26,34,0.15);border-radius:8px}
+    a{color:#8D9167;text-decoration:none}
+    a:hover{color:#6f7352}
+    .serif{font-family:'Newsreader',Georgia,serif}
+    .nav-tab{display:flex;align-items:center;height:100%;padding:0 14px;font-size:14px;font-weight:500;color:rgba(240,240,230,0.6);border-bottom:2px solid transparent;white-space:nowrap}
+    .nav-tab:hover{color:#F0F0E6}
+    .nav-tab.active{color:#F0F0E6;border-bottom-color:#8D9167}
+    .subtab{display:flex;align-items:center;height:100%;padding:0 12px;font-size:13px;font-weight:600;color:rgba(240,240,230,0.5);border-bottom:2px solid transparent;white-space:nowrap}
+    .subtab:hover{color:#F0F0E6}
+    .subtab.active{color:#C09281;border-bottom-color:#C09281}
+    .card{background:#FFFFFF;border:1px solid rgba(21,26,34,0.08);border-radius:12px;box-shadow:0 1px 2px rgba(21,26,34,0.04)}
+    .btn-primary{background:#8D9167;color:#151A22;font-weight:700;font-size:13px;padding:11px 20px;border-radius:8px;border:none;cursor:pointer;font-family:'Manrope',sans-serif}
+    .btn-primary:hover{filter:brightness(1.08)}
+    .btn-ghost{background:transparent;color:#151A22;font-weight:600;font-size:13px;padding:11px 20px;border-radius:8px;border:1px solid rgba(21,26,34,0.15);cursor:pointer;font-family:'Manrope',sans-serif}
+    .btn-ghost:hover{border-color:rgba(21,26,34,0.3)}
+    .muted{color:rgba(21,26,34,0.55)}
+    .dim{color:rgba(21,26,34,0.4)}
+    .fieldlabel{font-size:12.5px;font-weight:600;color:rgba(21,26,34,0.7);margin-bottom:8px;display:block}
+    .field{width:100%;background:#F7F7F1;border:1px solid rgba(21,26,34,0.14);border-radius:8px;padding:11px 14px;font-size:13.5px;color:#151A22;font-family:'Manrope',sans-serif}
+    .stepnum{width:26px;height:26px;border-radius:50%;background:rgba(141,145,103,0.16);color:#8D9167;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+  </style>
+</helmet>
+
+<div style="min-height:100vh;background:#F0F0E6">
+
+  <!-- ===== NAV (dark) ===== -->
+  <div style="position:sticky;top:0;z-index:50;background:#151A22;border-bottom:1px solid rgba(240,240,230,0.08)">
+    <div style="display:flex;align-items:center;gap:28px;padding:0 32px;height:64px;max-width:1440px;margin:0 auto">
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <svg width="26" height="26" viewBox="0 0 360 360" style="flex-shrink:0">
+          <defs>
+            <linearGradient id="navFunnelGrad6" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8D9167"></stop>
+              <stop offset="100%" stop-color="#C09281"></stop>
+            </linearGradient>
+          </defs>
+          <circle cx="180" cy="180" r="180" fill="#151A22"></circle>
+          <polygon points="110,120 250,120 198,206 162,206" fill="url(#navFunnelGrad6)"></polygon>
+          <rect x="162" y="206" width="36" height="46" fill="url(#navFunnelGrad6)"></rect>
+          <circle cx="180" cy="266" r="10" fill="#F0F0E6"></circle>
+        </svg>
+        <span class="serif" style="font-size:19px;font-weight:600;color:#F0F0E6;letter-spacing:0.2px">Clearhire</span>
+      </div>
+      <nav style="display:flex;align-items:center;height:100%;flex:1">
+        <a href="#" class="nav-tab">Dashboard</a>
+        <a href="#" class="nav-tab active">Campanhas</a>
+        <a href="#" class="nav-tab">Candidatos</a>
+        <a href="#" class="nav-tab">Relatórios</a>
+        <a href="#" class="nav-tab">Configurações</a>
+      </nav>
+      <div style="display:flex;align-items:center;gap:14px;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(240,240,230,0.06);border:1px solid rgba(240,240,230,0.12);border-radius:8px;padding:7px 12px;width:220px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(240,240,230,0.4)" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+          <span style="font-size:13px;color:rgba(240,240,230,0.35)">Buscar candidatos, vagas…</span>
+        </div>
+        <button style="background:none;border:none;cursor:pointer;padding:6px;position:relative">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F0F0E6" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 01-3.4 0"></path></svg>
+          <span style="position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:#C09281;border:1.5px solid #151A22"></span>
+        </button>
+        <div style="width:32px;height:32px;border-radius:50%;background:#3A4A2E;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#F0F0E6;cursor:pointer">PS</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:42px;max-width:1440px;margin:0 auto;border-top:1px solid rgba(240,240,230,0.06)">
+      <div style="display:flex;align-items:center;height:100%;gap:2px">
+        <span class="subtab active">Dados da Vaga</span>
+        <span class="subtab">Perfil Cultural</span>
+        <span class="subtab">Funil</span>
+      </div>
+      <span style="font-size:12px;color:rgba(240,240,230,0.4)">Campanhas / Nova Campanha</span>
+    </div>
+  </div>
+
+  <!-- ===== BODY (light) ===== -->
+  <div style="max-width:880px;margin:0 auto;padding:36px 32px 80px">
+
+    <h1 class="serif" style="font-size:30px;font-weight:600;color:#151A22;margin-bottom:6px">Nova campanha</h1>
+    <p class="muted" style="font-size:14px;margin-bottom:32px">Defina a vaga, confirme o perfil cultural da empresa e monte o funil de contratação.</p>
+
+    <!-- Step 1: Dados da vaga -->
+    <div class="card" style="padding:28px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:22px">
+        <span class="stepnum">1</span>
+        <h2 class="serif" style="font-size:18px;font-weight:600;color:#151A22">Dados da vaga</h2>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div>
+          <label class="fieldlabel">Título da vaga</label>
+          <input class="field" type="text" value="Engenheiro(a) de Dados Pleno">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <label class="fieldlabel">Localização</label>
+            <input class="field" type="text" value="São Paulo, SP">
+          </div>
+          <div>
+            <label class="fieldlabel">Modelo de trabalho</label>
+            <select class="field"><option>Híbrido</option><option>Remoto</option><option>Presencial</option></select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div>
+            <label class="fieldlabel">Tipo de contratação</label>
+            <select class="field"><option>CLT</option><option>PJ</option><option>Estágio</option></select>
+          </div>
+          <div>
+            <label class="fieldlabel">Senioridade</label>
+            <select class="field"><option>Pleno</option><option>Júnior</option><option>Sênior</option></select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Perfil cultural -->
+    <div class="card" style="padding:28px;margin-bottom:20px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+        <span class="stepnum">2</span>
+        <h2 class="serif" style="font-size:18px;font-weight:600;color:#151A22">Perfil cultural da empresa</h2>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;background:rgba(141,145,103,0.08);border:1px solid rgba(141,145,103,0.3);border-radius:10px;padding:16px 18px;margin-bottom:16px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8D9167" stroke-width="2.2" style="flex-shrink:0;margin-top:2px"><path d="M20 6L9 17l-5-5"></path></svg>
+        <div>
+          <p style="font-size:13.5px;color:#151A22;line-height:1.5">Esta campanha usará o <strong>perfil cultural padrão da Aurora Tech</strong>, já parametrizado em Configurações. Ele será aplicado automaticamente na análise de Fit Cultural.</p>
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">
+        <span style="font-size:12px;font-weight:600;background:rgba(21,26,34,0.05);border:1px solid rgba(21,26,34,0.1);padding:6px 13px;border-radius:100px">Transparência radical</span>
+        <span style="font-size:12px;font-weight:600;background:rgba(21,26,34,0.05);border:1px solid rgba(21,26,34,0.1);padding:6px 13px;border-radius:100px">Autonomia com responsabilidade</span>
+        <span style="font-size:12px;font-weight:600;background:rgba(21,26,34,0.05);border:1px solid rgba(21,26,34,0.1);padding:6px 13px;border-radius:100px">Cuidado com o cliente</span>
+        <span style="font-size:12px;font-weight:600;background:rgba(21,26,34,0.05);border:1px solid rgba(21,26,34,0.1);padding:6px 13px;border-radius:100px">Comunicação direta</span>
+        <span style="font-size:12px;font-weight:600;background:rgba(21,26,34,0.05);border:1px solid rgba(21,26,34,0.1);padding:6px 13px;border-radius:100px">Diversidade e pertencimento</span>
+      </div>
+      <a href="#" style="font-size:12.5px;font-weight:600">Editar perfil da empresa →</a>
+    </div>
+
+    <!-- Step 3: Funil -->
+    <div class="card" style="padding:28px;margin-bottom:28px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+        <span class="stepnum">3</span>
+        <h2 class="serif" style="font-size:18px;font-weight:600;color:#151A22">Monte o funil desta campanha</h2>
+      </div>
+      <p class="muted" style="font-size:13px;margin-bottom:20px;margin-left:36px">Escolha os módulos de fase e clique em uma etapa selecionada para reordená-la. "Recebidos" e "Selecionados" são fases fixas em toda campanha.</p>
+
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:26px">
+        <sc-for list="{{modules}}" as="module" hint-placeholder-count="3">
+          <div onClick="{{module.onToggle}}" style="border-radius:10px;padding:18px;cursor:pointer;display:flex;flex-direction:column;gap:12px;{{module.cardStyle}}">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div style="width:32px;height:32px;border-radius:8px;background:rgba(21,26,34,0.05);display:flex;align-items:center;justify-content:center">
+                <sc-if value="{{module.isFit}}" hint-placeholder-val="{{false}}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z"></path></svg>
+                </sc-if>
+                <sc-if value="{{module.isTecnica}}" hint-placeholder-val="{{false}}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"></path></svg>
+                </sc-if>
+                <sc-if value="{{module.isEntrevista}}" hint-placeholder-val="{{false}}">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"></path></svg>
+                </sc-if>
+              </div>
+              <div style="width:20px;height:20px;border-radius:6px;border:1.5px solid;display:flex;align-items:center;justify-content:center;{{module.checkStyle}}">
+                <sc-if value="{{module.active}}" hint-placeholder-val="{{true}}">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="3"><path d="M20 6L9 17l-5-5"></path></svg>
+                </sc-if>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#151A22;margin-bottom:4px">{{module.label}}</div>
+              <div style="font-size:12px;color:rgba(21,26,34,0.55);line-height:1.5">{{module.desc}}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div class="fieldlabel" style="margin-bottom:12px">Funil configurado</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid rgba(21,26,34,0.1);border-radius:8px;background:rgba(21,26,34,0.02)">
+          <span style="width:22px;height:22px;border-radius:50%;background:rgba(21,26,34,0.08);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</span>
+          <span style="font-size:13.5px;font-weight:600;flex:1">Recebidos</span>
+          <span style="font-size:11px;font-weight:600;color:rgba(21,26,34,0.35)">FIXA</span>
+        </div>
+
+        <sc-for list="{{funnelSteps}}" as="step" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid rgba(141,145,103,0.35);border-radius:8px;background:rgba(141,145,103,0.06)">
+            <span style="width:22px;height:22px;border-radius:50%;background:#8D9167;color:#151A22;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">{{step.num}}</span>
+            <span style="font-size:13.5px;font-weight:600;flex:1">{{step.label}}</span>
+            <div style="display:flex;align-items:center;gap:4px">
+              <button onClick="{{step.onUp}}" style="background:none;border:none;cursor:pointer;padding:4px;opacity:0.7">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2.2"><path d="M18 15l-6-6-6 6"></path></svg>
+              </button>
+              <button onClick="{{step.onDown}}" style="background:none;border:none;cursor:pointer;padding:4px;opacity:0.7">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2.2"><path d="M6 9l6 6 6-6"></path></svg>
+              </button>
+              <button onClick="{{step.onRemove}}" style="background:none;border:none;cursor:pointer;padding:4px;opacity:0.7">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a8674f" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+              </button>
+            </div>
+          </div>
+        </sc-for>
+
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid rgba(21,26,34,0.1);border-radius:8px;background:rgba(21,26,34,0.02)">
+          <span style="width:22px;height:22px;border-radius:50%;background:rgba(21,26,34,0.08);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">{{finalNum}}</span>
+          <span style="font-size:13.5px;font-weight:600;flex:1">Selecionados</span>
+          <span style="font-size:11px;font-weight:600;color:rgba(21,26,34,0.35)">FIXA</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px">
+      <button class="btn-ghost">Salvar como rascunho</button>
+      <button class="btn-primary">Criar campanha</button>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { selected: ["fit", "tecnica", "entrevista"] };
+  }
+
+  toggle(key) {
+    var cur = this.state.selected.slice();
+    var idx = cur.indexOf(key);
+    if (idx === -1) { cur.push(key); } else { cur.splice(idx, 1); }
+    this.setState({ selected: cur });
+  }
+
+  move(key, dir) {
+    var cur = this.state.selected.slice();
+    var idx = cur.indexOf(key);
+    var newIdx = idx + dir;
+    if (idx === -1 || newIdx < 0 || newIdx >= cur.length) { return; }
+    var tmp = cur[idx];
+    cur[idx] = cur[newIdx];
+    cur[newIdx] = tmp;
+    this.setState({ selected: cur });
+  }
+
+  renderVals() {
+    var self = this;
+    var modulesInfo = {
+      fit: { label: "Fit Cultural", desc: "Avalia alinhamento com valores e cultura da empresa através de questionário estruturado." },
+      tecnica: { label: "Triagem Técnica", desc: "Testes e desafios técnicos automatizados, analisados e ranqueados pela IA." },
+      entrevista: { label: "Entrevista Estruturada", desc: "Roteiro de entrevista padronizado com apoio de IA na consolidação dos pareceres." }
+    };
+    var order = ["fit", "tecnica", "entrevista"];
+
+    var modules = order.map(function (key) {
+      var info = modulesInfo[key];
+      var active = self.state.selected.indexOf(key) !== -1;
+      return {
+        key: key,
+        label: info.label,
+        desc: info.desc,
+        active: active,
+        isFit: key === "fit",
+        isTecnica: key === "tecnica",
+        isEntrevista: key === "entrevista",
+        onToggle: function () { self.toggle(key); },
+        cardStyle: active
+          ? "border:1.5px solid #8D9167;background:rgba(141,145,103,0.08)"
+          : "border:1px solid rgba(21,26,34,0.1);background:#FFFFFF",
+        checkStyle: active
+          ? "background:#8D9167;border-color:#8D9167"
+          : "background:transparent;border-color:rgba(21,26,34,0.25)"
+      };
+    });
+
+    var funnelSteps = this.state.selected.map(function (key, i) {
+      var info = modulesInfo[key];
+      return {
+        key: key,
+        num: i + 2,
+        label: info.label,
+        onUp: function () { self.move(key, -1); },
+        onDown: function () { self.move(key, 1); },
+        onRemove: function () { self.toggle(key); }
+      };
+    });
+
+    return {
+      modules: modules,
+      funnelSteps: funnelSteps,
+      finalNum: funnelSteps.length + 2
+    };
+  }
+}
+</script>
+</body>
+</html>

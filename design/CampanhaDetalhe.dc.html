@@ -1,0 +1,280 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#F0F0E6;color:#151A22;font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+    ::-webkit-scrollbar{width:10px;height:10px}
+    ::-webkit-scrollbar-thumb{background:rgba(21,26,34,0.15);border-radius:8px}
+    a{color:#8D9167;text-decoration:none}
+    a:hover{color:#6f7352}
+    .serif{font-family:'Newsreader',Georgia,serif}
+    .nav-tab{display:flex;align-items:center;height:100%;padding:0 14px;font-size:14px;font-weight:500;color:rgba(240,240,230,0.6);border-bottom:2px solid transparent;white-space:nowrap}
+    .nav-tab:hover{color:#F0F0E6}
+    .nav-tab.active{color:#F0F0E6;border-bottom-color:#8D9167}
+    .subtab{display:flex;align-items:center;height:100%;padding:0 12px;font-size:13px;font-weight:600;color:rgba(240,240,230,0.5);border-bottom:2px solid transparent;white-space:nowrap}
+    .subtab:hover{color:#F0F0E6}
+    .subtab.active{color:#C09281;border-bottom-color:#C09281}
+    .card{background:#FFFFFF;border:1px solid rgba(21,26,34,0.08);border-radius:12px;box-shadow:0 1px 2px rgba(21,26,34,0.04)}
+    .btn-primary{background:#8D9167;color:#151A22;font-weight:700;font-size:13px;padding:10px 18px;border-radius:8px;border:none;cursor:pointer;font-family:'Manrope',sans-serif}
+    .btn-primary:hover{filter:brightness(1.08)}
+    .btn-ghost{background:transparent;color:#151A22;font-weight:600;font-size:13px;padding:10px 18px;border-radius:8px;border:1px solid rgba(21,26,34,0.15);cursor:pointer;font-family:'Manrope',sans-serif}
+    .btn-ghost:hover{border-color:rgba(21,26,34,0.3)}
+    .muted{color:rgba(21,26,34,0.55)}
+    .dim{color:rgba(21,26,34,0.4)}
+    th{text-align:left;font-size:11px;font-weight:700;letter-spacing:0.4px;color:rgba(21,26,34,0.45);text-transform:uppercase;padding:0 14px 10px;border-bottom:1px solid rgba(21,26,34,0.08)}
+    td{padding:14px;border-bottom:1px solid rgba(21,26,34,0.06);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+  </style>
+</helmet>
+
+<div style="min-height:100vh;background:#F0F0E6">
+
+  <!-- ===== NAV (dark) ===== -->
+  <div style="position:sticky;top:0;z-index:50;background:#151A22;border-bottom:1px solid rgba(240,240,230,0.08)">
+    <div style="display:flex;align-items:center;gap:28px;padding:0 32px;height:64px;max-width:1440px;margin:0 auto">
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <svg width="26" height="26" viewBox="0 0 360 360" style="flex-shrink:0">
+          <defs>
+            <linearGradient id="navFunnelGrad3" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8D9167"></stop>
+              <stop offset="100%" stop-color="#C09281"></stop>
+            </linearGradient>
+          </defs>
+          <circle cx="180" cy="180" r="180" fill="#151A22"></circle>
+          <polygon points="110,120 250,120 198,206 162,206" fill="url(#navFunnelGrad3)"></polygon>
+          <rect x="162" y="206" width="36" height="46" fill="url(#navFunnelGrad3)"></rect>
+          <circle cx="180" cy="266" r="10" fill="#F0F0E6"></circle>
+        </svg>
+        <span class="serif" style="font-size:19px;font-weight:600;color:#F0F0E6;letter-spacing:0.2px">Clearhire</span>
+      </div>
+      <nav style="display:flex;align-items:center;height:100%;flex:1">
+        <a href="#" class="nav-tab">Dashboard</a>
+        <a href="#" class="nav-tab active">Campanhas</a>
+        <a href="#" class="nav-tab">Candidatos</a>
+        <a href="#" class="nav-tab">Relatórios</a>
+        <a href="#" class="nav-tab">Configurações</a>
+      </nav>
+      <div style="display:flex;align-items:center;gap:14px;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(240,240,230,0.06);border:1px solid rgba(240,240,230,0.12);border-radius:8px;padding:7px 12px;width:220px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(240,240,230,0.4)" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+          <span style="font-size:13px;color:rgba(240,240,230,0.35)">Buscar candidatos, vagas…</span>
+        </div>
+        <button style="background:none;border:none;cursor:pointer;padding:6px;position:relative">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F0F0E6" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 01-3.4 0"></path></svg>
+          <span style="position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:#C09281;border:1.5px solid #151A22"></span>
+        </button>
+        <div style="width:32px;height:32px;border-radius:50%;background:#3A4A2E;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#F0F0E6;cursor:pointer">PS</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:42px;max-width:1440px;margin:0 auto;border-top:1px solid rgba(240,240,230,0.06)">
+      <div style="display:flex;align-items:center;height:100%;gap:2px">
+        <span class="subtab">Visão Geral</span>
+        <span class="subtab active">Funil</span>
+        <span class="subtab">Candidatos</span>
+        <span class="subtab">Configurações da Campanha</span>
+      </div>
+      <span class="dim" style="font-size:12px;color:rgba(240,240,230,0.4)">Campanhas / Engenheiro(a) de Software Sênior — Backend</span>
+    </div>
+  </div>
+
+  <!-- ===== BODY (light) ===== -->
+  <div style="max-width:1440px;margin:0 auto;padding:36px 32px 64px">
+
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:30px">
+      <div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <h1 class="serif" style="font-size:30px;font-weight:600;color:#151A22">Engenheiro(a) de Software Sênior — Backend</h1>
+          <span style="font-size:11px;font-weight:700;color:#151A22;background:#8D9167;padding:3px 11px;border-radius:100px">ATIVA</span>
+        </div>
+        <span class="muted" style="font-size:13px">São Paulo, SP · Híbrido · CLT · Aberta há 24 dias · 142 candidatos no total</span>
+      </div>
+      <div style="display:flex;gap:10px;flex-shrink:0">
+        <button class="btn-ghost">Pausar campanha</button>
+        <button class="btn-ghost">Editar campanha</button>
+      </div>
+    </div>
+
+    <!-- Funnel -->
+    <div style="display:flex;gap:0;align-items:stretch;margin-bottom:32px">
+      <sc-for list="{{phases}}" as="phase" hint-placeholder-count="5">
+        <div onClick="{{phase.onSelect}}" style="flex:1;padding:20px 18px;border-radius:12px;cursor:pointer;transition:all .12s ease;display:flex;flex-direction:column;gap:14px;{{phase.cardStyle}}">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;{{phase.numStyle}}">{{phase.num}}</span>
+            <span style="font-size:12px;font-weight:600;color:rgba(21,26,34,0.65)">{{phase.label}}</span>
+          </div>
+          <div class="serif" style="font-size:30px;font-weight:600;color:#151A22">{{phase.count}}</div>
+        </div>
+        <sc-if value="{{phase.hasNext}}" hint-placeholder-val="{{true}}">
+          <div style="width:22px;flex-shrink:0;display:flex;align-items:center;justify-content:center">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(21,26,34,0.2)" stroke-width="2.4"><path d="M9 6l6 6-6 6"></path></svg>
+          </div>
+        </sc-if>
+      </sc-for>
+    </div>
+
+    <!-- Candidate table -->
+    <div class="card" style="padding:26px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px">
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <h2 class="serif" style="font-size:19px;font-weight:600;color:#151A22">{{activePhaseLabel}}</h2>
+          <span class="dim" style="font-size:13px">mostrando {{shownCount}} de {{activePhaseCount}} candidatos</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8D9167" stroke-width="2.2"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z"></path></svg>
+          <span style="font-size:11px;font-weight:700;color:#8D9167;letter-spacing:0.3px">ORDENADO POR MATCH DA IA</span>
+        </div>
+      </div>
+
+      <table style="width:100%;border-collapse:collapse">
+        <thead>
+          <tr>
+            <th style="width:280px">Candidato</th>
+            <th>Experiência</th>
+            <th>Localização</th>
+            <th>Match IA</th>
+            <th>Status</th>
+            <th style="text-align:right;padding-right:14px">Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <sc-for list="{{candidates}}" as="c" hint-placeholder-count="3">
+            <tr>
+              <td>
+                <div style="display:flex;align-items:center;gap:12px">
+                  <div style="width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;background:{{c.avatarBg}};color:{{c.avatarColor}}">{{c.initials}}</div>
+                  <div style="display:flex;flex-direction:column;gap:2px">
+                    <span style="font-size:14px;font-weight:600;color:#151A22">{{c.name}}</span>
+                    <span style="font-size:12px;color:rgba(21,26,34,0.5)">{{c.email}}</span>
+                  </div>
+                </div>
+              </td>
+              <td><span style="font-size:13px;color:rgba(21,26,34,0.75)">{{c.exp}}</span></td>
+              <td><span style="font-size:13px;color:rgba(21,26,34,0.75)">{{c.loc}}</span></td>
+              <td>
+                <div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:34px;height:34px;border-radius:50%;position:relative;display:flex;align-items:center;justify-content:center;{{c.ringStyle}}">
+                    <div style="width:25px;height:25px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center">
+                      <span style="font-size:9.5px;font-weight:700;color:#151A22">{{c.pctLabel}}</span>
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td><span style="font-size:12px;font-weight:600;padding:4px 10px;border-radius:100px;color:{{c.statusColor}};background:{{c.statusBg}}">{{c.status}}</span></td>
+              <td style="text-align:right;padding-right:14px">
+                <button class="btn-ghost" style="padding:7px 14px;font-size:12px">Ver perfil</button>
+              </td>
+            </tr>
+          </sc-for>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { selectedPhase: "entrevista" };
+  }
+
+  select(key) {
+    this.setState({ selectedPhase: key });
+  }
+
+  renderVals() {
+    var phasesRaw = [
+      { key: "recebidos", num: 1, label: "Recebidos", count: 142 },
+      { key: "fit", num: 2, label: "Fit Cultural", count: 86 },
+      { key: "tecnica", num: 3, label: "Triagem Técnica", count: 41 },
+      { key: "entrevista", num: 4, label: "Entrevista Estruturada", count: 14 },
+      { key: "selecionados", num: 5, label: "Selecionados", count: 3 }
+    ];
+    var sel = this.state.selectedPhase;
+    var self = this;
+
+    var phases = phasesRaw.map(function (p, idx) {
+      var active = p.key === sel;
+      return {
+        key: p.key,
+        num: p.num,
+        label: p.label,
+        count: p.count,
+        hasNext: idx !== phasesRaw.length - 1,
+        onSelect: function () { self.select(p.key); },
+        cardStyle: active
+          ? "border:1.5px solid #8D9167;background:rgba(141,145,103,0.1)"
+          : "border:1px solid rgba(21,26,34,0.08);background:#FFFFFF",
+        numStyle: active
+          ? "background:#8D9167;color:#151A22"
+          : "background:rgba(21,26,34,0.06);color:rgba(21,26,34,0.45)"
+      };
+    });
+
+    var candidatesRaw = [
+      { phase: "recebidos", name: "André Cavalcanti", email: "andre.cavalcanti@gmail.com", exp: "6 anos de experiência", loc: "Salvador, BA", pct: null, status: "Aguardando análise da IA", statusColor: "rgba(21,26,34,0.55)", statusBg: "rgba(21,26,34,0.06)" },
+      { phase: "recebidos", name: "Priscila Homem", email: "priscila.homem@gmail.com", exp: "3 anos de experiência", loc: "Campinas, SP", pct: null, status: "Aguardando análise da IA", statusColor: "rgba(21,26,34,0.55)", statusBg: "rgba(21,26,34,0.06)" },
+      { phase: "fit", name: "Camila Duarte", email: "camila.duarte@hotmail.com", exp: "4 anos de experiência", loc: "Porto Alegre, RS", pct: 79, status: "Em análise · Fit Cultural", statusColor: "#a8674f", statusBg: "rgba(192,146,129,0.18)" },
+      { phase: "fit", name: "Juliana Faccin", email: "juliana.faccin@gmail.com", exp: "5 anos de experiência", loc: "Recife, PE", pct: 72, status: "Em análise · Fit Cultural", statusColor: "#a8674f", statusBg: "rgba(192,146,129,0.18)" },
+      { phase: "tecnica", name: "Lucas Peixoto", email: "lucas.peixoto@gmail.com", exp: "9 anos de experiência", loc: "São Paulo, SP", pct: 76, status: "Em análise · Triagem Técnica", statusColor: "#a8674f", statusBg: "rgba(192,146,129,0.18)" },
+      { phase: "tecnica", name: "Thiago Monteiro", email: "thiago.monteiro@gmail.com", exp: "7 anos de experiência", loc: "Belo Horizonte, MG", pct: 85, status: "Em análise · Triagem Técnica", statusColor: "#a8674f", statusBg: "rgba(192,146,129,0.18)" },
+      { phase: "entrevista", name: "Marina Albuquerque", email: "marina.albuquerque@gmail.com", exp: "8 anos de experiência", loc: "São Paulo, SP", pct: 94, status: "Aguardando decisão", statusColor: "#6f7352", statusBg: "rgba(141,145,103,0.18)" },
+      { phase: "entrevista", name: "Rafael Tanaka", email: "rafael.tanaka@outlook.com", exp: "6 anos de experiência", loc: "Curitiba, PR", pct: 91, status: "Aguardando decisão", statusColor: "#6f7352", statusBg: "rgba(141,145,103,0.18)" },
+      { phase: "entrevista", name: "Beatriz Nogueira", email: "bia.nogueira@gmail.com", exp: "5 anos de experiência", loc: "Florianópolis, SC", pct: 88, status: "Aguardando decisão", statusColor: "#6f7352", statusBg: "rgba(141,145,103,0.18)" },
+      { phase: "selecionados", name: "Diego Salgado", email: "diego.salgado@gmail.com", exp: "10 anos de experiência", loc: "Rio de Janeiro, RJ", pct: 92, status: "Proposta em elaboração", statusColor: "#3A4A2E", statusBg: "rgba(58,74,46,0.16)" }
+    ];
+
+    var avatarStyles = [
+      { bg: "rgba(141,145,103,0.18)", color: "#8D9167" },
+      { bg: "rgba(192,146,129,0.2)", color: "#a8674f" },
+      { bg: "rgba(58,74,46,0.16)", color: "#3A4A2E" }
+    ];
+
+    var filtered = candidatesRaw.filter(function (c) { return c.phase === sel; });
+
+    var candidates = filtered.map(function (c, i) {
+      var av = avatarStyles[i % avatarStyles.length];
+      var deg = c.pct != null ? Math.round(c.pct * 3.6) : 0;
+      var initials = c.name.split(" ").map(function (w) { return w[0]; }).slice(0, 2).join("");
+      return {
+        name: c.name,
+        email: c.email,
+        exp: c.exp,
+        loc: c.loc,
+        status: c.status,
+        statusColor: c.statusColor,
+        statusBg: c.statusBg,
+        initials: initials,
+        avatarBg: av.bg,
+        avatarColor: av.color,
+        pctLabel: c.pct != null ? (c.pct + "%") : "—",
+        ringStyle: c.pct != null
+          ? ("background:conic-gradient(#8D9167 0deg " + deg + "deg, rgba(21,26,34,0.1) " + deg + "deg 360deg)")
+          : "background:rgba(21,26,34,0.08)"
+      };
+    });
+
+    var activePhase = phasesRaw.filter(function (p) { return p.key === sel; })[0];
+
+    return {
+      phases: phases,
+      candidates: candidates,
+      activePhaseLabel: activePhase.label,
+      activePhaseCount: activePhase.count,
+      shownCount: candidates.length
+    };
+  }
+}
+</script>
+</body>
+</html>

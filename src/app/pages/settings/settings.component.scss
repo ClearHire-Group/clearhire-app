@@ -1,0 +1,90 @@
+h1 {
+  font-size: 30px;
+  font-weight: 600;
+  color: #151A22;
+  margin-bottom: 6px;
+}
+.intro {
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+
+.panel {
+  padding: 28px;
+  margin-bottom: 20px;
+}
+.panel__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(21, 26, 34, 0.08);
+}
+.panel__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: rgba(141, 145, 103, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.panel__company {
+  font-size: 16px;
+  font-weight: 700;
+  color: #151A22;
+}
+.panel__hint {
+  font-size: 12.5px;
+}
+
+.field-block {
+  margin-bottom: 24px;
+
+  &--last {
+    margin-bottom: 0;
+  }
+}
+
+.values {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.value-chip {
+  font-size: 12.5px;
+  font-weight: 600;
+  background: rgba(141, 145, 103, 0.13);
+  color: #6f7352;
+  padding: 7px 14px;
+  border-radius: 100px;
+}
+
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(192, 146, 129, 0.09);
+  border: 1px solid rgba(192, 146, 129, 0.3);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 28px;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  p {
+    font-size: 13px;
+    color: #151A22;
+    line-height: 1.55;
+  }
+}
+
+.submit-row {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

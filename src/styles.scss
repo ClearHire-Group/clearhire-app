@@ -1,0 +1,170 @@
+/* ===== Clearhire design tokens ===== */
+:root {
+  --color-bg: #151A22;
+  --color-page: #F0F0E6;
+  --color-card: #FFFFFF;
+  --color-text: #151A22;
+  --color-text-muted: rgba(21, 26, 34, 0.55);
+  --color-text-dim: rgba(21, 26, 34, 0.4);
+  --color-border: rgba(21, 26, 34, 0.08);
+  --color-border-strong: rgba(21, 26, 34, 0.15);
+
+  --color-accent: #8D9167;      /* terracota — ação primária / destaque */
+  --color-sand: #C09281;        /* dourado claro — em análise */
+  --color-sand-text: #a8674f;   /* variante legível do dourado sobre fundo claro */
+  --color-success: #3A4A2E;     /* verde-musgo — sucesso / aprovado */
+  --color-offwhite: #F0F0E6;
+
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-sans: 'Manrope', system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background: var(--color-page);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(21, 26, 34, 0.15);
+  border-radius: 8px;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+a:hover {
+  color: #6f7352;
+}
+
+.serif {
+  font-family: var(--font-serif);
+}
+
+/* ===== Shared UI utilities ===== */
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(21, 26, 34, 0.04);
+}
+
+.btn-primary {
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+.btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-strong);
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+.btn-ghost:hover {
+  border-color: rgba(21, 26, 34, 0.3);
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+.dim {
+  color: var(--color-text-dim);
+}
+
+.fieldlabel {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(21, 26, 34, 0.7);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.field {
+  width: 100%;
+  background: #F7F7F1;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  padding: 11px 14px;
+  font-size: 13.5px;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+textarea.field {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.stagelabel {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  color: rgba(21, 26, 34, 0.4);
+  text-transform: uppercase;
+}
+
+.origtitle {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--color-text);
+  text-transform: uppercase;
+}
+
+.sectionlabel {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--color-text);
+  text-transform: uppercase;
+  opacity: 0.55;
+  margin-bottom: 10px;
+}
+
+.page {
+  min-height: 100vh;
+  background: var(--color-page);
+}
+
+.page-body {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 36px 32px 64px;
+}
+.page-body--narrow {
+  max-width: 880px;
+}
+.page-body--profile {
+  max-width: 1280px;
+  padding: 32px 32px 72px;
+}

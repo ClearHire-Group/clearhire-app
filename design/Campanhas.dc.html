@@ -1,0 +1,205 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#F0F0E6;color:#151A22;font-family:'Manrope',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+    ::-webkit-scrollbar{width:10px;height:10px}
+    ::-webkit-scrollbar-thumb{background:rgba(21,26,34,0.15);border-radius:8px}
+    a{color:#8D9167;text-decoration:none}
+    a:hover{color:#6f7352}
+    .serif{font-family:'Newsreader',Georgia,serif}
+    .nav-tab{display:flex;align-items:center;height:100%;padding:0 14px;font-size:14px;font-weight:500;color:rgba(240,240,230,0.6);border-bottom:2px solid transparent;white-space:nowrap}
+    .nav-tab:hover{color:#F0F0E6}
+    .nav-tab.active{color:#F0F0E6;border-bottom-color:#8D9167}
+    .subtab{display:flex;align-items:center;height:100%;padding:0 12px;font-size:13px;font-weight:600;color:rgba(240,240,230,0.5);border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer}
+    .subtab:hover{color:#F0F0E6}
+    .subtab.active{color:#C09281;border-bottom-color:#C09281}
+    .card{background:#FFFFFF;border:1px solid rgba(21,26,34,0.08);border-radius:12px;box-shadow:0 1px 2px rgba(21,26,34,0.04)}
+    .btn-primary{background:#8D9167;color:#151A22;font-weight:700;font-size:13px;padding:10px 18px;border-radius:8px;border:none;cursor:pointer;font-family:'Manrope',sans-serif}
+    .btn-primary:hover{filter:brightness(1.08)}
+    .btn-ghost{background:transparent;color:#151A22;font-weight:600;font-size:13px;padding:10px 18px;border-radius:8px;border:1px solid rgba(21,26,34,0.15);cursor:pointer;font-family:'Manrope',sans-serif}
+    .btn-ghost:hover{border-color:rgba(21,26,34,0.3)}
+    .muted{color:rgba(21,26,34,0.55)}
+    .dim{color:rgba(21,26,34,0.4)}
+    .stagelabel{font-size:10px;font-weight:700;letter-spacing:0.3px;color:rgba(21,26,34,0.4);text-transform:uppercase}
+  </style>
+</helmet>
+
+<div style="min-height:100vh;background:#F0F0E6">
+
+  <!-- ===== NAV (dark) ===== -->
+  <div style="position:sticky;top:0;z-index:50;background:#151A22;border-bottom:1px solid rgba(240,240,230,0.08)">
+    <div style="display:flex;align-items:center;gap:28px;padding:0 32px;height:64px;max-width:1440px;margin:0 auto">
+      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <svg width="26" height="26" viewBox="0 0 360 360" style="flex-shrink:0">
+          <defs>
+            <linearGradient id="navFunnelGrad2" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#8D9167"></stop>
+              <stop offset="100%" stop-color="#C09281"></stop>
+            </linearGradient>
+          </defs>
+          <circle cx="180" cy="180" r="180" fill="#151A22"></circle>
+          <polygon points="110,120 250,120 198,206 162,206" fill="url(#navFunnelGrad2)"></polygon>
+          <rect x="162" y="206" width="36" height="46" fill="url(#navFunnelGrad2)"></rect>
+          <circle cx="180" cy="266" r="10" fill="#F0F0E6"></circle>
+        </svg>
+        <span class="serif" style="font-size:19px;font-weight:600;color:#F0F0E6;letter-spacing:0.2px">Clearhire</span>
+      </div>
+      <nav style="display:flex;align-items:center;height:100%;flex:1">
+        <a href="#" class="nav-tab">Dashboard</a>
+        <a href="#" class="nav-tab active">Campanhas</a>
+        <a href="#" class="nav-tab">Candidatos</a>
+        <a href="#" class="nav-tab">Relatórios</a>
+        <a href="#" class="nav-tab">Configurações</a>
+      </nav>
+      <div style="display:flex;align-items:center;gap:14px;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:8px;background:rgba(240,240,230,0.06);border:1px solid rgba(240,240,230,0.12);border-radius:8px;padding:7px 12px;width:220px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(240,240,230,0.4)" stroke-width="2"><circle cx="11" cy="11" r="7"></circle><path d="M21 21l-4.3-4.3"></path></svg>
+          <span style="font-size:13px;color:rgba(240,240,230,0.35)">Buscar candidatos, vagas…</span>
+        </div>
+        <button style="background:none;border:none;cursor:pointer;padding:6px;position:relative">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#F0F0E6" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.7 21a2 2 0 01-3.4 0"></path></svg>
+          <span style="position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:#C09281;border:1.5px solid #151A22"></span>
+        </button>
+        <div style="width:32px;height:32px;border-radius:50%;background:#3A4A2E;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#F0F0E6;cursor:pointer">PS</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;padding:0 32px;height:42px;max-width:1440px;margin:0 auto;border-top:1px solid rgba(240,240,230,0.06)">
+      <span class="subtab active">Todas · 4</span>
+      <span class="subtab">Ativas · 2</span>
+      <span class="subtab">Pausadas · 1</span>
+      <span class="subtab">Encerradas · 1</span>
+    </div>
+  </div>
+
+  <!-- ===== BODY (light) ===== -->
+  <div style="max-width:1440px;margin:0 auto;padding:36px 32px 64px">
+
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:28px">
+      <h1 class="serif" style="font-size:32px;font-weight:600;color:#151A22">Campanhas</h1>
+      <button class="btn-primary" style="display:flex;align-items:center;gap:7px;padding:11px 20px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2.5"><path d="M12 5v14M5 12h14"></path></svg>
+        Nova Campanha
+      </button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px">
+
+      <!-- Campaign 1 -->
+      <div class="card" style="padding:22px 24px;border-color:rgba(141,145,103,0.35)">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+              <span class="serif" style="font-size:20px;font-weight:600;color:#151A22">Engenheiro(a) de Software Sênior — Backend</span>
+              <span style="font-size:11px;font-weight:700;color:#151A22;background:#8D9167;padding:2px 10px;border-radius:100px">ATIVA</span>
+            </div>
+            <span class="muted" style="font-size:13px">São Paulo, SP · Híbrido · CLT · Aberta há 24 dias</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="dim" style="font-size:12px">142 candidatos</span>
+            <button class="btn-ghost" style="padding:8px 16px;font-size:12px">Ver campanha</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
+          <div><div class="stagelabel">Recebidos</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">142</div><div style="height:5px;border-radius:3px;background:rgba(21,26,34,0.1)"></div></div>
+          <div><div class="stagelabel">Fit Cultural</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">86</div><div style="height:5px;border-radius:3px;background:#3A4A2E"></div></div>
+          <div><div class="stagelabel">Triagem Técnica</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">41</div><div style="height:5px;border-radius:3px;background:#3A4A2E"></div></div>
+          <div><div class="stagelabel">Entrevista</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">14</div><div style="height:5px;border-radius:3px;background:#C09281"></div></div>
+          <div><div class="stagelabel">Selecionados</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">3</div><div style="height:5px;border-radius:3px;background:#8D9167"></div></div>
+        </div>
+      </div>
+
+      <!-- Campaign 2 -->
+      <div class="card" style="padding:22px 24px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+              <span class="serif" style="font-size:20px;font-weight:600;color:#151A22">Analista de Customer Success Pleno</span>
+              <span style="font-size:11px;font-weight:700;color:#151A22;background:#8D9167;padding:2px 10px;border-radius:100px">ATIVA</span>
+            </div>
+            <span class="muted" style="font-size:13px">Remoto · CLT · Aberta há 11 dias</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="dim" style="font-size:12px">45 candidatos</span>
+            <button class="btn-ghost" style="padding:8px 16px;font-size:12px">Ver campanha</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
+          <div><div class="stagelabel">Recebidos</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">45</div><div style="height:5px;border-radius:3px;background:rgba(21,26,34,0.1)"></div></div>
+          <div><div class="stagelabel">Fit Cultural</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">26</div><div style="height:5px;border-radius:3px;background:#3A4A2E"></div></div>
+          <div><div class="stagelabel">Triagem Técnica</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">9</div><div style="height:5px;border-radius:3px;background:#C09281"></div></div>
+          <div><div class="stagelabel">Entrevista</div><div style="font-size:17px;font-weight:700;color:rgba(21,26,34,0.3);margin:4px 0 6px">—</div><div style="height:5px;border-radius:3px;background:rgba(21,26,34,0.06)"></div></div>
+          <div><div class="stagelabel">Selecionados</div><div style="font-size:17px;font-weight:700;color:rgba(21,26,34,0.3);margin:4px 0 6px">—</div><div style="height:5px;border-radius:3px;background:rgba(21,26,34,0.06)"></div></div>
+        </div>
+      </div>
+
+      <!-- Campaign 3 paused -->
+      <div class="card" style="padding:22px 24px;opacity:0.75">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+              <span class="serif" style="font-size:20px;font-weight:600;color:#151A22">Designer de Produto Sênior</span>
+              <span style="font-size:11px;font-weight:700;color:#151A22;background:#C09281;padding:2px 10px;border-radius:100px">PAUSADA</span>
+            </div>
+            <span class="muted" style="font-size:13px">São Paulo, SP · Híbrido · Pausada há 6 dias</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="dim" style="font-size:12px">28 candidatos</span>
+            <button class="btn-ghost" style="padding:8px 16px;font-size:12px">Ver campanha</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
+          <div><div class="stagelabel">Recebidos</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">28</div><div style="height:5px;border-radius:3px;background:rgba(21,26,34,0.1)"></div></div>
+          <div><div class="stagelabel">Fit Cultural</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">11</div><div style="height:5px;border-radius:3px;background:#C09281"></div></div>
+          <div><div class="stagelabel">Triagem Técnica</div><div style="font-size:17px;font-weight:700;color:rgba(21,26,34,0.3);margin:4px 0 6px">—</div><div style="height:5px;border-radius:3px;background:rgba(21,26,34,0.06)"></div></div>
+          <div><div class="stagelabel">Entrevista</div><div style="font-size:17px;font-weight:700;color:rgba(21,26,34,0.3);margin:4px 0 6px">—</div><div style="height:5px;border-radius:3px;background:rgba(21,26,34,0.06)"></div></div>
+          <div><div class="stagelabel">Selecionados</div><div style="font-size:17px;font-weight:700;color:rgba(21,26,34,0.3);margin:4px 0 6px">—</div><div style="height:5px;border-radius:3px;background:rgba(21,26,34,0.06)"></div></div>
+        </div>
+      </div>
+
+      <!-- Campaign 4 closed -->
+      <div class="card" style="padding:22px 24px;opacity:0.6">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+              <span class="serif" style="font-size:20px;font-weight:600;color:#151A22">Gerente de Operações</span>
+              <span style="font-size:11px;font-weight:700;color:#F0F0E6;background:#3A4A2E;padding:2px 10px;border-radius:100px">ENCERRADA</span>
+            </div>
+            <span class="muted" style="font-size:13px">Belo Horizonte, MG · Presencial · Encerrada em 15/07/2026 · 1 contratação</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span class="dim" style="font-size:12px">63 candidatos</span>
+            <button class="btn-ghost" style="padding:8px 16px;font-size:12px">Ver campanha</button>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px">
+          <div><div class="stagelabel">Recebidos</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">63</div><div style="height:5px;border-radius:3px;background:rgba(21,26,34,0.1)"></div></div>
+          <div><div class="stagelabel">Fit Cultural</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">33</div><div style="height:5px;border-radius:3px;background:#3A4A2E"></div></div>
+          <div><div class="stagelabel">Triagem Técnica</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">15</div><div style="height:5px;border-radius:3px;background:#3A4A2E"></div></div>
+          <div><div class="stagelabel">Entrevista</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">5</div><div style="height:5px;border-radius:3px;background:#3A4A2E"></div></div>
+          <div><div class="stagelabel">Selecionados</div><div style="font-size:17px;font-weight:700;color:#151A22;margin:4px 0 6px">1</div><div style="height:5px;border-radius:3px;background:#3A4A2E"></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<div class="page">
+  <app-top-nav activeTab="campanhas" [subTabs]="subTabs" breadcrumb="Campanhas / Nova Campanha"></app-top-nav>
+
+  <div class="page-body page-body--narrow">
+    <h1 class="serif">Nova campanha</h1>
+    <p class="muted intro">Defina a vaga, confirme o perfil cultural da empresa e monte o funil de contratação.</p>
+
+    <!-- Step 1 -->
+    <div class="card step">
+      <div class="step__header">
+        <span class="stepnum">1</span>
+        <h2 class="serif">Dados da vaga</h2>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label class="fieldlabel">Título da vaga</label>
+          <input class="field" type="text" value="Engenheiro(a) de Dados Pleno" />
+        </div>
+        <div class="form-row">
+          <div>
+            <label class="fieldlabel">Localização</label>
+            <input class="field" type="text" value="São Paulo, SP" />
+          </div>
+          <div>
+            <label class="fieldlabel">Modelo de trabalho</label>
+            <select class="field">
+              <option>Híbrido</option>
+              <option>Remoto</option>
+              <option>Presencial</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div>
+            <label class="fieldlabel">Tipo de contratação</label>
+            <select class="field">
+              <option>CLT</option>
+              <option>PJ</option>
+              <option>Estágio</option>
+            </select>
+          </div>
+          <div>
+            <label class="fieldlabel">Senioridade</label>
+            <select class="field">
+              <option>Pleno</option>
+              <option>Júnior</option>
+              <option>Sênior</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="card step">
+      <div class="step__header">
+        <span class="stepnum">2</span>
+        <h2 class="serif">Perfil cultural da empresa</h2>
+      </div>
+      <div class="notice">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8D9167" stroke-width="2.2"><path d="M20 6L9 17l-5-5" /></svg>
+        <p>Esta campanha usará o <strong>perfil cultural padrão da {{ companyProfile.name }}</strong>, já parametrizado em Configurações. Ele será aplicado automaticamente na análise de Fit Cultural.</p>
+      </div>
+      <div class="values">
+        @for (v of companyProfile.values; track v) {
+          <span class="value-chip">{{ v }}</span>
+        }
+      </div>
+      <a routerLink="/configuracoes" class="edit-link">Editar perfil da empresa →</a>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="card step step--last">
+      <div class="step__header step__header--tight">
+        <span class="stepnum">3</span>
+        <h2 class="serif">Monte o funil desta campanha</h2>
+      </div>
+      <p class="muted step__hint">Escolha os módulos de fase e clique em uma etapa selecionada para reordená-la. "Recebidos" e "Selecionados" são fases fixas em toda campanha.</p>
+
+      <div class="modules">
+        @for (m of modules; track m.key) {
+          <div class="module" [class.module--active]="isActive(m.key)" (click)="toggle(m.key)">
+            <div class="module__top">
+              <div class="module__icon">
+                @if (m.key === 'fit') {
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z" /></svg>
+                } @else if (m.key === 'tecnica') {
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" /></svg>
+                } @else {
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" /></svg>
+                }
+              </div>
+              <div class="module__check" [class.module__check--active]="isActive(m.key)">
+                @if (isActive(m.key)) {
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="3"><path d="M20 6L9 17l-5-5" /></svg>
+                }
+              </div>
+            </div>
+            <div>
+              <div class="module__label">{{ m.label }}</div>
+              <div class="module__desc">{{ m.desc }}</div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="fieldlabel">Funil configurado</div>
+      <div class="funnel-steps">
+        <div class="funnel-step funnel-step--fixed">
+          <span class="funnel-step__num funnel-step__num--fixed">1</span>
+          <span class="funnel-step__label">Recebidos</span>
+          <span class="funnel-step__tag">FIXA</span>
+        </div>
+
+        @for (key of selected; track key; let i = $index) {
+          <div class="funnel-step funnel-step--active">
+            <span class="funnel-step__num funnel-step__num--active">{{ i + 2 }}</span>
+            <span class="funnel-step__label">{{ labelFor(key) }}</span>
+            <div class="funnel-step__controls">
+              <button type="button" (click)="move(key, -1)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2.2"><path d="M18 15l-6-6-6 6" /></svg>
+              </button>
+              <button type="button" (click)="move(key, 1)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2.2"><path d="M6 9l6 6 6-6" /></svg>
+              </button>
+              <button type="button" (click)="toggle(key)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a8674f" stroke-width="2.2"><path d="M18 6L6 18M6 6l12 12" /></svg>
+              </button>
+            </div>
+          </div>
+        }
+
+        <div class="funnel-step funnel-step--fixed">
+          <span class="funnel-step__num funnel-step__num--fixed">{{ finalNum }}</span>
+          <span class="funnel-step__label">Selecionados</span>
+          <span class="funnel-step__tag">FIXA</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="submit-row">
+      <button class="btn-ghost" type="button">Salvar como rascunho</button>
+      <button class="btn-primary" type="button">Criar campanha</button>
+    </div>
+  </div>
+</div>

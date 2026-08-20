@@ -1,0 +1,48 @@
+<div class="page">
+  <app-top-nav activeTab="campanhas" [subTabs]="subTabs"></app-top-nav>
+
+  <div class="page-body">
+    <div class="page-header">
+      <h1 class="serif">Campanhas</h1>
+      <a routerLink="/campanhas/nova" class="btn-primary page-header__cta">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2.5"><path d="M12 5v14M5 12h14" /></svg>
+        Nova Campanha
+      </a>
+    </div>
+
+    <div class="campaign-list">
+      @for (c of campaigns; track c.id; let first = $first) {
+        <div class="card campaign" [class.campaign--featured]="c.status === 'ativa' && first" [class.campaign--dim]="c.status !== 'ativa'">
+          <div class="campaign__top">
+            <div>
+              <div class="campaign__title-row">
+                <span class="serif campaign__title">{{ c.title }}</span>
+                <span
+                  class="badge"
+                  [class.badge--accent]="c.status === 'ativa'"
+                  [class.badge--sand]="c.status === 'pausada'"
+                  [class.badge--success]="c.status === 'encerrada'"
+                >{{ statusLabel(c.status) }}</span>
+              </div>
+              <span class="muted">{{ c.location }} · {{ c.meta }}</span>
+            </div>
+            <div class="campaign__actions">
+              <span class="dim">{{ c.totalCandidates }} candidatos</span>
+              <a [routerLink]="['/campanhas', c.id]" class="btn-ghost campaign__view">Ver campanha</a>
+            </div>
+          </div>
+
+          <div class="campaign__funnel">
+            @for (p of c.phases; track p.key) {
+              <div>
+                <div class="stagelabel">{{ p.label }}</div>
+                <div class="campaign__funnel-count" [class.is-empty]="p.count === 0">{{ p.count > 0 ? p.count : '—' }}</div>
+                <div class="campaign__funnel-bar" [class]="'campaign__funnel-bar--' + barModifier(c, p)"></div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
