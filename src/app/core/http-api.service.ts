@@ -14,6 +14,7 @@ import { ActivityItem, AiSuggestion, Campaign, Candidate, CandidateProfileData, 
  *   GET  /campaigns                                 -> Campaign[]
  *   GET  /campaigns/:id                              -> Campaign (404 -> undefined)
  *   GET  /campaigns/:id/candidates?phase=:phaseKey    -> Candidate[]  (phase optional)
+ *   GET  /candidates                                  -> Candidate[]  (all campaigns)
  *   GET  /candidates/:id/profile                      -> CandidateProfileData (404 -> undefined)
  *   GET  /company-profile                             -> CompanyProfile
  *   GET  /dashboard/metrics                           -> DashboardMetrics
@@ -39,6 +40,10 @@ export class HttpApiService extends DataApi {
   getCandidates(campaignId: string, phase?: PhaseKey): Observable<Candidate[]> {
     const params = phase ? new HttpParams().set('phase', phase) : undefined;
     return this.http.get<Candidate[]>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/candidates`, { params });
+  }
+
+  getAllCandidates(): Observable<Candidate[]> {
+    return this.http.get<Candidate[]>(`${APP_CONFIG.apiBaseUrl}/candidates`);
   }
 
   getCandidateProfile(candidateId: string): Observable<CandidateProfileData | undefined> {

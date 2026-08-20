@@ -85,6 +85,23 @@ export const MOCK_CANDIDATES_BY_CAMPAIGN: Record<string, Candidate[]> = {
     { id: 'beatriz-nogueira', campaignId: 'eng-software-senior-backend', phase: 'entrevista', name: 'Beatriz Nogueira', email: 'bia.nogueira@gmail.com', experience: '5 anos de experiência', location: 'Florianópolis, SC', matchPct: 88, status: 'Aguardando decisão', initials: 'BN', avatarColorIndex: 2 },
     { id: 'diego-salgado', campaignId: 'eng-software-senior-backend', phase: 'selecionados', name: 'Diego Salgado', email: 'diego.salgado@gmail.com', experience: '10 anos de experiência', location: 'Rio de Janeiro, RJ', matchPct: 92, status: 'Proposta em elaboração', initials: 'DS', avatarColorIndex: 2 },
   ],
+  'customer-success-pleno': [
+    { id: 'fernanda-rocha', campaignId: 'customer-success-pleno', phase: 'fit', name: 'Fernanda Rocha', email: 'fernanda.rocha@gmail.com', experience: '3 anos de experiência', location: 'São Paulo, SP', matchPct: 81, status: 'Em análise · Fit Cultural', initials: 'FR', avatarColorIndex: 0 },
+    { id: 'gabriel-souza', campaignId: 'customer-success-pleno', phase: 'fit', name: 'Gabriel Souza', email: 'gabriel.souza@gmail.com', experience: '4 anos de experiência', location: 'Recife, PE', matchPct: 68, status: 'Em análise · Fit Cultural', initials: 'GS', avatarColorIndex: 1 },
+    { id: 'isabela-martins', campaignId: 'customer-success-pleno', phase: 'tecnica', name: 'Isabela Martins', email: 'isabela.martins@gmail.com', experience: '5 anos de experiência', location: 'Rio de Janeiro, RJ', matchPct: 88, status: 'Em análise · Triagem Técnica', initials: 'IM', avatarColorIndex: 0 },
+    { id: 'joao-ribeiro', campaignId: 'customer-success-pleno', phase: 'tecnica', name: 'João Ribeiro', email: 'joao.ribeiro@outlook.com', experience: '2 anos de experiência', location: 'Curitiba, PR', matchPct: 74, status: 'Em análise · Triagem Técnica', initials: 'JR', avatarColorIndex: 1 },
+  ],
+  'designer-produto-senior': [
+    { id: 'larissa-andrade', campaignId: 'designer-produto-senior', phase: 'fit', name: 'Larissa Andrade', email: 'larissa.andrade@gmail.com', experience: '6 anos de experiência', location: 'Belo Horizonte, MG', matchPct: 85, status: 'Em análise · Fit Cultural', initials: 'LA', avatarColorIndex: 0 },
+    { id: 'pedro-lima', campaignId: 'designer-produto-senior', phase: 'fit', name: 'Pedro Lima', email: 'pedro.lima@gmail.com', experience: '4 anos de experiência', location: 'São Paulo, SP', matchPct: 70, status: 'Em análise · Fit Cultural', initials: 'PL', avatarColorIndex: 1 },
+  ],
+  'gerente-operacoes': [
+    { id: 'renata-costa', campaignId: 'gerente-operacoes', phase: 'recebidos', name: 'Renata Costa', email: 'renata.costa@gmail.com', experience: '7 anos de experiência', location: 'Salvador, BA', matchPct: null, status: 'Aguardando análise da IA', initials: 'RC', avatarColorIndex: 0 },
+    { id: 'vinicius-alves', campaignId: 'gerente-operacoes', phase: 'fit', name: 'Vinícius Alves', email: 'vinicius.alves@gmail.com', experience: '9 anos de experiência', location: 'Fortaleza, CE', matchPct: 77, status: 'Em análise · Fit Cultural', initials: 'VA', avatarColorIndex: 1 },
+    { id: 'patricia-gomes', campaignId: 'gerente-operacoes', phase: 'tecnica', name: 'Patrícia Gomes', email: 'patricia.gomes@gmail.com', experience: '11 anos de experiência', location: 'Belo Horizonte, MG', matchPct: 82, status: 'Em análise · Triagem Técnica', initials: 'PG', avatarColorIndex: 0 },
+    { id: 'eduardo-santos', campaignId: 'gerente-operacoes', phase: 'entrevista', name: 'Eduardo Santos', email: 'eduardo.santos@gmail.com', experience: '13 anos de experiência', location: 'São Paulo, SP', matchPct: 90, status: 'Entrevista concluída', initials: 'ES', avatarColorIndex: 1 },
+    { id: 'camila-ferreira', campaignId: 'gerente-operacoes', phase: 'selecionados', name: 'Camila Ferreira', email: 'camila.ferreira@gmail.com', experience: '10 anos de experiência', location: 'Belo Horizonte, MG', matchPct: 95, status: 'Contratada', initials: 'CF', avatarColorIndex: 2 },
+  ],
 };
 
 export const MOCK_DASHBOARD_METRICS: DashboardMetrics = {

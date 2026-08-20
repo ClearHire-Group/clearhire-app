@@ -30,6 +30,10 @@ export class MockApiService extends DataApi {
     return this.simulate(phase ? all.filter((c) => c.phase === phase) : all);
   }
 
+  getAllCandidates(): Observable<Candidate[]> {
+    return this.simulate(Object.values(MOCK_CANDIDATES_BY_CAMPAIGN).flat());
+  }
+
   getCandidateProfile(candidateId: string): Observable<CandidateProfileData | undefined> {
     return this.simulate(MOCK_CANDIDATE_PROFILES[candidateId]);
   }

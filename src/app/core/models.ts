@@ -1,5 +1,13 @@
 export type PhaseKey = 'recebidos' | 'fit' | 'tecnica' | 'entrevista' | 'selecionados';
 
+export const PHASE_LABELS: Record<PhaseKey, string> = {
+  recebidos: 'Recebidos',
+  fit: 'Fit Cultural',
+  tecnica: 'Triagem Técnica',
+  entrevista: 'Entrevista Estruturada',
+  selecionados: 'Selecionados',
+};
+
 export interface Phase {
   key: PhaseKey;
   num: number;

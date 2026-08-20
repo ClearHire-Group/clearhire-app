@@ -12,6 +12,8 @@ export abstract class DataApi {
   abstract getCampaigns(): Observable<Campaign[]>;
   abstract getCampaign(id: string): Observable<Campaign | undefined>;
   abstract getCandidates(campaignId: string, phase?: PhaseKey): Observable<Candidate[]>;
+  /** All candidates across every campaign — powers the global "Candidatos" directory. */
+  abstract getAllCandidates(): Observable<Candidate[]>;
   abstract getCandidateProfile(candidateId: string): Observable<CandidateProfileData | undefined>;
   abstract getCompanyProfile(): Observable<CompanyProfile>;
   abstract getDashboardMetrics(): Observable<DashboardMetrics>;
