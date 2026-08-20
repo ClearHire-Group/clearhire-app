@@ -1,6 +1,16 @@
-@if (campaign) {
+@if (loading()) {
   <div class="page">
-    <app-top-nav activeTab="campanhas" [subTabs]="subTabs" [breadcrumb]="breadcrumb"></app-top-nav>
+    <app-top-nav activeTab="campanhas" [subTabs]="subTabs"></app-top-nav>
+    <div class="page-body page-body--profile"><p class="state-message"><span class="state-spinner"></span> Carregando perfil…</p></div>
+  </div>
+} @else if (hasError() || !campaignState.data()) {
+  <div class="page">
+    <app-top-nav activeTab="campanhas" [subTabs]="subTabs"></app-top-nav>
+    <div class="page-body page-body--profile"><p class="state-message state-message--error">Não foi possível carregar este perfil.</p></div>
+  </div>
+} @else {
+  <div class="page">
+    <app-top-nav activeTab="campanhas" [subTabs]="subTabs" [breadcrumb]="breadcrumb()"></app-top-nav>
 
     <div class="page-body page-body--profile">
       <a [routerLink]="['/campanhas', campaignId]" class="back-link">
@@ -8,7 +18,7 @@
         Voltar para candidatos
       </a>
 
-      @if (profile) {
+      @if (profileState.data(); as profile) {
         <div class="header">
           <div class="header__identity">
             <div class="header__avatar" [class.header__avatar--sand]="profile.accent === 'sand'">{{ profile.initials }}</div>
@@ -91,7 +101,7 @@
             </div>
 
             <div class="match-box">
-              <div class="ring-lg" [style.background]="'conic-gradient(#B85A3E 0deg ' + ringDeg + 'deg, rgba(21,26,34,0.1) ' + ringDeg + 'deg 360deg)'">
+              <div class="ring-lg" [style.background]="'conic-gradient(#B85A3E 0deg ' + ringDeg() + 'deg, rgba(21,26,34,0.1) ' + ringDeg() + 'deg 360deg)'">
                 <div class="ring-lg__hole">
                   <span class="serif">{{ profile.ai.matchPct }}%</span>
                 </div>

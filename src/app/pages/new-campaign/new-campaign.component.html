@@ -57,16 +57,22 @@
         <span class="stepnum">2</span>
         <h2 class="serif">Perfil cultural da empresa</h2>
       </div>
-      <div class="notice">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B85A3E" stroke-width="2.2"><path d="M20 6L9 17l-5-5" /></svg>
-        <p>Esta campanha usará o <strong>perfil cultural padrão da {{ companyProfile.name }}</strong>, já parametrizado em Configurações. Ele será aplicado automaticamente na análise de Fit Cultural.</p>
-      </div>
-      <div class="values">
-        @for (v of companyProfile.values; track v) {
-          <span class="value-chip">{{ v }}</span>
-        }
-      </div>
-      <a routerLink="/configuracoes" class="edit-link">Editar perfil da empresa →</a>
+      @if (companyProfileState.data(); as companyProfile) {
+        <div class="notice">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B85A3E" stroke-width="2.2"><path d="M20 6L9 17l-5-5" /></svg>
+          <p>Esta campanha usará o <strong>perfil cultural padrão da {{ companyProfile.name }}</strong>, já parametrizado em Configurações. Ele será aplicado automaticamente na análise de Fit Cultural.</p>
+        </div>
+        <div class="values">
+          @for (v of companyProfile.values; track v) {
+            <span class="value-chip">{{ v }}</span>
+          }
+        </div>
+        <a routerLink="/configuracoes" class="edit-link">Editar perfil da empresa →</a>
+      } @else if (companyProfileState.loading()) {
+        <p class="state-message"><span class="state-spinner"></span> Carregando perfil cultural…</p>
+      } @else {
+        <p class="state-message state-message--error">Não foi possível carregar o perfil cultural da empresa.</p>
+      }
     </div>
 
     <!-- Step 3 -->

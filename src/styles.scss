@@ -168,3 +168,26 @@ textarea.field {
   max-width: 1280px;
   padding: 32px 32px 72px;
 }
+
+.state-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: var(--color-text-muted);
+  padding: 40px 0;
+}
+.state-message--error {
+  color: var(--color-sand-text);
+}
+.state-spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid rgba(21, 26, 34, 0.15);
+  border-top-color: var(--color-accent);
+  animation: state-spin 0.7s linear infinite;
+}
+@keyframes state-spin {
+  to { transform: rotate(360deg); }
+}

@@ -1,5 +1,5 @@
 <div class="page">
-  <app-top-nav activeTab="campanhas" [subTabs]="subTabs"></app-top-nav>
+  <app-top-nav activeTab="campanhas" [subTabs]="subTabs()"></app-top-nav>
 
   <div class="page-body">
     <div class="page-header">
@@ -10,8 +10,13 @@
       </a>
     </div>
 
+    @if (campaignsState.loading()) {
+      <p class="state-message"><span class="state-spinner"></span> Carregando campanhas…</p>
+    } @else if (campaignsState.error()) {
+      <p class="state-message state-message--error">Não foi possível carregar as campanhas.</p>
+    } @else {
     <div class="campaign-list">
-      @for (c of campaigns; track c.id; let first = $first) {
+      @for (c of campaignsState.data(); track c.id; let first = $first) {
         <div class="card campaign" [class.campaign--featured]="c.status === 'ativa' && first" [class.campaign--dim]="c.status !== 'ativa'">
           <div class="campaign__top">
             <div>
@@ -44,5 +49,6 @@
         </div>
       }
     </div>
+    }
   </div>
 </div>

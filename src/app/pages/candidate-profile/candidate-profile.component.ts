@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { map, switchMap } from 'rxjs';
 import { TopNavComponent, SubTab } from '../../layout/top-nav/top-nav.component';
-import { DataService } from '../../core/data.service';
-import { Campaign, CandidateProfileData } from '../../core/models';
+import { DataApi } from '../../core/data-api';
+import { toLoadable } from '../../core/loadable';
 
 @Component({
   selector: 'app-candidate-profile',
@@ -12,33 +13,36 @@ import { Campaign, CandidateProfileData } from '../../core/models';
   templateUrl: './candidate-profile.component.html',
   styleUrl: './candidate-profile.component.scss',
 })
-export class CandidateProfileComponent implements OnInit {
-  campaign?: Campaign;
-  campaignId = '';
-  profile?: CandidateProfileData;
-  subTabs: SubTab[] = [];
-  ringDeg = 0;
+export class CandidateProfileComponent {
+  private route = inject(ActivatedRoute);
+  private api = inject(DataApi);
 
-  constructor(private route: ActivatedRoute, private data: DataService) {}
+  private campaignId$ = this.route.paramMap.pipe(map((p) => p.get('campaignId') ?? ''));
+  private candidateId$ = this.route.paramMap.pipe(map((p) => p.get('candidateId') ?? ''));
 
-  ngOnInit(): void {
-    this.campaignId = this.route.snapshot.paramMap.get('campaignId') ?? '';
-    const candidateId = this.route.snapshot.paramMap.get('candidateId') ?? '';
-    this.campaign = this.data.getCampaign(this.campaignId);
-    this.profile = this.data.getCandidateProfile(candidateId);
-    this.ringDeg = this.profile ? Math.round(this.profile.ai.matchPct * 3.6) : 0;
+  readonly campaignId = this.route.snapshot.paramMap.get('campaignId') ?? '';
 
-    this.subTabs = [
-      { label: 'Visão Geral' },
-      { label: 'Funil' },
-      { label: 'Candidatos', active: true },
-      { label: 'Configurações da Campanha' },
-    ];
-  }
+  readonly campaignState = toLoadable(this.campaignId$.pipe(switchMap((id) => this.api.getCampaign(id))));
+  readonly profileState = toLoadable(this.candidateId$.pipe(switchMap((id) => this.api.getCandidateProfile(id))));
 
-  get breadcrumb(): string {
-    if (!this.campaign) return '';
-    const name = this.profile?.name ?? '';
-    return `Campanhas / ${this.campaign.title} / Candidatos / ${name}`;
-  }
+  readonly loading = computed(() => this.campaignState.loading() || this.profileState.loading());
+  readonly hasError = computed(() => this.campaignState.error() || this.profileState.error());
+
+  readonly ringDeg = computed(() => {
+    const profile = this.profileState.data();
+    return profile ? Math.round(profile.ai.matchPct * 3.6) : 0;
+  });
+
+  readonly subTabs: SubTab[] = [
+    { label: 'Visão Geral' },
+    { label: 'Funil' },
+    { label: 'Candidatos', active: true },
+    { label: 'Configurações da Campanha' },
+  ];
+
+  readonly breadcrumb = computed(() => {
+    const campaign = this.campaignState.data();
+    const name = this.profileState.data()?.name ?? '';
+    return campaign ? `Campanhas / ${campaign.title} / Candidatos / ${name}` : '';
+  });
 }

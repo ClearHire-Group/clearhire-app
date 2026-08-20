@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TopNavComponent, SubTab } from '../../layout/top-nav/top-nav.component';
-import { DataService } from '../../core/data.service';
-import { CompanyProfile } from '../../core/models';
+import { DataApi } from '../../core/data-api';
+import { toLoadable } from '../../core/loadable';
 
 @Component({
   selector: 'app-settings',
@@ -18,9 +18,6 @@ export class SettingsComponent {
     { label: 'Integrações', disabled: true },
   ];
 
-  readonly companyProfile: CompanyProfile;
-
-  constructor(private data: DataService) {
-    this.companyProfile = this.data.getCompanyProfile();
-  }
+  private api = inject(DataApi);
+  readonly companyProfileState = toLoadable(this.api.getCompanyProfile());
 }

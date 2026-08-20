@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TopNavComponent, SubTab } from '../../layout/top-nav/top-nav.component';
@@ -6,13 +6,13 @@ import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-activity',
   standalone: true,
   imports: [CommonModule, RouterLink, TopNavComponent],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss',
+  templateUrl: './activity.component.html',
+  styleUrl: './activity.component.scss',
 })
-export class DashboardComponent {
+export class ActivityComponent {
   private api = inject(DataApi);
 
   readonly subTabs: SubTab[] = [
@@ -20,11 +20,5 @@ export class DashboardComponent {
     { label: 'Atividade', route: '/dashboard/atividade' },
   ];
 
-  readonly campaignsState = toLoadable(this.api.getCampaigns());
-  readonly metricsState = toLoadable(this.api.getDashboardMetrics());
-  readonly suggestionsState = toLoadable(this.api.getAiSuggestions());
-
-  readonly activeCampaigns = computed(() =>
-    (this.campaignsState.data() ?? []).filter((c) => c.status !== 'encerrada'),
-  );
+  readonly activityState = toLoadable(this.api.getActivityFeed());
 }

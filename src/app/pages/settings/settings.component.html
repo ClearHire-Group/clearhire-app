@@ -5,45 +5,51 @@
     <h1 class="serif">Perfil cultural da empresa</h1>
     <p class="muted intro">Este perfil é aplicado automaticamente à análise de Fit Cultural em toda nova campanha criada.</p>
 
-    <div class="card panel">
-      <div class="panel__header">
-        <div class="panel__icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B85A3E" stroke-width="2"><path d="M3 21h18M6 21V8l6-5 6 5v13M10 21v-6h4v6" /></svg>
+    @if (companyProfileState.data(); as companyProfile) {
+      <div class="card panel">
+        <div class="panel__header">
+          <div class="panel__icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B85A3E" stroke-width="2"><path d="M3 21h18M6 21V8l6-5 6 5v13M10 21v-6h4v6" /></svg>
+          </div>
+          <div>
+            <div class="panel__company">{{ companyProfile.name }}</div>
+            <div class="dim panel__hint">Este perfil é compartilhado por todas as campanhas da empresa</div>
+          </div>
         </div>
-        <div>
-          <div class="panel__company">{{ companyProfile.name }}</div>
-          <div class="dim panel__hint">Este perfil é compartilhado por todas as campanhas da empresa</div>
+
+        <div class="field-block">
+          <label class="fieldlabel">Valores organizacionais</label>
+          <div class="values">
+            @for (v of companyProfile.values; track v) {
+              <span class="value-chip">{{ v }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="field-block">
+          <label class="fieldlabel">Tom de comunicação</label>
+          <textarea class="field" rows="2">{{ companyProfile.tone }}</textarea>
+        </div>
+
+        <div class="field-block field-block--last">
+          <label class="fieldlabel">O que a empresa considera importante</label>
+          <textarea class="field" rows="3">{{ companyProfile.importance }}</textarea>
         </div>
       </div>
 
-      <div class="field-block">
-        <label class="fieldlabel">Valores organizacionais</label>
-        <div class="values">
-          @for (v of companyProfile.values; track v) {
-            <span class="value-chip">{{ v }}</span>
-          }
-        </div>
+      <div class="notice">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a8674f" stroke-width="2.2"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+        <p>Alterações aqui não afetam campanhas já em andamento — apenas novas campanhas herdarão a versão atualizada deste perfil.</p>
       </div>
 
-      <div class="field-block">
-        <label class="fieldlabel">Tom de comunicação</label>
-        <textarea class="field" rows="2">{{ companyProfile.tone }}</textarea>
+      <div class="submit-row">
+        <button class="btn-ghost" type="button">Descartar alterações</button>
+        <button class="btn-primary" type="button">Salvar perfil</button>
       </div>
-
-      <div class="field-block field-block--last">
-        <label class="fieldlabel">O que a empresa considera importante</label>
-        <textarea class="field" rows="3">{{ companyProfile.importance }}</textarea>
-      </div>
-    </div>
-
-    <div class="notice">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a8674f" stroke-width="2.2"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
-      <p>Alterações aqui não afetam campanhas já em andamento — apenas novas campanhas herdarão a versão atualizada deste perfil.</p>
-    </div>
-
-    <div class="submit-row">
-      <button class="btn-ghost" type="button">Descartar alterações</button>
-      <button class="btn-primary" type="button">Salvar perfil</button>
-    </div>
+    } @else if (companyProfileState.loading()) {
+      <p class="state-message"><span class="state-spinner"></span> Carregando perfil da empresa…</p>
+    } @else {
+      <p class="state-message state-message--error">Não foi possível carregar o perfil cultural da empresa.</p>
+    }
   </div>
 </div>

@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TopNavComponent, SubTab } from '../../layout/top-nav/top-nav.component';
-import { DataService } from '../../core/data.service';
-import { CompanyProfile } from '../../core/models';
+import { DataApi } from '../../core/data-api';
+import { toLoadable } from '../../core/loadable';
 
 type ModuleKey = 'fit' | 'tecnica' | 'entrevista';
 
@@ -34,13 +34,11 @@ export class NewCampaignComponent {
   ];
 
   readonly modules = MODULES;
-  readonly companyProfile: CompanyProfile;
+
+  private api = inject(DataApi);
+  readonly companyProfileState = toLoadable(this.api.getCompanyProfile());
 
   selected: ModuleKey[] = ['fit', 'tecnica', 'entrevista'];
-
-  constructor(private data: DataService) {
-    this.companyProfile = this.data.getCompanyProfile();
-  }
 
   isActive(key: ModuleKey): boolean {
     return this.selected.includes(key);

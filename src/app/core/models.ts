@@ -72,3 +72,33 @@ export interface CompanyProfile {
   tone: string;
   importance: string;
 }
+
+export interface DashboardMetrics {
+  activeCampaigns: number;
+  activeCampaignsTrendLabel: string;
+  candidatesInProcess: number;
+  candidatesInProcessContextLabel: string;
+  hiresInPeriod: number;
+  hiresGoalLabel: string;
+  avgFunnelDays: number;
+  avgFunnelDaysTrendLabel: string;
+}
+
+export interface AiSuggestion {
+  id: string;
+  message: string;
+  primaryActionLabel: string;
+  primaryActionRoute: string[];
+  highlighted: boolean;
+}
+
+export type ActivityActor = 'ia' | 'recrutador';
+
+export interface ActivityItem {
+  id: string;
+  actor: ActivityActor;
+  message: string;
+  campaignId: string;
+  campaignTitle: string;
+  timestampLabel: string;
+}

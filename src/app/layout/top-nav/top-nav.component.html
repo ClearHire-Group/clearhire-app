@@ -40,7 +40,16 @@
   <div class="nav__tier2">
     <div class="nav__subtabs">
       @for (tab of subTabs; track tab.label) {
-        <span class="nav__subtab" [class.active]="tab.active" [class.disabled]="tab.disabled">{{ tab.label }}</span>
+        @if (tab.route && !tab.disabled) {
+          <a
+            [routerLink]="tab.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: tab.exact ?? false }"
+            class="nav__subtab"
+          >{{ tab.label }}</a>
+        } @else {
+          <span class="nav__subtab" [class.active]="tab.active" [class.disabled]="tab.disabled">{{ tab.label }}</span>
+        }
       }
     </div>
 
