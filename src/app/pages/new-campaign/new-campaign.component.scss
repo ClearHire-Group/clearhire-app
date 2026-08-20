@@ -44,7 +44,7 @@ h1 {
   height: 26px;
   border-radius: 50%;
   background: rgba(141, 145, 103, 0.16);
-  color: #8D9167;
+  color: #B85A3E;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -121,7 +121,7 @@ h1 {
   background: #FFFFFF;
 
   &--active {
-    border: 1.5px solid #8D9167;
+    border: 1.5px solid #B85A3E;
     background: rgba(141, 145, 103, 0.08);
   }
 }
@@ -149,8 +149,8 @@ h1 {
   justify-content: center;
 
   &--active {
-    background: #8D9167;
-    border-color: #8D9167;
+    background: #B85A3E;
+    border-color: #B85A3E;
   }
 }
 .module__label {
@@ -202,7 +202,7 @@ h1 {
     background: rgba(21, 26, 34, 0.08);
   }
   &--active {
-    background: #8D9167;
+    background: #B85A3E;
     color: #151A22;
   }
 }

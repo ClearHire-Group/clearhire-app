@@ -13,7 +13,7 @@
 .page-header__link {
   font-size: 13px;
   font-weight: 600;
-  color: #8D9167;
+  color: #B85A3E;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -96,7 +96,7 @@
 .panel__link {
   font-size: 12px;
   font-weight: 600;
-  color: #8D9167;
+  color: #B85A3E;
 }
 .panel__subtitle {
   font-size: 12px;
@@ -152,11 +152,11 @@
   padding: 2px 9px;
   border-radius: 100px;
 
-  &--accent { background: #8D9167; }
+  &--accent { background: #B85A3E; }
   &--sand { background: #C09281; }
 }
 
-.text-accent { color: #8D9167; }
+.text-accent { color: #B85A3E; }
 .text-sand { color: #C09281; }
 
 .progress-track {
@@ -168,7 +168,7 @@
 .progress-fill {
   height: 100%;
   border-radius: 4px;
-  background: #8D9167;
+  background: #B85A3E;
 
   &--sand { background: #C09281; }
 }
@@ -202,7 +202,7 @@
   margin-bottom: 8px;
   font-size: 11px;
   font-weight: 700;
-  color: #8D9167;
+  color: #B85A3E;
   letter-spacing: 0.3px;
 
   &--sand { color: #C09281; }
