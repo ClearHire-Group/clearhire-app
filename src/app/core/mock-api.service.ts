@@ -3,10 +3,24 @@ import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { DataApi } from './data-api';
 import { APP_CONFIG } from './app-config';
-import { ActivityItem, AiSuggestion, Campaign, Candidate, CandidateProfileData, CompanyProfile, DashboardMetrics, PhaseKey } from './models';
+import {
+  ActivityItem,
+  AiSuggestion,
+  AiTrustMetrics,
+  Campaign,
+  CampaignPerformance,
+  Candidate,
+  CandidateProfileData,
+  CompanyProfile,
+  DashboardMetrics,
+  Phase,
+  PhaseKey,
+  PHASE_LABELS,
+} from './models';
 import {
   MOCK_ACTIVITY_FEED,
   MOCK_AI_SUGGESTIONS,
+  MOCK_AI_TRUST,
   MOCK_CAMPAIGNS,
   MOCK_CANDIDATES_BY_CAMPAIGN,
   MOCK_CANDIDATE_PROFILES,
@@ -52,6 +66,37 @@ export class MockApiService extends DataApi {
 
   getActivityFeed(): Observable<ActivityItem[]> {
     return this.simulate(MOCK_ACTIVITY_FEED);
+  }
+
+  getFunnelSummary(): Observable<Phase[]> {
+    const keys: PhaseKey[] = ['recebidos', 'fit', 'tecnica', 'entrevista', 'selecionados'];
+    const summary: Phase[] = keys.map((key, i) => ({
+      key,
+      num: i + 1,
+      label: PHASE_LABELS[key],
+      count: MOCK_CAMPAIGNS.reduce((sum, c) => sum + (c.phases.find((p) => p.key === key)?.count ?? 0), 0),
+    }));
+    return this.simulate(summary);
+  }
+
+  getCampaignPerformance(): Observable<CampaignPerformance[]> {
+    const rows: CampaignPerformance[] = MOCK_CAMPAIGNS.map((c) => {
+      const selected = c.phases.find((p) => p.key === 'selecionados')?.count ?? 0;
+      return {
+        campaignId: c.id,
+        campaignTitle: c.title,
+        status: c.status,
+        totalCandidates: c.totalCandidates,
+        selectedCount: selected,
+        conversionPct: c.totalCandidates > 0 ? Math.round((selected / c.totalCandidates) * 1000) / 10 : 0,
+        currentPhaseLabel: c.currentPhaseLabel,
+      };
+    });
+    return this.simulate(rows);
+  }
+
+  getAiTrustMetrics(): Observable<AiTrustMetrics> {
+    return this.simulate(MOCK_AI_TRUST);
   }
 
   private simulate<T>(value: T): Observable<T> {

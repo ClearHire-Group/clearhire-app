@@ -110,3 +110,20 @@ export interface ActivityItem {
   campaignTitle: string;
   timestampLabel: string;
 }
+
+export interface CampaignPerformance {
+  campaignId: string;
+  campaignTitle: string;
+  status: CampaignStatus;
+  totalCandidates: number;
+  selectedCount: number;
+  conversionPct: number;
+  currentPhaseLabel: string;
+}
+
+export interface AiTrustMetrics {
+  agreementRatePct: number;
+  decisionsAnalyzed: number;
+  overriddenApprovals: number;
+  overriddenRejections: number;
+}

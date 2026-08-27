@@ -20,7 +20,7 @@
       <a routerLink="/dashboard" class="nav__tab" [class.active]="activeTab === 'dashboard'">Dashboard</a>
       <a routerLink="/campanhas" class="nav__tab" [class.active]="activeTab === 'campanhas'">Campanhas</a>
       <a routerLink="/candidatos" class="nav__tab" [class.active]="activeTab === 'candidatos'">Candidatos</a>
-      <a href="javascript:void(0)" class="nav__tab" [class.active]="activeTab === 'relatorios'">Relatórios</a>
+      <a routerLink="/relatorios" class="nav__tab" [class.active]="activeTab === 'relatorios'">Relatórios</a>
       <a routerLink="/configuracoes" class="nav__tab" [class.active]="activeTab === 'configuracoes'">Configurações</a>
     </nav>
 
@@ -43,6 +43,7 @@
         @if (tab.route && !tab.disabled) {
           <a
             [routerLink]="tab.route"
+            [queryParams]="tab.queryParams ?? {}"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: tab.exact ?? false }"
             class="nav__subtab"

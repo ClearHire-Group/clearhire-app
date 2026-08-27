@@ -1,0 +1,254 @@
+.page-header {
+  margin-bottom: 4px;
+
+  h1 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #151A22;
+  }
+}
+.intro {
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.metric {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.metric__label {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.metric__value {
+  font-size: 30px;
+  font-weight: 600;
+  color: #151A22;
+}
+.metric__hint {
+  font-size: 11.5px;
+}
+
+.panels {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
+  align-items: start;
+  margin-bottom: 20px;
+}
+
+.panel {
+  padding: 24px;
+
+  h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #151A22;
+  }
+}
+.panel__subtitle {
+  font-size: 12.5px;
+  margin: 4px 0 20px;
+}
+
+/* Aggregate funnel chart */
+.funnel-chart {
+  display: flex;
+  flex-direction: column;
+}
+.funnel-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.funnel-row__name {
+  width: 130px;
+  flex-shrink: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(21, 26, 34, 0.7);
+}
+.funnel-row__track {
+  flex: 1;
+  height: 26px;
+  border-radius: 4px;
+  background: rgba(21, 26, 34, 0.06);
+  overflow: hidden;
+}
+.funnel-row__fill {
+  height: 100%;
+  min-width: 4px;
+  border-radius: 4px;
+  background: #B85A3E;
+}
+.funnel-row__count {
+  width: 40px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+  color: #151A22;
+}
+.funnel-connector {
+  font-size: 11px;
+  color: rgba(21, 26, 34, 0.45);
+  padding: 7px 0 7px 144px;
+}
+
+/* AI trust */
+.trust-box {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+.ring-lg {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ring-lg__hole {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  span {
+    font-size: 19px;
+    font-weight: 600;
+    color: #151A22;
+  }
+}
+.trust-box__note {
+  font-size: 12.5px;
+  color: rgba(21, 26, 34, 0.6);
+  line-height: 1.5;
+}
+
+.trust-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid rgba(21, 26, 34, 0.08);
+  padding-top: 16px;
+}
+.trust-detail__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-size: 12.5px;
+  color: rgba(21, 26, 34, 0.75);
+  line-height: 1.5;
+}
+.trust-detail__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+
+  &--accent { background: #B85A3E; }
+  &--sand { background: #a8674f; }
+}
+
+/* Campaign performance table */
+.table-card {
+  padding: 24px 26px;
+}
+.table-card__title {
+  font-size: 19px;
+  font-weight: 600;
+  color: #151A22;
+  margin-bottom: 16px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th {
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  color: rgba(21, 26, 34, 0.45);
+  text-transform: uppercase;
+  padding: 0 14px 10px;
+  border-bottom: 1px solid rgba(21, 26, 34, 0.08);
+}
+.col-campaign { width: 320px; }
+td {
+  padding: 14px;
+  border-bottom: 1px solid rgba(21, 26, 34, 0.06);
+  vertical-align: middle;
+}
+tr:last-child td {
+  border-bottom: none;
+}
+
+.campaign-link {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #151A22;
+
+  &:hover {
+    color: #B85A3E;
+  }
+}
+
+.cell-text {
+  font-size: 13px;
+  color: rgba(21, 26, 34, 0.75);
+}
+
+.badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 100px;
+
+  &--accent { color: #151A22; background: #B85A3E; }
+  &--sand { color: #151A22; background: #C09281; }
+  &--success { color: #F0F0E6; background: #3A4A2E; }
+}
+
+.conversion-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  span {
+    font-size: 13px;
+    font-weight: 700;
+    color: #151A22;
+    width: 36px;
+  }
+}
+.conversion-track {
+  width: 70px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(21, 26, 34, 0.08);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.conversion-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: #B85A3E;
+}

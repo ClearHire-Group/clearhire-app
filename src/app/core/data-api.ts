@@ -1,5 +1,17 @@
 import { Observable } from 'rxjs';
-import { ActivityItem, AiSuggestion, Campaign, Candidate, CandidateProfileData, CompanyProfile, DashboardMetrics, PhaseKey } from './models';
+import {
+  ActivityItem,
+  AiSuggestion,
+  AiTrustMetrics,
+  Campaign,
+  CampaignPerformance,
+  Candidate,
+  CandidateProfileData,
+  CompanyProfile,
+  DashboardMetrics,
+  Phase,
+  PhaseKey,
+} from './models';
 
 /**
  * Contract every page depends on. Two implementations exist today:
@@ -19,4 +31,10 @@ export abstract class DataApi {
   abstract getDashboardMetrics(): Observable<DashboardMetrics>;
   abstract getAiSuggestions(): Observable<AiSuggestion[]>;
   abstract getActivityFeed(): Observable<ActivityItem[]>;
+
+  /** Aggregate candidate count per funnel phase, across every campaign. */
+  abstract getFunnelSummary(): Observable<Phase[]>;
+  /** One row per campaign: totals, conversion rate, current phase — powers the Relatórios comparison table. */
+  abstract getCampaignPerformance(): Observable<CampaignPerformance[]>;
+  abstract getAiTrustMetrics(): Observable<AiTrustMetrics>;
 }

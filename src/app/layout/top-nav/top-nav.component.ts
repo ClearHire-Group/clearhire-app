@@ -6,7 +6,9 @@ export interface SubTab {
   label: string;
   /** When set, the tab renders as a real link (active state driven by the router). */
   route?: string | string[];
-  /** Exact-match the route for `active` styling — needed when one route is a prefix of another (e.g. /dashboard vs /dashboard/atividade). */
+  /** Query params to attach to the link — e.g. filter tabs on the same route ({ status: 'ativa' }). */
+  queryParams?: Record<string, string>;
+  /** Exact-match the route (and query params) for `active` styling — needed whenever two tabs share a base route. */
   exact?: boolean;
   /** Manual active flag for tabs with no `route` yet (static placeholder tabs). */
   active?: boolean;

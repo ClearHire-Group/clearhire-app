@@ -16,7 +16,7 @@
       <p class="state-message state-message--error">Não foi possível carregar as campanhas.</p>
     } @else {
     <div class="campaign-list">
-      @for (c of campaignsState.data(); track c.id; let first = $first) {
+      @for (c of filteredCampaigns(); track c.id; let first = $first) {
         <div class="card campaign" [class.campaign--featured]="c.status === 'ativa' && first" [class.campaign--dim]="c.status !== 'ativa'">
           <div class="campaign__top">
             <div>
@@ -47,6 +47,8 @@
             }
           </div>
         </div>
+      } @empty {
+        <p class="state-message">Nenhuma campanha nesse status.</p>
       }
     </div>
     }

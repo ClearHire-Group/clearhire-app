@@ -1,4 +1,4 @@
-import { ActivityItem, AiSuggestion, Campaign, Candidate, CandidateProfileData, CompanyProfile, DashboardMetrics, Phase } from './models';
+import { ActivityItem, AiSuggestion, AiTrustMetrics, Campaign, Candidate, CandidateProfileData, CompanyProfile, DashboardMetrics, Phase } from './models';
 
 const FUNNEL_PHASES = (recebidos: number, fit: number, tecnica: number, entrevista: number, selecionados: number): Phase[] => [
   { key: 'recebidos', num: 1, label: 'Recebidos', count: recebidos },
@@ -152,6 +152,13 @@ export const MOCK_ACTIVITY_FEED: ActivityItem[] = [
   { id: 'act-10', actor: 'ia', message: 'IA recebeu e organizou 18 novas candidaturas em Recebidos.', campaignId: 'eng-software-senior-backend', campaignTitle: 'Eng. Software Sênior — Backend', timestampLabel: 'há 2 dias' },
   { id: 'act-11', actor: 'recrutador', message: 'Você criou a campanha e ativou o funil: Fit Cultural → Triagem Técnica.', campaignId: 'customer-success-pleno', campaignTitle: 'Analista de Customer Success Pleno', timestampLabel: 'há 3 dias' },
 ];
+
+export const MOCK_AI_TRUST: AiTrustMetrics = {
+  agreementRatePct: 87,
+  decisionsAnalyzed: 23,
+  overriddenApprovals: 2,
+  overriddenRejections: 1,
+};
 
 export const MOCK_CANDIDATE_PROFILES: Record<string, CandidateProfileData> = {
   'marina-albuquerque': {

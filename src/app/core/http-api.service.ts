@@ -4,7 +4,19 @@ import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DataApi } from './data-api';
 import { APP_CONFIG } from './app-config';
-import { ActivityItem, AiSuggestion, Campaign, Candidate, CandidateProfileData, CompanyProfile, DashboardMetrics, PhaseKey } from './models';
+import {
+  ActivityItem,
+  AiSuggestion,
+  AiTrustMetrics,
+  Campaign,
+  CampaignPerformance,
+  Candidate,
+  CandidateProfileData,
+  CompanyProfile,
+  DashboardMetrics,
+  Phase,
+  PhaseKey,
+} from './models';
 
 /**
  * Real backend implementation. Endpoints below are the contract the API needs to satisfy —
@@ -20,6 +32,9 @@ import { ActivityItem, AiSuggestion, Campaign, Candidate, CandidateProfileData, 
  *   GET  /dashboard/metrics                           -> DashboardMetrics
  *   GET  /dashboard/ai-suggestions                    -> AiSuggestion[]
  *   GET  /dashboard/activity                          -> ActivityItem[]
+ *   GET  /reports/funnel-summary                      -> Phase[] (aggregate across campaigns)
+ *   GET  /reports/campaign-performance                -> CampaignPerformance[]
+ *   GET  /reports/ai-trust                            -> AiTrustMetrics
  */
 @Injectable()
 export class HttpApiService extends DataApi {
@@ -66,5 +81,17 @@ export class HttpApiService extends DataApi {
 
   getActivityFeed(): Observable<ActivityItem[]> {
     return this.http.get<ActivityItem[]>(`${APP_CONFIG.apiBaseUrl}/dashboard/activity`);
+  }
+
+  getFunnelSummary(): Observable<Phase[]> {
+    return this.http.get<Phase[]>(`${APP_CONFIG.apiBaseUrl}/reports/funnel-summary`);
+  }
+
+  getCampaignPerformance(): Observable<CampaignPerformance[]> {
+    return this.http.get<CampaignPerformance[]>(`${APP_CONFIG.apiBaseUrl}/reports/campaign-performance`);
+  }
+
+  getAiTrustMetrics(): Observable<AiTrustMetrics> {
+    return this.http.get<AiTrustMetrics>(`${APP_CONFIG.apiBaseUrl}/reports/ai-trust`);
   }
 }

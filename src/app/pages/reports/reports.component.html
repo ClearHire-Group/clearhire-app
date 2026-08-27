@@ -1,0 +1,143 @@
+<div class="page">
+  <app-top-nav activeTab="relatorios" [subTabs]="subTabs" breadcrumb="Todas as campanhas · últimos 30 dias"></app-top-nav>
+
+  <div class="page-body">
+    <div class="page-header">
+      <h1 class="serif">Relatórios</h1>
+    </div>
+    <p class="muted intro">Visão consolidada do funil, desempenho por campanha e confiabilidade das recomendações da IA.</p>
+
+    <!-- KPIs -->
+    <div class="metrics">
+      <div class="card metric">
+        <span class="muted metric__label">Conversão geral do funil</span>
+        <div class="serif metric__value">{{ overallConversionPct() }}%</div>
+        <span class="dim metric__hint">Recebidos → Selecionados</span>
+      </div>
+      <div class="card metric">
+        <span class="muted metric__label">Aderência às recomendações da IA</span>
+        <div class="serif metric__value">{{ trustState.data()?.agreementRatePct ?? '—' }}%</div>
+        <span class="dim metric__hint">decisões manuais alinhadas à sugestão</span>
+      </div>
+      <div class="card metric">
+        <span class="muted metric__label">Candidaturas analisadas</span>
+        <div class="serif metric__value">{{ funnelRows().at(0)?.count ?? '—' }}</div>
+        <span class="dim metric__hint">em todas as campanhas</span>
+      </div>
+      <div class="card metric">
+        <span class="muted metric__label">Contratações no período</span>
+        <div class="serif metric__value">{{ funnelRows().at(4)?.count ?? '—' }}</div>
+        <span class="dim metric__hint">candidatos selecionados</span>
+      </div>
+    </div>
+
+    <div class="panels">
+      <!-- Aggregate funnel -->
+      <div class="card panel">
+        <h2 class="serif">Funil agregado</h2>
+        <p class="muted panel__subtitle">Volume de candidatos por fase, somando todas as campanhas.</p>
+
+        @if (funnelState.loading()) {
+          <p class="state-message"><span class="state-spinner"></span> Carregando funil…</p>
+        } @else if (funnelState.error()) {
+          <p class="state-message state-message--error">Não foi possível carregar o funil agregado.</p>
+        } @else {
+          <div class="funnel-chart">
+            @for (p of funnelRows(); track p.key; let first = $first) {
+              @if (!first) {
+                <div class="funnel-connector">↓ {{ p.conversionPct }}% avançam para {{ p.label }}</div>
+              }
+              <div class="funnel-row">
+                <span class="funnel-row__name">{{ p.label }}</span>
+                <div class="funnel-row__track">
+                  <div class="funnel-row__fill" [style.width.%]="p.barPct"></div>
+                </div>
+                <span class="funnel-row__count">{{ p.count }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- AI trust -->
+      <div class="card panel">
+        <h2 class="serif">Confiança na IA</h2>
+        <p class="muted panel__subtitle">Com que frequência a decisão manual segue a recomendação da IA.</p>
+
+        @if (trustState.data(); as trust) {
+          <div class="trust-box">
+            <div class="ring-lg" [style.background]="'conic-gradient(#B85A3E 0deg ' + trustRingDeg() + 'deg, rgba(21,26,34,0.1) ' + trustRingDeg() + 'deg 360deg)'">
+              <div class="ring-lg__hole">
+                <span class="serif">{{ trust.agreementRatePct }}%</span>
+              </div>
+            </div>
+            <p class="trust-box__note">Baseado em {{ trust.decisionsAnalyzed }} decisões manuais registradas nos últimos 30 dias.</p>
+          </div>
+          <div class="trust-detail">
+            <div class="trust-detail__row">
+              <span class="trust-detail__dot trust-detail__dot--accent"></span>
+              <span>{{ trust.overriddenApprovals }} candidatos aprovados apesar de match abaixo do recomendado</span>
+            </div>
+            <div class="trust-detail__row">
+              <span class="trust-detail__dot trust-detail__dot--sand"></span>
+              <span>{{ trust.overriddenRejections }} candidato reprovado apesar de match alto</span>
+            </div>
+          </div>
+        } @else if (trustState.loading()) {
+          <p class="state-message"><span class="state-spinner"></span> Carregando…</p>
+        } @else {
+          <p class="state-message state-message--error">Não foi possível carregar esta métrica.</p>
+        }
+      </div>
+    </div>
+
+    <!-- Campaign performance table -->
+    <div class="card table-card">
+      <h2 class="serif table-card__title">Desempenho por campanha</h2>
+
+      @if (performanceState.loading()) {
+        <p class="state-message"><span class="state-spinner"></span> Carregando desempenho por campanha…</p>
+      } @else if (performanceState.error()) {
+        <p class="state-message state-message--error">Não foi possível carregar o desempenho das campanhas.</p>
+      } @else {
+        <table>
+          <thead>
+            <tr>
+              <th class="col-campaign">Campanha</th>
+              <th>Status</th>
+              <th>Fase atual</th>
+              <th>Candidatos</th>
+              <th>Selecionados</th>
+              <th>Conversão</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of performanceRows(); track row.campaignId) {
+              <tr>
+                <td>
+                  <a [routerLink]="['/campanhas', row.campaignId]" class="campaign-link">{{ row.campaignTitle }}</a>
+                </td>
+                <td>
+                  <span class="badge" [class.badge--accent]="row.status === 'ativa'" [class.badge--sand]="row.status === 'pausada'" [class.badge--success]="row.status === 'encerrada'">
+                    {{ statusLabel(row.status) }}
+                  </span>
+                </td>
+                <td><span class="cell-text">{{ row.currentPhaseLabel }}</span></td>
+                <td><span class="cell-text">{{ row.totalCandidates }}</span></td>
+                <td><span class="cell-text">{{ row.selectedCount }}</span></td>
+                <td>
+                  <div class="conversion-cell">
+                    <div class="conversion-track">
+                      <div class="conversion-fill" [style.width.%]="row.barPct"></div>
+                    </div>
+                    <span>{{ row.conversionPct }}%</span>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
+</div>
