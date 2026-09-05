@@ -55,6 +55,8 @@ a:hover {
 
 .serif {
   font-family: var(--font-serif);
+  font-weight: 500;
+  text-wrap: balance;
 }
 
 /* ===== Shared UI utilities ===== */
@@ -100,6 +102,13 @@ a:hover {
 }
 .dim {
   color: var(--color-text-dim);
+}
+
+.intro {
+  font-size: 14.5px;
+  line-height: 1.6;
+  max-width: 640px;
+  margin-bottom: 28px;
 }
 
 .fieldlabel {
