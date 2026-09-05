@@ -191,3 +191,37 @@ textarea.field {
 @keyframes state-spin {
   to { transform: rotate(360deg); }
 }
+
+/* ===== Shared modal shell (reaproveitado por qualquer tela com diálogo) ===== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(21, 26, 34, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 50;
+}
+.modal-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 28px;
+  max-height: 90vh;
+  overflow-y: auto;
+
+  h2 {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+}
+.modal-intro {
+  font-size: 13px;
+  margin-bottom: 20px;
+}
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}

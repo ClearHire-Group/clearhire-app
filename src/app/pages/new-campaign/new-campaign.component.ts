@@ -1,9 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TopNavComponent, SubTab } from '../../layout/top-nav/top-nav.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
+import { TalentMatch } from '../../core/models';
+import { toTalentMatchViews, TalentMatchView } from '../../core/talent-view';
 
 type ModuleKey = 'fit' | 'tecnica' | 'entrevista';
 
@@ -63,5 +65,39 @@ export class NewCampaignComponent {
 
   get finalNum(): number {
     return this.selected.length + 2;
+  }
+
+  readonly reverseMatchLoading = signal(false);
+  readonly reverseMatchResults = signal<TalentMatchView[] | null>(null);
+  readonly selectedTalentIds = signal<ReadonlySet<string>>(new Set());
+
+  /**
+   * Match reverso (seção 8.2): puramente visual, no mesmo nível de fidelidade do botão
+   * "Criar campanha" — não há persistência real de campanha neste protótipo ainda.
+   */
+  viewSuggestedTalents(titleInput: HTMLInputElement, modalitySelect: HTMLSelectElement, senioritySelect: HTMLSelectElement): void {
+    this.reverseMatchLoading.set(true);
+    this.reverseMatchResults.set(null);
+    this.api
+      .getReverseMatchForNewCampaign({
+        title: titleInput.value,
+        modality: modalitySelect.value,
+        seniority: senioritySelect.value,
+      })
+      .subscribe((matches: TalentMatch[]) => {
+        this.reverseMatchLoading.set(false);
+        this.reverseMatchResults.set(toTalentMatchViews(matches));
+      });
+  }
+
+  toggleTalentSelection(id: string): void {
+    const next = new Set(this.selectedTalentIds());
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    this.selectedTalentIds.set(next);
+  }
+
+  isTalentSelected(id: string): boolean {
+    return this.selectedTalentIds().has(id);
   }
 }

@@ -8,9 +8,14 @@ import {
   Candidate,
   CandidateProfileData,
   CompanyProfile,
+  CoverageEntry,
   DashboardMetrics,
+  ManualTalentInput,
   Phase,
   PhaseKey,
+  RejectionReasonKey,
+  Talent,
+  TalentMatch,
 } from './models';
 
 /**
@@ -24,8 +29,6 @@ export abstract class DataApi {
   abstract getCampaigns(): Observable<Campaign[]>;
   abstract getCampaign(id: string): Observable<Campaign | undefined>;
   abstract getCandidates(campaignId: string, phase?: PhaseKey): Observable<Candidate[]>;
-  /** All candidates across every campaign — powers the global "Candidatos" directory. */
-  abstract getAllCandidates(): Observable<Candidate[]>;
   abstract getCandidateProfile(candidateId: string): Observable<CandidateProfileData | undefined>;
   abstract getCompanyProfile(): Observable<CompanyProfile>;
   abstract getDashboardMetrics(): Observable<DashboardMetrics>;
@@ -37,4 +40,33 @@ export abstract class DataApi {
   /** One row per campaign: totals, conversion rate, current phase — powers the Relatórios comparison table. */
   abstract getCampaignPerformance(): Observable<CampaignPerformance[]>;
   abstract getAiTrustMetrics(): Observable<AiTrustMetrics>;
+
+  // --- Banco de Talentos ---------------------------------------------------
+  /** Full talent roster, no score attached — default view of the bank with no search active. */
+  abstract getTalents(): Observable<Talent[]>;
+  abstract getTalent(id: string): Observable<Talent | undefined>;
+  /** Natural-language query translated to structured filters, then filtered + ranked deterministically. */
+  abstract searchTalents(query: string): Observable<TalentMatch[]>;
+  abstract findSimilarTalents(talentId: string): Observable<TalentMatch[]>;
+  /** Aggregate skill coverage across the bank — powers the "Mapa de Cobertura" view. */
+  abstract getTalentPoolCoverage(): Observable<CoverageEntry[]>;
+  /** Manual entry outside any campaign (recruiter found someone via LinkedIn, an event, a referral). */
+  abstract registerManualTalent(input: ManualTalentInput): Observable<Talent>;
+  /**
+   * Structured rejection: only reasons with `goesToBank` create/update a Talent record.
+   * `sendBankInvite` is only meaningful when the reason goes to the bank.
+   */
+  abstract submitCandidateRejection(
+    candidateId: string,
+    reasonKey: RejectionReasonKey,
+    sendBankInvite: boolean,
+  ): Observable<{ talent?: Talent }>;
+  /** Primeiro contato real com um talento de origem manual: dispara o aviso de tratamento e promove nao_notificado -> notificado (seção 5.2). */
+  abstract markTalentFirstContact(talentId: string): Observable<Talent | undefined>;
+  /** "Match reverso": talents from the bank that fit a campaign still being drafted (título/modalidade/senioridade do step 1). */
+  abstract getReverseMatchForNewCampaign(criteria: {
+    title: string;
+    modality?: string;
+    seniority?: string;
+  }): Observable<TalentMatch[]>;
 }

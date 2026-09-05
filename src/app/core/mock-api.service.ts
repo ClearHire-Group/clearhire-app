@@ -12,10 +12,16 @@ import {
   Candidate,
   CandidateProfileData,
   CompanyProfile,
+  CoverageEntry,
   DashboardMetrics,
+  ManualTalentInput,
   Phase,
   PhaseKey,
   PHASE_LABELS,
+  REJECTION_REASONS,
+  RejectionReasonKey,
+  Talent,
+  TalentMatch,
 } from './models';
 import {
   MOCK_ACTIVITY_FEED,
@@ -26,11 +32,16 @@ import {
   MOCK_CANDIDATE_PROFILES,
   MOCK_COMPANY_PROFILE,
   MOCK_DASHBOARD_METRICS,
+  MOCK_TALENTS,
 } from './mock-data';
+import { computeCoverage, findSimilarInPool, reverseMatchForCriteria, searchTalentPool } from './talent-matching';
 
 /** Stand-in backend: same contract as HttpApiService, served from in-memory data. */
 @Injectable()
 export class MockApiService extends DataApi {
+  /** Estado "vivo" do banco — cadastro manual e reprovação qualificada escrevem aqui em runtime. */
+  private talents: Talent[] = [...MOCK_TALENTS];
+
   getCampaigns(): Observable<Campaign[]> {
     return this.simulate(MOCK_CAMPAIGNS);
   }
@@ -42,10 +53,6 @@ export class MockApiService extends DataApi {
   getCandidates(campaignId: string, phase?: PhaseKey): Observable<Candidate[]> {
     const all = MOCK_CANDIDATES_BY_CAMPAIGN[campaignId] ?? [];
     return this.simulate(phase ? all.filter((c) => c.phase === phase) : all);
-  }
-
-  getAllCandidates(): Observable<Candidate[]> {
-    return this.simulate(Object.values(MOCK_CANDIDATES_BY_CAMPAIGN).flat());
   }
 
   getCandidateProfile(candidateId: string): Observable<CandidateProfileData | undefined> {
@@ -97,6 +104,157 @@ export class MockApiService extends DataApi {
 
   getAiTrustMetrics(): Observable<AiTrustMetrics> {
     return this.simulate(MOCK_AI_TRUST);
+  }
+
+  getTalents(): Observable<Talent[]> {
+    return this.simulate(this.talents);
+  }
+
+  getTalent(id: string): Observable<Talent | undefined> {
+    return this.simulate(this.talents.find((t) => t.id === id));
+  }
+
+  searchTalents(query: string): Observable<TalentMatch[]> {
+    return this.simulate(searchTalentPool(query, this.talents));
+  }
+
+  findSimilarTalents(talentId: string): Observable<TalentMatch[]> {
+    return this.simulate(findSimilarInPool(talentId, this.talents));
+  }
+
+  getTalentPoolCoverage(): Observable<CoverageEntry[]> {
+    return this.simulate(computeCoverage(this.talents));
+  }
+
+  registerManualTalent(input: ManualTalentInput): Observable<Talent> {
+    const id = this.slugify(input.name);
+    const talent: Talent = {
+      id,
+      name: input.name,
+      initials: this.initialsFor(input.name),
+      avatarColorIndex: (this.talents.length % 3) as 0 | 1 | 2,
+      location: 'A confirmar',
+      modality: 'A confirmar',
+      seniority: 'A confirmar',
+      yearsExperience: 0,
+      sectors: [],
+      // Em produção, o LLM extrai skills/setor/senioridade de `rawProfileText` na ingestão (seção 6.1).
+      // Aqui ficam vazios até o recrutador complementar o perfil no cadastro manual.
+      skills: [],
+      languages: [],
+      salaryRangeLabel: 'A confirmar',
+      availabilityLabel: 'A confirmar',
+      origin: 'cadastro_manual',
+      legalBasis: 'legitimo_interesse',
+      consentState: 'nao_notificado',
+      profileDepth: 'baixo',
+      profileDepthNote: 'Cadastro manual, sem entrevistas realizadas ainda.',
+      freshnessLabel: 'Cadastrado agora',
+      summary: input.rawProfileText,
+      experience: [],
+      education: { degree: '', institution: '', period: '' },
+      recruiterNotes: input.contextNote,
+      history: [],
+    };
+    this.talents = [talent, ...this.talents];
+    return this.simulate(talent);
+  }
+
+  submitCandidateRejection(
+    candidateId: string,
+    reasonKey: RejectionReasonKey,
+    sendBankInvite: boolean,
+  ): Observable<{ talent?: Talent }> {
+    const candidate = Object.values(MOCK_CANDIDATES_BY_CAMPAIGN)
+      .flat()
+      .find((c) => c.id === candidateId);
+    if (!candidate) return this.simulate({ talent: undefined });
+
+    const reason = REJECTION_REASONS.find((r) => r.key === reasonKey);
+    candidate.status = 'Reprovada';
+    candidate.rejectionReasonKey = reasonKey;
+
+    if (!reason || !reason.goesToBank || !sendBankInvite) {
+      return this.simulate({ talent: undefined });
+    }
+
+    const existing = this.talents.find((t) => t.id === candidate.talentId);
+    if (existing) return this.simulate({ talent: existing });
+
+    const campaign = MOCK_CAMPAIGNS.find((c) => c.id === candidate.campaignId);
+    const depthByPhase: Record<string, Talent['profileDepth']> = {
+      entrevista: 'alto',
+      selecionados: 'alto',
+      tecnica: 'medio',
+      fit: 'medio',
+      recebidos: 'baixo',
+    };
+
+    const talent: Talent = {
+      id: candidate.id,
+      name: candidate.name,
+      initials: candidate.initials,
+      avatarColorIndex: candidate.avatarColorIndex,
+      location: candidate.location,
+      modality: 'A confirmar',
+      seniority: 'A confirmar',
+      yearsExperience: 0,
+      sectors: [],
+      skills: [],
+      languages: [],
+      salaryRangeLabel: 'A confirmar',
+      availabilityLabel: 'Disponível imediatamente',
+      origin: 'reprovacao_qualificada',
+      legalBasis: 'consentimento',
+      consentState: 'consentido',
+      consentDateLabel: 'Consentiu agora',
+      profileDepth: depthByPhase[candidate.phase] ?? 'baixo',
+      profileDepthNote: `Passou pela fase ${PHASE_LABELS[candidate.phase]} nesta empresa.`,
+      freshnessLabel: 'Atualizado agora',
+      summary: `${candidate.experience}. ${candidate.location}.`,
+      experience: [],
+      education: { degree: '', institution: '', period: '' },
+      history: [
+        {
+          campaignId: candidate.campaignId,
+          campaignTitle: campaign?.title ?? candidate.campaignId,
+          reachedPhaseLabel: PHASE_LABELS[candidate.phase],
+          outcomeLabel: `Reprovado — ${reason.label.toLowerCase()}`,
+          rejectionReasonKey: reasonKey,
+        },
+      ],
+    };
+
+    this.talents = [talent, ...this.talents];
+    candidate.talentId = talent.id;
+    return this.simulate({ talent });
+  }
+
+  markTalentFirstContact(talentId: string): Observable<Talent | undefined> {
+    const talent = this.talents.find((t) => t.id === talentId);
+    if (talent && talent.consentState === 'nao_notificado') {
+      talent.consentState = 'notificado';
+    }
+    return this.simulate(talent);
+  }
+
+  getReverseMatchForNewCampaign(criteria: { title: string; modality?: string; seniority?: string }): Observable<TalentMatch[]> {
+    return this.simulate(reverseMatchForCriteria(criteria, this.talents));
+  }
+
+  private slugify(name: string): string {
+    const base = name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-');
+    return this.talents.some((t) => t.id === base) ? `${base}-${this.talents.length}` : base;
+  }
+
+  private initialsFor(name: string): string {
+    const parts = name.trim().split(/\s+/);
+    return ((parts[0]?.[0] ?? '') + (parts[parts.length - 1]?.[0] ?? '')).toUpperCase();
   }
 
   private simulate<T>(value: T): Observable<T> {

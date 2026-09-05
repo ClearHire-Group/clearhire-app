@@ -9,7 +9,7 @@ export interface CandidateView extends Candidate {
   statusBg: string;
 }
 
-const AVATAR_STYLES = [
+export const AVATAR_STYLES = [
   { bg: 'rgba(184,90,62,0.18)', color: '#B85A3E' },
   { bg: 'rgba(192,146,129,0.2)', color: '#a8674f' },
   { bg: 'rgba(58,74,46,0.16)', color: '#3A4A2E' },
@@ -23,6 +23,7 @@ const STATUS_STYLES: Record<string, { color: string; bg: string }> = {
   'Proposta em elaboração': { color: '#3A4A2E', bg: 'rgba(58,74,46,0.16)' },
   'Entrevista concluída': { color: '#934832', bg: 'rgba(184,90,62,0.18)' },
   Contratada: { color: '#F0F0E6', bg: '#3A4A2E' },
+  Reprovada: { color: 'rgba(21,26,34,0.55)', bg: 'rgba(21,26,34,0.08)' },
 };
 const DEFAULT_STATUS_STYLE = { color: 'rgba(21,26,34,0.55)', bg: 'rgba(21,26,34,0.06)' };
 

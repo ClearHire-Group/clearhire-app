@@ -2,7 +2,8 @@ import { Routes } from '@angular/router';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ActivityComponent } from './pages/activity/activity.component';
 import { CampaignsComponent } from './pages/campaigns/campaigns.component';
-import { CandidatesComponent } from './pages/candidates/candidates.component';
+import { TalentBankComponent } from './pages/talent-bank/talent-bank.component';
+import { TalentProfileComponent } from './pages/talent-profile/talent-profile.component';
 import { ReportsComponent } from './pages/reports/reports.component';
 import { NewCampaignComponent } from './pages/new-campaign/new-campaign.component';
 import { CampaignDetailComponent } from './pages/campaign-detail/campaign-detail.component';
@@ -14,7 +15,9 @@ export const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent },
   { path: 'dashboard/atividade', component: ActivityComponent },
   { path: 'campanhas', component: CampaignsComponent },
-  { path: 'candidatos', component: CandidatesComponent },
+  { path: 'candidatos', redirectTo: 'banco-de-talentos' },
+  { path: 'banco-de-talentos', component: TalentBankComponent },
+  { path: 'banco-de-talentos/:talentId', component: TalentProfileComponent },
   { path: 'relatorios', component: ReportsComponent },
   { path: 'campanhas/nova', component: NewCampaignComponent },
   { path: 'campanhas/:campaignId/candidatos/:candidateId', component: CandidateProfileComponent },

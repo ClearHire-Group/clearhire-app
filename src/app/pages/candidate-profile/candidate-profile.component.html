@@ -31,10 +31,21 @@
             </div>
           </div>
           <div class="header__actions">
-            <button class="btn-ghost reject-btn" type="button">Reprovar nesta fase</button>
+            <button class="btn-ghost reject-btn" type="button" (click)="openRejectModal()">Reprovar nesta fase</button>
             <button class="btn-primary approve-btn" type="button">Aprovar e avançar</button>
           </div>
         </div>
+
+        @if (rejectResult(); as result) {
+          <div class="card confirmation-banner">
+            @if (result.talentId) {
+              <span>Reprovação registrada — <a [routerLink]="['/banco-de-talentos', result.talentId]">talento adicionado ao Banco de Talentos</a>.</span>
+            } @else {
+              <span>Reprovação registrada. Este motivo não envia o perfil ao Banco de Talentos.</span>
+            }
+            <button type="button" class="dismiss-btn" (click)="rejectResult.set(null)">Fechar</button>
+          </div>
+        }
 
         <div class="columns">
           <!-- Original candidate data -->
@@ -150,6 +161,43 @@
       } @else {
         <div class="card empty-state">
           <p>Este candidato ainda não tem um perfil detalhado nesta prévia do protótipo. Os exemplos completos, com dados originais e análise da IA lado a lado, estão em Marina Albuquerque e Camila Duarte, na fase Entrevista Estruturada e Fit Cultural.</p>
+        </div>
+      }
+
+      @if (rejectModalOpen()) {
+        <div class="modal-backdrop" (click)="closeRejectModal()">
+          <div class="card modal-card" (click)="$event.stopPropagation()">
+            @if (rejectStep() === 'motivo') {
+              <h2 class="serif">Reprovar candidatura</h2>
+              <p class="muted modal-intro">Escolha o motivo. Ele decide se a pessoa é oferecida para entrar no Banco de Talentos.</p>
+              <div class="reason-list">
+                @for (r of rejectionReasons; track r.key) {
+                  <label class="reason-card" [class.selected]="selectedReasonKey() === r.key">
+                    <input type="radio" name="reason" [checked]="selectedReasonKey() === r.key" (change)="chooseReason(r.key)" />
+                    <div>
+                      <div class="reason-card__label">{{ r.label }}</div>
+                      <div class="reason-card__effect">{{ r.effectLabel }}</div>
+                    </div>
+                  </label>
+                }
+              </div>
+              <div class="modal-actions">
+                <button type="button" class="btn-ghost" (click)="closeRejectModal()">Cancelar</button>
+                <button type="button" class="btn-primary" [disabled]="!selectedReasonKey()" (click)="proceedFromMotivo()">Continuar</button>
+              </div>
+            } @else {
+              <h2 class="serif">Convite para o Banco de Talentos</h2>
+              <p class="modal-invite-copy">"Você não seguiu para a próxima etapa desta vaga, mas o seu perfil chamou nossa atenção. Você autoriza que mantenhamos seus dados para futuras oportunidades?"</p>
+              <label class="toggle-row">
+                <input type="checkbox" [checked]="sendBankInvite()" (change)="sendBankInvite.set($any($event.target).checked)" />
+                Enviar convite ao Banco de Talentos
+              </label>
+              <div class="modal-actions">
+                <button type="button" class="btn-ghost" (click)="rejectStep.set('motivo')">Voltar</button>
+                <button type="button" class="btn-primary" [disabled]="rejectSaving()" (click)="confirmReject()">{{ rejectSaving() ? 'Confirmando…' : 'Confirmar reprovação' }}</button>
+              </div>
+            }
+          </div>
         </div>
       }
     </div>

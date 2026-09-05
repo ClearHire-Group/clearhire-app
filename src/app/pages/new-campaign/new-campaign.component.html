@@ -14,7 +14,7 @@
       <div class="form-grid">
         <div>
           <label class="fieldlabel">Título da vaga</label>
-          <input class="field" type="text" value="Engenheiro(a) de Dados Pleno" />
+          <input #tituloInput class="field" type="text" value="Engenheiro(a) de Dados Pleno" />
         </div>
         <div class="form-row">
           <div>
@@ -23,7 +23,7 @@
           </div>
           <div>
             <label class="fieldlabel">Modelo de trabalho</label>
-            <select class="field">
+            <select #modalidadeSelect class="field">
               <option>Híbrido</option>
               <option>Remoto</option>
               <option>Presencial</option>
@@ -41,7 +41,7 @@
           </div>
           <div>
             <label class="fieldlabel">Senioridade</label>
-            <select class="field">
+            <select #senioritySelect class="field">
               <option>Pleno</option>
               <option>Júnior</option>
               <option>Sênior</option>
@@ -142,6 +142,41 @@
           <span class="funnel-step__tag">FIXA</span>
         </div>
       </div>
+    </div>
+
+    <!-- Match reverso (seção 8.2): sugestões do Banco de Talentos para esta vaga ainda em rascunho -->
+    <div class="card step step--last reverse-match">
+      <div class="step__header step__header--tight">
+        <h2 class="serif">Talentos sugeridos do Banco de Talentos</h2>
+      </div>
+      <p class="muted step__hint">A IA sugere; você revisa e decide quem entra no funil inicial desta campanha.</p>
+
+      @if (reverseMatchResults(); as results) {
+        <p class="reverse-match__count">{{ results.length }} talento(s) do banco combinam com esta vaga.</p>
+        <div class="reverse-match__list">
+          @for (r of results; track r.id) {
+            <label class="reverse-match__row">
+              <input type="checkbox" [checked]="isTalentSelected(r.id)" (change)="toggleTalentSelection(r.id)" />
+              <div class="ring" [style]="r.ringStyle">
+                <div class="ring__hole"><span>{{ r.pctLabel }}</span></div>
+              </div>
+              <div class="reverse-match__info">
+                <span class="reverse-match__name">{{ r.name }}</span>
+                <span class="reverse-match__meta">{{ r.seniority }} · {{ r.location }}</span>
+              </div>
+            </label>
+          } @empty {
+            <p class="muted">Nenhum talento do banco combina com esses critérios ainda.</p>
+          }
+        </div>
+        @if (selectedTalentIds().size > 0) {
+          <p class="reverse-match__selected">{{ selectedTalentIds().size }} selecionado(s) para o funil inicial.</p>
+        }
+      } @else if (reverseMatchLoading()) {
+        <p class="state-message"><span class="state-spinner"></span> Buscando talentos compatíveis…</p>
+      } @else {
+        <button type="button" class="btn-ghost" (click)="viewSuggestedTalents(tituloInput, modalidadeSelect, senioritySelect)">Ver talentos sugeridos</button>
+      }
     </div>
 
     <div class="submit-row">

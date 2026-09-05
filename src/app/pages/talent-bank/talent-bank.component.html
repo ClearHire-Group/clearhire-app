@@ -1,0 +1,174 @@
+<div class="page">
+  <app-top-nav activeTab="banco-de-talentos" [subTabs]="subTabs"></app-top-nav>
+
+  <div class="page-body">
+    <div class="page-header">
+      <h1 class="serif">Banco de Talentos</h1>
+    </div>
+    <p class="muted intro">
+      Pessoas, não candidaturas — talentos existem independente de vaga e carregam histórico entre campanhas. Para ver quem está em processo numa vaga específica, acesse a campanha.
+    </p>
+
+    @if (view() === 'lista') {
+      <div class="toolbar">
+        <div class="search-row">
+          <div class="search">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(21,26,34,0.4)" stroke-width="2"><circle cx="11" cy="11" r="7" /><path d="M21 21l-4.3-4.3" /></svg>
+            <input
+              type="text"
+              placeholder="Ex.: consultor SAP FI, varejo, híbrido em SP, disponível em 3 meses…"
+              [value]="searchTerm()"
+              (input)="onSearchInput($event)"
+              (keyup.enter)="runSearch()"
+            />
+          </div>
+          <button type="button" class="btn-primary" (click)="runSearch()">Buscar</button>
+          @if (hasActiveQuery()) {
+            <button type="button" class="btn-ghost" (click)="clearSearch()">Limpar</button>
+          }
+          <button type="button" class="btn-ghost new-talent-btn" (click)="openManualForm()">+ Novo talento</button>
+        </div>
+
+        <div class="chip-row">
+          <span class="chip-group-label">Consentimento</span>
+          <button type="button" class="chip-filter" [class.active]="consentFilter() === 'todos'" (click)="setConsentFilter('todos')">Todos</button>
+          <button type="button" class="chip-filter" [class.active]="consentFilter() === 'quente'" (click)="setConsentFilter('quente')">Quente</button>
+          <button type="button" class="chip-filter" [class.active]="consentFilter() === 'frio'" (click)="setConsentFilter('frio')">Frio</button>
+          <span class="chip-group-label chip-group-label--gap">Origem</span>
+          <button type="button" class="chip-filter" [class.active]="originFilter() === 'todos'" (click)="setOriginFilter('todos')">Todas</button>
+          <button type="button" class="chip-filter" [class.active]="originFilter() === 'reprovacao_qualificada'" (click)="setOriginFilter('reprovacao_qualificada')">Reprovação qualificada</button>
+          <button type="button" class="chip-filter" [class.active]="originFilter() === 'cadastro_manual'" (click)="setOriginFilter('cadastro_manual')">Cadastro manual</button>
+        </div>
+
+        @if (hasActiveQuery()) {
+          <p class="result-label">{{ searchState().label }}</p>
+        }
+      </div>
+
+      <div class="card table-card">
+        @if (talentsState.loading() || searchState().loading) {
+          <p class="state-message"><span class="state-spinner"></span> Carregando talentos…</p>
+        } @else if (talentsState.error()) {
+          <p class="state-message state-message--error">Não foi possível carregar o banco de talentos.</p>
+        } @else {
+          <table>
+            <thead>
+              <tr>
+                <th class="col-talent">Talento</th>
+                <th>Skills</th>
+                <th>Senioridade / Modalidade</th>
+                <th>Perfil</th>
+                <th>Consentimento</th>
+                @if (hasActiveQuery()) {
+                  <th>Match</th>
+                }
+                <th class="col-action">Ação</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (t of displayedRows(); track t.id) {
+                <tr>
+                  <td>
+                    <div class="talent-cell">
+                      <div class="avatar" [style.background]="t.avatarBg" [style.color]="t.avatarColor">{{ t.initials }}</div>
+                      <div class="talent-cell__info">
+                        <span class="talent-cell__name">{{ t.name }}</span>
+                        <span class="talent-cell__location">{{ t.location }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="skill-tags">
+                      @for (s of t.skills.slice(0, 3); track s.term) {
+                        <span class="skill-tag">{{ s.term }}</span>
+                      } @empty {
+                        <span class="cell-text dim">—</span>
+                      }
+                    </div>
+                  </td>
+                  <td><span class="cell-text">{{ t.seniority }} · {{ t.modality }}</span></td>
+                  <td>
+                    <span class="badge" [style.color]="t.depthColor" [style.background]="t.depthBg">{{ t.depthLabel }}</span>
+                    <div class="freshness">{{ t.freshnessLabel }}</div>
+                  </td>
+                  <td><span class="badge" [style.color]="t.warmColor" [style.background]="t.warmBg">{{ t.warmLabel }}</span></td>
+                  @if (hasActiveQuery()) {
+                    <td>
+                      <div class="match-cell">
+                        <div class="ring" [style]="t.ringStyle">
+                          <div class="ring__hole"><span>{{ t.pctLabel }}</span></div>
+                        </div>
+                        <span class="justification">{{ breakdownSummary(t) }}</span>
+                      </div>
+                    </td>
+                  }
+                  <td class="col-action">
+                    <button type="button" class="btn-ghost similar-btn" (click)="findSimilar(t)">Encontrar parecidos</button>
+                    <a [routerLink]="['/banco-de-talentos', t.id]" class="btn-ghost view-btn">Ver perfil</a>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td [attr.colspan]="hasActiveQuery() ? 7 : 6">
+                    <p class="empty-row">Nenhum talento encontrado com esses filtros.</p>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+      </div>
+    } @else {
+      <div class="card coverage-card">
+        <div class="coverage-header">
+          <h2 class="serif">Mapa de cobertura</h2>
+          <p class="muted">Quais competências o banco cobre bem e onde está fraco — alimenta a decisão de sourcing.</p>
+        </div>
+        @if (coverageState.loading()) {
+          <p class="state-message"><span class="state-spinner"></span> Carregando cobertura…</p>
+        } @else if (coverageState.error()) {
+          <p class="state-message state-message--error">Não foi possível carregar o mapa de cobertura.</p>
+        } @else {
+          <div class="coverage-bars">
+            @for (c of coverageState.data(); track c.skillTerm) {
+              <div class="coverage-row">
+                <span class="coverage-row__label">{{ c.skillTerm }}</span>
+                <div class="coverage-row__track">
+                  <div class="coverage-row__fill" [style.width.%]="(c.count / maxCoverageCount()) * 100"></div>
+                </div>
+                <span class="coverage-row__count">{{ c.count }}</span>
+              </div>
+            } @empty {
+              <p class="empty-row">Ainda não há dados suficientes para o mapa de cobertura.</p>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  @if (showManualForm()) {
+    <div class="modal-backdrop" (click)="closeManualForm()">
+      <div class="card modal-card" (click)="$event.stopPropagation()">
+        <h2 class="serif">Novo talento</h2>
+        <p class="muted modal-intro">Cadastro manual, fora de campanha — legítimo interesse até o primeiro contato real com a pessoa.</p>
+
+        <label class="fieldlabel">Nome</label>
+        <input class="field" type="text" [value]="manualName()" (input)="manualName.set($any($event.target).value)" placeholder="Nome completo" />
+
+        <label class="fieldlabel">Currículo ou perfil colado</label>
+        <textarea class="field" rows="4" [value]="manualRawText()" (input)="manualRawText.set($any($event.target).value)" placeholder="Cole aqui o currículo ou o perfil do LinkedIn…"></textarea>
+
+        <label class="fieldlabel">Nota de contexto</label>
+        <textarea class="field" rows="2" [value]="manualNote()" (input)="manualNote.set($any($event.target).value)" placeholder="Onde encontrou essa pessoa, por que chamou atenção…"></textarea>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" (click)="closeManualForm()">Cancelar</button>
+          <button type="button" class="btn-primary" [disabled]="manualSaving() || !manualName().trim()" (click)="submitManualTalent()">
+            {{ manualSaving() ? 'Cadastrando…' : 'Cadastrar talento' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

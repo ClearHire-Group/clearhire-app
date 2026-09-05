@@ -13,9 +13,14 @@ import {
   Candidate,
   CandidateProfileData,
   CompanyProfile,
+  CoverageEntry,
   DashboardMetrics,
+  ManualTalentInput,
   Phase,
   PhaseKey,
+  RejectionReasonKey,
+  Talent,
+  TalentMatch,
 } from './models';
 
 /**
@@ -26,8 +31,8 @@ import {
  *   GET  /campaigns                                 -> Campaign[]
  *   GET  /campaigns/:id                              -> Campaign (404 -> undefined)
  *   GET  /campaigns/:id/candidates?phase=:phaseKey    -> Candidate[]  (phase optional)
- *   GET  /candidates                                  -> Candidate[]  (all campaigns)
  *   GET  /candidates/:id/profile                      -> CandidateProfileData (404 -> undefined)
+ *   POST /candidates/:id/reject                       -> { talent?: Talent }  (body: { reasonKey, sendBankInvite })
  *   GET  /company-profile                             -> CompanyProfile
  *   GET  /dashboard/metrics                           -> DashboardMetrics
  *   GET  /dashboard/ai-suggestions                    -> AiSuggestion[]
@@ -35,6 +40,16 @@ import {
  *   GET  /reports/funnel-summary                      -> Phase[] (aggregate across campaigns)
  *   GET  /reports/campaign-performance                -> CampaignPerformance[]
  *   GET  /reports/ai-trust                            -> AiTrustMetrics
+ *
+ *   -- Banco de Talentos: LLM na escrita (ingestão/tradução de busca), determinismo na leitura --
+ *   GET  /talents                                     -> Talent[]  (full roster, no score)
+ *   GET  /talents/:id                                  -> Talent (404 -> undefined)
+ *   GET  /talents/search?q=:query                      -> TalentMatch[]  (NL query -> filters -> deterministic rank)
+ *   GET  /talents/:id/similar                           -> TalentMatch[]  (vector similarity, zero LLM at read time)
+ *   GET  /talents/coverage                              -> CoverageEntry[]  (aggregate SQL)
+ *   POST /talents                                       -> Talent  (manual entry, body: ManualTalentInput)
+ *   POST /talents/:id/first-contact                     -> Talent (404 -> undefined)
+ *   POST /campaigns/reverse-match                        -> TalentMatch[]  (body: { title, modality?, seniority? })
  */
 @Injectable()
 export class HttpApiService extends DataApi {
@@ -55,10 +70,6 @@ export class HttpApiService extends DataApi {
   getCandidates(campaignId: string, phase?: PhaseKey): Observable<Candidate[]> {
     const params = phase ? new HttpParams().set('phase', phase) : undefined;
     return this.http.get<Candidate[]>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/candidates`, { params });
-  }
-
-  getAllCandidates(): Observable<Candidate[]> {
-    return this.http.get<Candidate[]>(`${APP_CONFIG.apiBaseUrl}/candidates`);
   }
 
   getCandidateProfile(candidateId: string): Observable<CandidateProfileData | undefined> {
@@ -93,5 +104,55 @@ export class HttpApiService extends DataApi {
 
   getAiTrustMetrics(): Observable<AiTrustMetrics> {
     return this.http.get<AiTrustMetrics>(`${APP_CONFIG.apiBaseUrl}/reports/ai-trust`);
+  }
+
+  getTalents(): Observable<Talent[]> {
+    return this.http.get<Talent[]>(`${APP_CONFIG.apiBaseUrl}/talents`);
+  }
+
+  getTalent(id: string): Observable<Talent | undefined> {
+    return this.http.get<Talent>(`${APP_CONFIG.apiBaseUrl}/talents/${id}`).pipe(catchError(() => of(undefined)));
+  }
+
+  searchTalents(query: string): Observable<TalentMatch[]> {
+    const params = new HttpParams().set('q', query);
+    return this.http.get<TalentMatch[]>(`${APP_CONFIG.apiBaseUrl}/talents/search`, { params });
+  }
+
+  findSimilarTalents(talentId: string): Observable<TalentMatch[]> {
+    return this.http.get<TalentMatch[]>(`${APP_CONFIG.apiBaseUrl}/talents/${talentId}/similar`);
+  }
+
+  getTalentPoolCoverage(): Observable<CoverageEntry[]> {
+    return this.http.get<CoverageEntry[]>(`${APP_CONFIG.apiBaseUrl}/talents/coverage`);
+  }
+
+  registerManualTalent(input: ManualTalentInput): Observable<Talent> {
+    return this.http.post<Talent>(`${APP_CONFIG.apiBaseUrl}/talents`, input);
+  }
+
+  submitCandidateRejection(
+    candidateId: string,
+    reasonKey: RejectionReasonKey,
+    sendBankInvite: boolean,
+  ): Observable<{ talent?: Talent }> {
+    return this.http.post<{ talent?: Talent }>(`${APP_CONFIG.apiBaseUrl}/candidates/${candidateId}/reject`, {
+      reasonKey,
+      sendBankInvite,
+    });
+  }
+
+  markTalentFirstContact(talentId: string): Observable<Talent | undefined> {
+    return this.http
+      .post<Talent>(`${APP_CONFIG.apiBaseUrl}/talents/${talentId}/first-contact`, {})
+      .pipe(catchError(() => of(undefined)));
+  }
+
+  getReverseMatchForNewCampaign(criteria: {
+    title: string;
+    modality?: string;
+    seniority?: string;
+  }): Observable<TalentMatch[]> {
+    return this.http.post<TalentMatch[]>(`${APP_CONFIG.apiBaseUrl}/campaigns/reverse-match`, criteria);
   }
 }

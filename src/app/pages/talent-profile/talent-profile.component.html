@@ -1,0 +1,151 @@
+<div class="page">
+  <app-top-nav activeTab="banco-de-talentos" [subTabs]="subTabs" breadcrumb="Banco de Talentos"></app-top-nav>
+
+  <div class="page-body page-body--profile">
+    <a routerLink="/banco-de-talentos" class="back-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
+      Voltar ao Banco de Talentos
+    </a>
+
+    @if (talentView(); as t) {
+      <div class="header">
+        <div class="header__identity">
+          <div class="header__avatar" [style.background]="t.avatarBg" [style.color]="t.avatarColor">{{ t.initials }}</div>
+          <div>
+            <h1 class="serif">{{ t.name }}</h1>
+            <div class="header__meta">
+              <span class="badge" [style.color]="t.warmColor" [style.background]="t.warmBg">{{ t.warmLabel }}</span>
+              <span class="badge" [style.color]="t.depthColor" [style.background]="t.depthBg">{{ t.depthLabel }}</span>
+              <span class="dim">{{ t.freshnessLabel }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="header__actions">
+          <a [routerLink]="['/banco-de-talentos']" [queryParams]="{ similarTo: t.id }" class="btn-ghost">Encontrar parecidos</a>
+        </div>
+      </div>
+
+      @if (campaignMatch().match; as m) {
+        <div class="card campaign-match-card">
+          <div class="campaign-match__ring" [style]="'background:conic-gradient(#B85A3E 0deg ' + (m.matchPct * 3.6) + 'deg, rgba(21,26,34,0.1) ' + (m.matchPct * 3.6) + 'deg 360deg)'">
+            <div class="campaign-match__hole"><span>{{ m.matchPct }}%</span></div>
+          </div>
+          <div>
+            <div class="campaign-match__label">Match para esta vaga <span class="dim">(não persistido — recalculado sempre que uma vaga muda)</span></div>
+            <ul class="breakdown-list">
+              @for (b of m.breakdown; track b.label) {
+                <li>{{ b.label }}: {{ b.detail }} <strong [class.positive]="b.delta > 0" [class.negative]="b.delta < 0">{{ b.delta > 0 ? '+' : '' }}{{ b.delta }}</strong></li>
+              }
+            </ul>
+          </div>
+        </div>
+      }
+
+      <div class="columns">
+        <div class="card data-card">
+          <div class="data-card__header">
+            <span class="origtitle">Dados do talento</span>
+          </div>
+
+          <section>
+            <div class="sectionlabel">Skills</div>
+            <div class="skills">
+              @for (s of t.skills; track s.term) {
+                <span class="skill-tag">{{ s.term }}@if (s.level) { <span class="skill-tag__level">· {{ s.level }}</span> }</span>
+              } @empty {
+                <p class="muted">Nenhuma skill estruturada ainda.</p>
+              }
+            </div>
+          </section>
+
+          <section>
+            <div class="sectionlabel">Perfil profissional</div>
+            <div class="fact-grid">
+              <div><span class="fact-label">Senioridade</span><span class="fact-value">{{ t.seniority }}</span></div>
+              <div><span class="fact-label">Localização</span><span class="fact-value">{{ t.location }}</span></div>
+              <div><span class="fact-label">Modalidade</span><span class="fact-value">{{ t.modality }}</span></div>
+              <div><span class="fact-label">Setores</span><span class="fact-value">{{ t.sectors.join(', ') || '—' }}</span></div>
+              <div><span class="fact-label">Idiomas</span><span class="fact-value">{{ t.languages.join(', ') || '—' }}</span></div>
+              <div><span class="fact-label">Pretensão</span><span class="fact-value">{{ t.salaryRangeLabel }}</span></div>
+              <div><span class="fact-label">Disponibilidade</span><span class="fact-value">{{ t.availabilityLabel }}</span></div>
+            </div>
+          </section>
+
+          @if (t.summary) {
+            <section>
+              <div class="sectionlabel">Resumo</div>
+              <p class="summary">{{ t.summary }}</p>
+            </section>
+          }
+
+          @if (t.experience.length) {
+            <section>
+              <div class="sectionlabel">Experiência profissional</div>
+              <div class="experience-list">
+                @for (exp of t.experience; track exp.company) {
+                  <div>
+                    <div class="experience-row">
+                      <span>{{ exp.role }} · {{ exp.company }}</span>
+                      <span class="experience-period">{{ exp.period }}</span>
+                    </div>
+                    <p class="experience-desc">{{ exp.description }}</p>
+                  </div>
+                }
+              </div>
+            </section>
+          }
+
+          @if (t.recruiterNotes) {
+            <section>
+              <div class="sectionlabel">Notas do recrutador</div>
+              <p class="summary">{{ t.recruiterNotes }}</p>
+            </section>
+          }
+        </div>
+
+        <div class="card history-card">
+          <div class="data-card__header">
+            <span class="origtitle">Base legal e consentimento</span>
+          </div>
+          <div class="consent-box">
+            <div class="fact-grid">
+              <div><span class="fact-label">Base legal</span><span class="fact-value">{{ t.legalBasis === 'consentimento' ? 'Consentimento' : t.legalBasis === 'legitimo_interesse' ? 'Legítimo interesse' : 'A avaliar' }}</span></div>
+              <div><span class="fact-label">Origem</span><span class="fact-value">{{ t.origin === 'reprovacao_qualificada' ? 'Reprovação qualificada' : t.origin === 'cadastro_manual' ? 'Cadastro manual' : 'Importação' }}</span></div>
+              @if (t.consentDateLabel) {
+                <div><span class="fact-label">Consentimento</span><span class="fact-value">{{ t.consentDateLabel }}</span></div>
+              }
+            </div>
+            @if (t.origin === 'cadastro_manual' && t.consentState === 'nao_notificado') {
+              <button type="button" class="btn-primary first-contact-btn" [disabled]="firstContactSaving()" (click)="markFirstContact()">
+                {{ firstContactSaving() ? 'Registrando…' : 'Registrar primeiro contato e notificar' }}
+              </button>
+            }
+          </div>
+
+          <div class="data-card__header history-header">
+            <span class="origtitle">Histórico em campanhas</span>
+          </div>
+          @if (t.history.length) {
+            <ul class="history-list">
+              @for (h of t.history; track h.campaignId) {
+                <li>
+                  <div class="history-item__top">
+                    <span class="history-item__campaign">{{ h.campaignTitle }}</span>
+                    <span class="phase-tag">{{ h.reachedPhaseLabel }}</span>
+                  </div>
+                  <p class="history-item__outcome">{{ h.outcomeLabel }}</p>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="muted">Ainda não participou de nenhuma campanha — entrou pelo cadastro manual.</p>
+          }
+        </div>
+      </div>
+    } @else if (talentState.loading()) {
+      <p class="state-message"><span class="state-spinner"></span> Carregando talento…</p>
+    } @else {
+      <p class="state-message state-message--error">Não foi possível carregar este talento.</p>
+    }
+  </div>
+</div>

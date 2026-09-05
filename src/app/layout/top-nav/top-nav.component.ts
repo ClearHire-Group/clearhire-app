@@ -15,7 +15,7 @@ export interface SubTab {
   disabled?: boolean;
 }
 
-export type PrimaryTab = 'dashboard' | 'campanhas' | 'candidatos' | 'relatorios' | 'configuracoes';
+export type PrimaryTab = 'dashboard' | 'campanhas' | 'banco-de-talentos' | 'relatorios' | 'configuracoes';
 
 @Component({
   selector: 'app-top-nav',
