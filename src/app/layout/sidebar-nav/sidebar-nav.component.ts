@@ -48,7 +48,9 @@ export class SidebarNavComponent {
   );
 
   readonly collapsed = signal(readStoredCollapsed());
-  readonly dashboardExpanded = signal(true);
+
+  /** Sections whose submenu is expanded — both open by default. */
+  private expandedGroups = signal<ReadonlySet<PrimarySection>>(new Set(['dashboard', 'banco-de-talentos']));
 
   toggleCollapsed(): void {
     const next = !this.collapsed();
@@ -60,9 +62,16 @@ export class SidebarNavComponent {
     }
   }
 
-  toggleDashboardExpanded(event: Event): void {
+  isExpanded(section: PrimarySection): boolean {
+    return this.expandedGroups().has(section);
+  }
+
+  toggleGroup(section: PrimarySection, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    this.dashboardExpanded.update((v) => !v);
+    const next = new Set(this.expandedGroups());
+    if (next.has(section)) next.delete(section);
+    else next.add(section);
+    this.expandedGroups.set(next);
   }
 }

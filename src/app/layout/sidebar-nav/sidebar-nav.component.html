@@ -25,13 +25,13 @@
         </svg>
         @if (!collapsed()) {
           <span class="sidebar__label">Dashboard</span>
-          <button type="button" class="sidebar__chevron" [class.sidebar__chevron--open]="dashboardExpanded()" (click)="toggleDashboardExpanded($event)">
+          <button type="button" class="sidebar__chevron" [class.sidebar__chevron--open]="isExpanded('dashboard')" (click)="toggleGroup('dashboard', $event)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
           </button>
         }
       </a>
       @if (!collapsed()) {
-        <div class="sidebar__submenu-wrap" [class.sidebar__submenu-wrap--open]="dashboardExpanded()">
+        <div class="sidebar__submenu-wrap" [class.sidebar__submenu-wrap--open]="isExpanded('dashboard')">
           <div class="sidebar__submenu-clip">
             <div class="sidebar__submenu">
               <a routerLink="/dashboard" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active" class="sidebar__subitem">Visão Geral</a>
@@ -56,19 +56,34 @@
       }
     </a>
 
-    <a
-      routerLink="/banco-de-talentos"
-      class="sidebar__item"
-      [class.active]="activeSection() === 'banco-de-talentos'"
-      [title]="collapsed() ? 'Banco de Talentos' : null"
-    >
-      <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="8" r="3.5" /><path d="M5 20c0-3.9 3.1-6 7-6s7 2.1 7 6" />
-      </svg>
+    <div class="sidebar__group">
+      <a
+        routerLink="/banco-de-talentos"
+        class="sidebar__item"
+        [class.active]="activeSection() === 'banco-de-talentos'"
+        [title]="collapsed() ? 'Banco de Talentos' : null"
+      >
+        <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="3.5" /><path d="M5 20c0-3.9 3.1-6 7-6s7 2.1 7 6" />
+        </svg>
+        @if (!collapsed()) {
+          <span class="sidebar__label">Banco de Talentos</span>
+          <button type="button" class="sidebar__chevron" [class.sidebar__chevron--open]="isExpanded('banco-de-talentos')" (click)="toggleGroup('banco-de-talentos', $event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+          </button>
+        }
+      </a>
       @if (!collapsed()) {
-        <span class="sidebar__label">Banco de Talentos</span>
+        <div class="sidebar__submenu-wrap" [class.sidebar__submenu-wrap--open]="isExpanded('banco-de-talentos')">
+          <div class="sidebar__submenu-clip">
+            <div class="sidebar__submenu">
+              <a routerLink="/banco-de-talentos" [queryParams]="{ view: 'lista' }" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active" class="sidebar__subitem">Talentos</a>
+              <a routerLink="/banco-de-talentos" [queryParams]="{ view: 'cobertura' }" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active" class="sidebar__subitem">Mapa de Cobertura</a>
+            </div>
+          </div>
+        </div>
       }
-    </a>
+    </div>
 
     <a
       routerLink="/relatorios"
