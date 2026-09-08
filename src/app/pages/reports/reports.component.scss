@@ -165,6 +165,7 @@
 /* Campaign performance table */
 .table-card {
   padding: 24px 26px;
+  overflow-x: auto;
 }
 .table-card__title {
   font-size: 19px;
@@ -175,6 +176,7 @@
 
 table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
 }
 th {

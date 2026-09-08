@@ -105,10 +105,12 @@
 
 .table-card {
   padding: 10px 26px 6px;
+  overflow-x: auto;
 }
 
 table {
   width: 100%;
+  min-width: 1040px;
   border-collapse: collapse;
 }
 th {

@@ -97,6 +97,7 @@
 
 .table-card {
   padding: 26px;
+  overflow-x: auto;
 }
 .table-card__header {
   display: flex;
@@ -127,6 +128,7 @@
 
 table {
   width: 100%;
+  min-width: 760px;
   border-collapse: collapse;
 }
 th {

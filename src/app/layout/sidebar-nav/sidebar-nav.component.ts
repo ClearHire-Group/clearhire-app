@@ -17,11 +17,13 @@ function sectionForUrl(url: string): PrimarySection {
   return null;
 }
 
+/** Closed by default — an explicit stored preference (from the collapse button) always wins. */
 function readStoredCollapsed(): boolean {
   try {
-    return localStorage.getItem(COLLAPSED_STORAGE_KEY) === '1';
+    const stored = localStorage.getItem(COLLAPSED_STORAGE_KEY);
+    return stored === null ? true : stored === '1';
   } catch {
-    return false;
+    return true;
   }
 }
 
