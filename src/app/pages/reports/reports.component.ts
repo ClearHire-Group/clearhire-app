@@ -1,7 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { TopNavComponent, SubTab } from '../../layout/top-nav/top-nav.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { CampaignStatus } from '../../core/models';
@@ -9,14 +8,12 @@ import { CampaignStatus } from '../../core/models';
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, RouterLink, TopNavComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.scss',
 })
 export class ReportsComponent {
   private api = inject(DataApi);
-
-  readonly subTabs: SubTab[] = [];
 
   readonly funnelState = toLoadable(this.api.getFunnelSummary());
   readonly performanceState = toLoadable(this.api.getCampaignPerformance());

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { combineLatest, map, of, switchMap } from 'rxjs';
-import { TopNavComponent, SubTab } from '../../layout/top-nav/top-nav.component';
+import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { PhaseKey } from '../../core/models';
@@ -12,7 +12,7 @@ import { CandidateView, toCandidateViews } from '../../core/candidate-view';
 @Component({
   selector: 'app-campaign-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, TopNavComponent],
+  imports: [CommonModule, RouterLink, PageTabsComponent],
   templateUrl: './campaign-detail.component.html',
   styleUrl: './campaign-detail.component.scss',
 })

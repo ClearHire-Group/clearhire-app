@@ -1,14 +1,9 @@
 @if (campaignState.data(); as campaign) {
   <div class="page">
-    <app-top-nav
-      activeTab="campanhas"
-      [subTabs]="subTabs"
-      [breadcrumb]="'Campanhas / ' + campaign.title"
-    ></app-top-nav>
-
     <div class="page-body">
       <div class="header">
         <div>
+          <span class="page-breadcrumb">Campanhas / {{ campaign.title }}</span>
           <div class="header__title-row">
             <h1 class="serif">{{ campaign.title }}</h1>
             <span class="badge" [class.badge--accent]="campaign.status === 'ativa'" [class.badge--sand]="campaign.status === 'pausada'" [class.badge--success]="campaign.status === 'encerrada'">
@@ -22,6 +17,8 @@
           <button class="btn-ghost" type="button">Editar campanha</button>
         </div>
       </div>
+
+      <app-page-tabs [subTabs]="subTabs"></app-page-tabs>
 
       <!-- Funnel -->
       <div class="funnel">
@@ -109,12 +106,10 @@
   </div>
 } @else if (campaignState.loading()) {
   <div class="page">
-    <app-top-nav activeTab="campanhas" [subTabs]="subTabs"></app-top-nav>
     <div class="page-body"><p class="state-message"><span class="state-spinner"></span> Carregando campanha…</p></div>
   </div>
 } @else {
   <div class="page">
-    <app-top-nav activeTab="campanhas" [subTabs]="subTabs"></app-top-nav>
     <div class="page-body"><p class="state-message state-message--error">Não foi possível carregar esta campanha.</p></div>
   </div>
 }

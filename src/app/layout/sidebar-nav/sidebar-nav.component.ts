@@ -1,0 +1,68 @@
+import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
+
+type PrimarySection = 'dashboard' | 'campanhas' | 'banco-de-talentos' | 'relatorios' | 'configuracoes' | null;
+
+const COLLAPSED_STORAGE_KEY = 'clearhire.sidebar.collapsed';
+
+function sectionForUrl(url: string): PrimarySection {
+  if (url.startsWith('/dashboard')) return 'dashboard';
+  if (url.startsWith('/campanhas')) return 'campanhas';
+  if (url.startsWith('/banco-de-talentos') || url.startsWith('/candidatos')) return 'banco-de-talentos';
+  if (url.startsWith('/relatorios')) return 'relatorios';
+  if (url.startsWith('/configuracoes')) return 'configuracoes';
+  return null;
+}
+
+function readStoredCollapsed(): boolean {
+  try {
+    return localStorage.getItem(COLLAPSED_STORAGE_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Global, always-on sidebar nav. Derives the active section from the current URL instead of
+ * each page passing an `activeTab` input, so pages don't need to know anything about the nav.
+ */
+@Component({
+  selector: 'app-sidebar-nav',
+  standalone: true,
+  imports: [CommonModule, RouterLink, RouterLinkActive],
+  templateUrl: './sidebar-nav.component.html',
+  styleUrl: './sidebar-nav.component.scss',
+})
+export class SidebarNavComponent {
+  private router = inject(Router);
+
+  readonly activeSection = toSignal(
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map((e) => sectionForUrl(e.urlAfterRedirects)),
+    ),
+    { initialValue: sectionForUrl(this.router.url) },
+  );
+
+  readonly collapsed = signal(readStoredCollapsed());
+  readonly dashboardExpanded = signal(true);
+
+  toggleCollapsed(): void {
+    const next = !this.collapsed();
+    this.collapsed.set(next);
+    try {
+      localStorage.setItem(COLLAPSED_STORAGE_KEY, next ? '1' : '0');
+    } catch {
+      /* localStorage unavailable — collapse state just won't persist across reloads */
+    }
+  }
+
+  toggleDashboardExpanded(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.dashboardExpanded.update((v) => !v);
+  }
+}

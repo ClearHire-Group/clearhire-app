@@ -1,8 +1,9 @@
 <div class="page">
-  <app-top-nav activeTab="configuracoes" [subTabs]="subTabs"></app-top-nav>
-
   <div class="page-body page-body--narrow">
     <h1 class="serif">Perfil cultural da empresa</h1>
+
+    <app-page-tabs [subTabs]="subTabs"></app-page-tabs>
+
     <p class="muted intro">Este perfil é aplicado automaticamente à análise de Fit Cultural em toda nova campanha criada.</p>
 
     @if (companyProfileState.data(); as companyProfile) {

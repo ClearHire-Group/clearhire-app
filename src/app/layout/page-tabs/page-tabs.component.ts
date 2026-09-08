@@ -15,18 +15,19 @@ export interface SubTab {
   disabled?: boolean;
 }
 
-export type PrimaryTab = 'dashboard' | 'campanhas' | 'banco-de-talentos' | 'relatorios' | 'configuracoes';
-
+/**
+ * In-page tab strip — lives inside a page's own content, not in the shared shell.
+ * Same three behaviors as before the sidebar migration: a real routed link, a same-route
+ * queryParams filter (read reactively via `route.queryParamMap`, never refetches for the filter
+ * alone), or a static/disabled placeholder for a section that doesn't exist yet.
+ */
 @Component({
-  selector: 'app-top-nav',
+  selector: 'app-page-tabs',
   standalone: true,
   imports: [CommonModule, RouterLink, RouterLinkActive],
-  templateUrl: './top-nav.component.html',
-  styleUrl: './top-nav.component.scss',
+  templateUrl: './page-tabs.component.html',
+  styleUrl: './page-tabs.component.scss',
 })
-export class TopNavComponent {
-  @Input() activeTab: PrimaryTab = 'dashboard';
+export class PageTabsComponent {
   @Input() subTabs: SubTab[] = [];
-  @Input() breadcrumb = '';
-  @Input() dateChip = false;
 }

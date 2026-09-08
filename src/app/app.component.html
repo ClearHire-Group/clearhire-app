@@ -1,1 +1,9 @@
-<router-outlet></router-outlet>
+<div class="shell">
+  <app-sidebar-nav></app-sidebar-nav>
+  <div class="shell__main">
+    <app-top-bar></app-top-bar>
+    <div class="shell__content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

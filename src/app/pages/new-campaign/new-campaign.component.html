@@ -1,8 +1,10 @@
 <div class="page">
-  <app-top-nav activeTab="campanhas" [subTabs]="subTabs" breadcrumb="Campanhas / Nova Campanha"></app-top-nav>
-
   <div class="page-body page-body--narrow">
+    <span class="page-breadcrumb">Campanhas / Nova Campanha</span>
     <h1 class="serif">Nova campanha</h1>
+
+    <app-page-tabs [subTabs]="subTabs"></app-page-tabs>
+
     <p class="muted intro">Defina a vaga, confirme o perfil cultural da empresa e monte o funil de contratação.</p>
 
     <!-- Step 1 -->

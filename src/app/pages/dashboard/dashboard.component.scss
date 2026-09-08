@@ -2,13 +2,29 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 28px;
+  margin-bottom: 20px;
 
   h1 {
     font-size: 32px;
     font-weight: 500;
     color: var(--color-text);
   }
+}
+.page-header__left {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.page-header__date-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--color-text-dim);
+  background: var(--color-card);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 100px;
+  padding: 5px 12px;
 }
 .page-header__link {
   font-size: 13px;

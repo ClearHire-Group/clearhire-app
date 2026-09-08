@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map, switchMap } from 'rxjs';
-import { TopNavComponent, SubTab } from '../../layout/top-nav/top-nav.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { TalentMatch } from '../../core/models';
@@ -12,15 +11,13 @@ import { toTalentViews } from '../../core/talent-view';
 @Component({
   selector: 'app-talent-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, TopNavComponent],
+  imports: [CommonModule, RouterLink],
   templateUrl: './talent-profile.component.html',
   styleUrl: './talent-profile.component.scss',
 })
 export class TalentProfileComponent {
   private route = inject(ActivatedRoute);
   private api = inject(DataApi);
-
-  readonly subTabs: SubTab[] = [];
 
   private talentId$ = this.route.paramMap.pipe(map((p) => p.get('talentId') ?? ''));
   readonly talentId = toSignal(this.talentId$, { initialValue: '' });

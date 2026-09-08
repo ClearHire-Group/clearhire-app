@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { map, switchMap } from 'rxjs';
-import { TopNavComponent, SubTab } from '../../layout/top-nav/top-nav.component';
+import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { isWarmConsent, ManualTalentInput, TalentMatch, TalentOrigin } from '../../core/models';
@@ -22,7 +22,7 @@ interface SearchState {
 @Component({
   selector: 'app-talent-bank',
   standalone: true,
-  imports: [CommonModule, RouterLink, TopNavComponent],
+  imports: [CommonModule, RouterLink, PageTabsComponent],
   templateUrl: './talent-bank.component.html',
   styleUrl: './talent-bank.component.scss',
 })

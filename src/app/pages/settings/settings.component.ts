@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TopNavComponent, SubTab } from '../../layout/top-nav/top-nav.component';
+import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, TopNavComponent],
+  imports: [CommonModule, PageTabsComponent],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })

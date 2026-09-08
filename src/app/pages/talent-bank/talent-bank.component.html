@@ -1,6 +1,4 @@
 <div class="page">
-  <app-top-nav activeTab="banco-de-talentos" [subTabs]="subTabs"></app-top-nav>
-
   <div class="page-body">
     <div class="page-header">
       <h1 class="serif">Banco de Talentos</h1>
@@ -8,6 +6,8 @@
     <p class="muted intro">
       Pessoas, não candidaturas — talentos existem independente de vaga e carregam histórico entre campanhas. Para ver quem está em processo numa vaga específica, acesse a campanha.
     </p>
+
+    <app-page-tabs [subTabs]="subTabs"></app-page-tabs>
 
     @if (view() === 'lista') {
       <div class="toolbar">

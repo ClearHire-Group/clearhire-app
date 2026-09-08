@@ -1,0 +1,15 @@
+<div class="page-tabs">
+  @for (tab of subTabs; track tab.label) {
+    @if (tab.route && !tab.disabled) {
+      <a
+        [routerLink]="tab.route"
+        [queryParams]="tab.queryParams ?? {}"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: tab.exact ?? false }"
+        class="page-tabs__tab"
+      >{{ tab.label }}</a>
+    } @else {
+      <span class="page-tabs__tab" [class.active]="tab.active" [class.disabled]="tab.disabled">{{ tab.label }}</span>
+    }
+  }
+</div>

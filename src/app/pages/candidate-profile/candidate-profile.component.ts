@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map, switchMap } from 'rxjs';
-import { TopNavComponent, SubTab } from '../../layout/top-nav/top-nav.component';
+import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { REJECTION_REASONS, RejectionReasonKey } from '../../core/models';
@@ -10,7 +10,7 @@ import { REJECTION_REASONS, RejectionReasonKey } from '../../core/models';
 @Component({
   selector: 'app-candidate-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, TopNavComponent],
+  imports: [CommonModule, RouterLink, PageTabsComponent],
   templateUrl: './candidate-profile.component.html',
   styleUrl: './candidate-profile.component.scss',
 })
