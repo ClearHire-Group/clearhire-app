@@ -146,6 +146,13 @@
 .sidebar__subitem:hover {
   color: #F0F0E6;
 }
+.sidebar__subitem--disabled {
+  color: rgba(240, 240, 230, 0.25);
+  cursor: default;
+}
+.sidebar__subitem--disabled:hover {
+  color: rgba(240, 240, 230, 0.25);
+}
 .sidebar__subitem.active {
   color: #C09281;
 }

@@ -52,7 +52,7 @@ export class SidebarNavComponent {
   readonly collapsed = signal(readStoredCollapsed());
 
   /** Sections whose submenu is expanded — both open by default. */
-  private expandedGroups = signal<ReadonlySet<PrimarySection>>(new Set(['dashboard', 'banco-de-talentos']));
+  private expandedGroups = signal<ReadonlySet<PrimarySection>>(new Set(['dashboard', 'banco-de-talentos', 'configuracoes']));
 
   toggleCollapsed(): void {
     const next = !this.collapsed();

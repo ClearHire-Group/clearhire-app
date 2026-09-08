@@ -99,21 +99,37 @@
       }
     </a>
 
-    <a
-      routerLink="/configuracoes"
-      class="sidebar__item"
-      [class.active]="activeSection() === 'configuracoes'"
-      [title]="collapsed() ? 'Configurações' : null"
-    >
-      <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
-        <line x1="4" y1="6" x2="20" y2="6" /><circle cx="14" cy="6" r="2" fill="currentColor" stroke="none" />
-        <line x1="4" y1="12" x2="20" y2="12" /><circle cx="8" cy="12" r="2" fill="currentColor" stroke="none" />
-        <line x1="4" y1="18" x2="20" y2="18" /><circle cx="16" cy="18" r="2" fill="currentColor" stroke="none" />
-      </svg>
+    <div class="sidebar__group">
+      <a
+        routerLink="/configuracoes"
+        class="sidebar__item"
+        [class.active]="activeSection() === 'configuracoes'"
+        [title]="collapsed() ? 'Configurações' : null"
+      >
+        <svg class="sidebar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+          <line x1="4" y1="6" x2="20" y2="6" /><circle cx="14" cy="6" r="2" fill="currentColor" stroke="none" />
+          <line x1="4" y1="12" x2="20" y2="12" /><circle cx="8" cy="12" r="2" fill="currentColor" stroke="none" />
+          <line x1="4" y1="18" x2="20" y2="18" /><circle cx="16" cy="18" r="2" fill="currentColor" stroke="none" />
+        </svg>
+        @if (!collapsed()) {
+          <span class="sidebar__label">Configurações</span>
+          <button type="button" class="sidebar__chevron" [class.sidebar__chevron--open]="isExpanded('configuracoes')" (click)="toggleGroup('configuracoes', $event)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6" /></svg>
+          </button>
+        }
+      </a>
       @if (!collapsed()) {
-        <span class="sidebar__label">Configurações</span>
+        <div class="sidebar__submenu-wrap" [class.sidebar__submenu-wrap--open]="isExpanded('configuracoes')">
+          <div class="sidebar__submenu-clip">
+            <div class="sidebar__submenu">
+              <a routerLink="/configuracoes" [routerLinkActiveOptions]="{ exact: true }" routerLinkActive="active" class="sidebar__subitem">Perfil da Empresa</a>
+              <span class="sidebar__subitem sidebar__subitem--disabled" title="Ainda não disponível nesta prévia">Equipe</span>
+              <span class="sidebar__subitem sidebar__subitem--disabled" title="Ainda não disponível nesta prévia">Integrações</span>
+            </div>
+          </div>
+        </div>
       }
-    </a>
+    </div>
   </nav>
 
   <button type="button" class="sidebar__collapse-btn" (click)="toggleCollapsed()">
