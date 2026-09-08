@@ -70,13 +70,8 @@ export const CONSENT_STATE_LABELS: Record<ConsentState, string> = {
   consentido: 'Consentido',
   nao_notificado: 'Não notificado',
   notificado: 'Notificado',
-  oposicao_exclusao: 'Oposição / exclusão solicitada',
+  oposicao_exclusao: 'Exclusão solicitada',
 };
-
-/** "Quente" = a pessoa sabe que está no banco (e, no caso de consentido, topou); "frio" = achada por conta própria. */
-export function isWarmConsent(state: ConsentState): boolean {
-  return state === 'consentido' || state === 'notificado';
-}
 
 export type RejectionReasonKey =
   | 'perdeu_outro_candidato'

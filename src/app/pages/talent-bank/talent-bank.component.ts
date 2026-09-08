@@ -6,10 +6,10 @@ import { map, switchMap } from 'rxjs';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
-import { isWarmConsent, ManualTalentInput, TalentMatch, TalentOrigin } from '../../core/models';
+import { CONSENT_STATE_LABELS, ConsentState, ManualTalentInput, TalentMatch, TalentOrigin } from '../../core/models';
 import { toTalentMatchViews, TalentMatchView } from '../../core/talent-view';
 
-type ConsentFilter = 'todos' | 'quente' | 'frio';
+type ConsentFilter = 'todos' | ConsentState;
 type OriginFilter = 'todos' | TalentOrigin;
 type BankView = 'lista' | 'cobertura';
 
@@ -67,9 +67,11 @@ export class TalentBankComponent {
     const consent = this.consentFilter();
     const origin = this.originFilter();
     return toTalentMatchViews(base)
-      .filter((v) => consent === 'todos' || isWarmConsent(v.consentState) === (consent === 'quente'))
+      .filter((v) => consent === 'todos' || v.consentState === consent)
       .filter((v) => origin === 'todos' || v.origin === origin);
   });
+
+  readonly consentStateLabels = CONSENT_STATE_LABELS;
 
   readonly maxCoverageCount = computed(() => Math.max(1, ...(this.coverageState.data() ?? []).map((c) => c.count)));
 

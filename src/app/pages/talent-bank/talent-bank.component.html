@@ -32,8 +32,10 @@
         <div class="chip-row">
           <span class="chip-group-label">Consentimento</span>
           <button type="button" class="chip-filter" [class.active]="consentFilter() === 'todos'" (click)="setConsentFilter('todos')">Todos</button>
-          <button type="button" class="chip-filter" [class.active]="consentFilter() === 'quente'" (click)="setConsentFilter('quente')">Quente</button>
-          <button type="button" class="chip-filter" [class.active]="consentFilter() === 'frio'" (click)="setConsentFilter('frio')">Frio</button>
+          <button type="button" class="chip-filter" [class.active]="consentFilter() === 'consentido'" (click)="setConsentFilter('consentido')">{{ consentStateLabels.consentido }}</button>
+          <button type="button" class="chip-filter" [class.active]="consentFilter() === 'notificado'" (click)="setConsentFilter('notificado')">{{ consentStateLabels.notificado }}</button>
+          <button type="button" class="chip-filter" [class.active]="consentFilter() === 'nao_notificado'" (click)="setConsentFilter('nao_notificado')">{{ consentStateLabels.nao_notificado }}</button>
+          <button type="button" class="chip-filter" [class.active]="consentFilter() === 'oposicao_exclusao'" (click)="setConsentFilter('oposicao_exclusao')">{{ consentStateLabels.oposicao_exclusao }}</button>
           <span class="chip-group-label chip-group-label--gap">Origem</span>
           <button type="button" class="chip-filter" [class.active]="originFilter() === 'todos'" (click)="setOriginFilter('todos')">Todas</button>
           <button type="button" class="chip-filter" [class.active]="originFilter() === 'reprovacao_qualificada'" (click)="setOriginFilter('reprovacao_qualificada')">Reprovação qualificada</button>
@@ -91,7 +93,7 @@
                     <span class="badge" [style.color]="t.depthColor" [style.background]="t.depthBg">{{ t.depthLabel }}</span>
                     <div class="freshness">{{ t.freshnessLabel }}</div>
                   </td>
-                  <td><span class="badge" [style.color]="t.warmColor" [style.background]="t.warmBg">{{ t.warmLabel }}</span></td>
+                  <td><span class="badge" [style.color]="t.consentColor" [style.background]="t.consentBg">{{ t.consentLabel }}</span></td>
                   @if (hasActiveQuery()) {
                     <td>
                       <div class="match-cell">
