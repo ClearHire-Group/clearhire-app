@@ -127,10 +127,20 @@
 }
 
 .sidebar__submenu {
+  position: relative;
   display: flex;
   flex-direction: column;
   padding: 4px 0 4px 40px;
   gap: 2px;
+}
+.sidebar__submenu::before {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(240, 240, 230, 0.14);
 }
 .sidebar__subitem {
   display: flex;
