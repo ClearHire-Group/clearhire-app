@@ -149,8 +149,15 @@
   color: #B85A3E;
 }
 .panel__subtitle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
-  margin: 4px 0 18px;
+  margin: 6px 0 18px;
+
+  svg {
+    flex-shrink: 0;
+  }
 }
 
 .campaign-rows {
@@ -234,8 +241,8 @@
   padding: 14px 16px;
 
   &--highlight {
-    border-color: rgba(141, 145, 103, 0.35);
-    background: rgba(141, 145, 103, 0.07);
+    border-color: rgba(184, 90, 62, 0.35);
+    background: rgba(184, 90, 62, 0.06);
   }
 
   p {
@@ -244,18 +251,6 @@
     line-height: 1.5;
     margin-bottom: 10px;
   }
-}
-.review__tag {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #B85A3E;
-  letter-spacing: 0.3px;
-
-  &--sand { color: #C09281; }
 }
 .review__btn {
   display: inline-block;

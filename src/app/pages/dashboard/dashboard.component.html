@@ -122,7 +122,10 @@
 
       <div class="card panel">
         <h2 class="serif">Pendências de revisão</h2>
-        <p class="muted panel__subtitle">A IA organizou estas recomendações — a decisão é sempre sua.</p>
+        <p class="muted panel__subtitle">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#B85A3E" stroke-width="2.4"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z" /></svg>
+          A IA organizou estas recomendações — a decisão é sempre sua.
+        </p>
 
         @if (suggestionsState.loading()) {
           <p class="state-message"><span class="state-spinner"></span> Carregando sugestões…</p>
@@ -132,10 +135,6 @@
           <div class="reviews">
             @for (s of suggestionsState.data(); track s.id) {
               <div class="review" [class.review--highlight]="s.highlighted">
-                <div class="review__tag" [class.review__tag--sand]="!s.highlighted">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z" /></svg>
-                  <span>SUGESTÃO DA IA</span>
-                </div>
                 <p>{{ s.message }}</p>
                 <a [routerLink]="s.primaryActionRoute" class="review__btn" [class.btn-primary]="s.highlighted" [class.btn-ghost]="!s.highlighted">{{ s.primaryActionLabel }}</a>
               </div>
