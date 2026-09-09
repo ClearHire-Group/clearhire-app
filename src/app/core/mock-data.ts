@@ -456,12 +456,14 @@ export const MOCK_TALENTS: Talent[] = [
 export const MOCK_DASHBOARD_METRICS: DashboardMetrics = {
   activeCampaigns: 2,
   activeCampaignsTrendLabel: '+1 esta semana',
+  activeCampaignsTrend: [1, 1, 1, 2, 1, 2],
   candidatesInProcess: 187,
   candidatesInProcessContextLabel: '4 campanhas',
   hiresInPeriod: 4,
-  hiresGoalLabel: 'meta: 12',
+  hiresGoal: 12,
   avgFunnelDays: 19,
   avgFunnelDaysTrendLabel: '-3 dias',
+  avgFunnelDaysTrend: [24, 23, 22, 21, 20, 19],
 };
 
 export const MOCK_AI_SUGGESTIONS: AiSuggestion[] = [

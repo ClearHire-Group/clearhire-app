@@ -235,12 +235,16 @@ export interface CompanyProfile {
 export interface DashboardMetrics {
   activeCampaigns: number;
   activeCampaignsTrendLabel: string;
+  /** Série recente (5-6 pontos) para o sparkline — campanhas ativas é uma métrica de evolução no tempo. */
+  activeCampaignsTrend: number[];
   candidatesInProcess: number;
   candidatesInProcessContextLabel: string;
   hiresInPeriod: number;
-  hiresGoalLabel: string;
+  hiresGoal: number;
   avgFunnelDays: number;
   avgFunnelDaysTrendLabel: string;
+  /** Série recente (5-6 pontos) para o sparkline — dias caindo é uma tendência positiva. */
+  avgFunnelDaysTrend: number[];
 }
 
 export interface AiSuggestion {

@@ -27,4 +27,9 @@ export class DashboardComponent {
   readonly activeCampaigns = computed(() =>
     (this.campaignsState.data() ?? []).filter((c) => c.status !== 'encerrada'),
   );
+
+  readonly hiresGoalPercent = computed(() => {
+    const m = this.metricsState.data();
+    return m && m.hiresGoal ? Math.min(100, Math.round((m.hiresInPeriod / m.hiresGoal) * 100)) : 0;
+  });
 }

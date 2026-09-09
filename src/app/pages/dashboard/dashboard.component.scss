@@ -42,49 +42,83 @@
   margin-bottom: 36px;
 }
 
-.metric {
-  padding: 20px 22px;
+.metric-card {
+  position: relative;
+  padding: 22px 24px;
+
+  &--hero {
+    padding-top: 25px;
+  }
 }
-.metric__top {
+.metric-card__accent-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-accent);
+  border-radius: 12px 12px 0 0;
+}
+
+.metric-kicker {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: rgba(21, 26, 34, 0.45);
+  margin-bottom: 14px;
+}
+
+.metric-value-row {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 16px;
+  align-items: baseline;
 }
-.metric__icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
+.metric-value {
+  font-size: 36px;
+  color: #151A22;
+
+  &--accent { color: var(--color-accent); }
+}
+.metric-unit {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(21, 26, 34, 0.4);
+  margin-left: 5px;
+}
+
+.metric-footer {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  &--terracota { background: rgba(141, 145, 103, 0.15); }
-  &--sand { background: rgba(192, 146, 129, 0.18); }
-  &--success { background: rgba(58, 74, 46, 0.16); }
-  &--neutral { background: rgba(21, 26, 34, 0.06); }
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(21, 26, 34, 0.07);
 }
-.metric__value {
-  font-size: 32px;
+.metric-footer-text {
+  font-size: 12px;
   font-weight: 600;
-  color: #151A22;
-  margin-bottom: 5px;
+  color: rgba(21, 26, 34, 0.55);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
-.metric__label {
-  font-size: 12.5px;
+.metric-chev {
+  display: inline-flex;
+
+  &--success { color: var(--color-success); }
+}
+
+.metric-goal-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-top: 16px;
+  margin-bottom: 8px;
+  font-size: 12px;
   font-weight: 600;
-}
 
-.chip {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 9px;
-  border-radius: 100px;
-  white-space: nowrap;
-
-  &--success { color: #3A4A2E; background: rgba(58, 74, 46, 0.14); }
-  &--neutral { color: rgba(21, 26, 34, 0.5); background: rgba(21, 26, 34, 0.06); }
+  span:first-child { color: rgba(21, 26, 34, 0.55); }
+  span:last-child { color: #151A22; }
 }
 
 .panels {

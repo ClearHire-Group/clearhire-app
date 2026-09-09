@@ -19,48 +19,60 @@
     <!-- Metrics -->
     @if (metricsState.data(); as m) {
       <div class="metrics">
-        <div class="card metric">
-          <div class="metric__top">
-            <div class="metric__icon metric__icon--terracota">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#B85A3E" stroke-width="2"><path d="M3 3v18h18" /><path d="M18 9l-5 5-4-4-4 4" /></svg>
-            </div>
-            <span class="chip chip--success">{{ m.activeCampaignsTrendLabel }}</span>
+        <div class="card metric-card">
+          <span class="metric-kicker">Campanhas ativas</span>
+          <div class="metric-value-row">
+            <p class="serif metric-value">{{ m.activeCampaigns }}</p>
           </div>
-          <div class="serif metric__value">{{ m.activeCampaigns }}</div>
-          <span class="muted metric__label">Campanhas ativas</span>
+          <div class="metric-footer">
+            <span class="metric-footer-text">
+              <span class="metric-chev metric-chev--success">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M6 15l6-6 6 6" /></svg>
+              </span>
+              {{ m.activeCampaignsTrendLabel }}
+            </span>
+          </div>
         </div>
 
-        <div class="card metric">
-          <div class="metric__top">
-            <div class="metric__icon metric__icon--sand">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#C09281" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>
-            </div>
-            <span class="chip chip--neutral">{{ m.candidatesInProcessContextLabel }}</span>
+        <div class="card metric-card">
+          <span class="metric-kicker">Candidatos em processo</span>
+          <div class="metric-value-row">
+            <p class="serif metric-value">{{ m.candidatesInProcess }}</p>
           </div>
-          <div class="serif metric__value">{{ m.candidatesInProcess }}</div>
-          <span class="muted metric__label">Candidatos em processo</span>
+          <div class="metric-footer">
+            <span class="metric-footer-text">{{ m.candidatesInProcessContextLabel }}</span>
+          </div>
         </div>
 
-        <div class="card metric">
-          <div class="metric__top">
-            <div class="metric__icon metric__icon--success">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#3A4A2E" stroke-width="2"><path d="M20 6L9 17l-5-5" /></svg>
-            </div>
-            <span class="chip chip--neutral">{{ m.hiresGoalLabel }}</span>
+        <div class="card metric-card metric-card--hero">
+          <div class="metric-card__accent-bar"></div>
+          <span class="metric-kicker">Contratações no período</span>
+          <div class="metric-value-row">
+            <p class="serif metric-value metric-value--accent">{{ m.hiresInPeriod }}</p>
           </div>
-          <div class="serif metric__value">{{ m.hiresInPeriod }}</div>
-          <span class="muted metric__label">Contratações no período</span>
+          <div class="metric-goal-row">
+            <span>Meta do período</span>
+            <span>{{ m.hiresInPeriod }} / {{ m.hiresGoal }}</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" [style.width.%]="hiresGoalPercent()"></div>
+          </div>
         </div>
 
-        <div class="card metric">
-          <div class="metric__top">
-            <div class="metric__icon metric__icon--neutral">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>
-            </div>
-            <span class="chip chip--success">{{ m.avgFunnelDaysTrendLabel }}</span>
+        <div class="card metric-card">
+          <span class="metric-kicker">Tempo médio no funil</span>
+          <div class="metric-value-row">
+            <p class="serif metric-value">{{ m.avgFunnelDays }}</p>
+            <span class="metric-unit">dias</span>
           </div>
-          <div class="serif metric__value">{{ m.avgFunnelDays }} dias</div>
-          <span class="muted metric__label">Tempo médio no funil</span>
+          <div class="metric-footer">
+            <span class="metric-footer-text">
+              <span class="metric-chev metric-chev--success">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><path d="M18 9l-6 6-6-6" /></svg>
+              </span>
+              {{ m.avgFunnelDaysTrendLabel }}
+            </span>
+          </div>
         </div>
       </div>
     } @else if (metricsState.loading()) {
