@@ -15,6 +15,7 @@ import {
   CoverageEntry,
   DashboardMetrics,
   ManualTalentInput,
+  Notification,
   Phase,
   PhaseKey,
   PHASE_LABELS,
@@ -32,6 +33,7 @@ import {
   MOCK_CANDIDATE_PROFILES,
   MOCK_COMPANY_PROFILE,
   MOCK_DASHBOARD_METRICS,
+  MOCK_NOTIFICATIONS,
   MOCK_TALENTS,
 } from './mock-data';
 import { computeCoverage, findSimilarInPool, reverseMatchForCriteria, searchTalentPool } from './talent-matching';
@@ -41,6 +43,8 @@ import { computeCoverage, findSimilarInPool, reverseMatchForCriteria, searchTale
 export class MockApiService extends DataApi {
   /** Estado "vivo" do banco — cadastro manual e reprovação qualificada escrevem aqui em runtime. */
   private talents: Talent[] = [...MOCK_TALENTS];
+  /** Estado "vivo" das notificações — marcar como lida escreve aqui em runtime. */
+  private notifications: Notification[] = [...MOCK_NOTIFICATIONS];
 
   getCampaigns(): Observable<Campaign[]> {
     return this.simulate(MOCK_CAMPAIGNS);
@@ -73,6 +77,16 @@ export class MockApiService extends DataApi {
 
   getActivityFeed(): Observable<ActivityItem[]> {
     return this.simulate(MOCK_ACTIVITY_FEED);
+  }
+
+  getNotifications(): Observable<Notification[]> {
+    return this.simulate(this.notifications);
+  }
+
+  markNotificationRead(id: string): Observable<Notification | undefined> {
+    const notification = this.notifications.find((n) => n.id === id);
+    if (notification) notification.read = true;
+    return this.simulate(notification);
   }
 
   getFunnelSummary(): Observable<Phase[]> {

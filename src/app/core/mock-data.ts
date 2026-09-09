@@ -7,6 +7,7 @@ import {
   CandidateProfileData,
   CompanyProfile,
   DashboardMetrics,
+  Notification,
   Phase,
   Talent,
 } from './models';
@@ -487,6 +488,41 @@ export const MOCK_AI_SUGGESTIONS: AiSuggestion[] = [
     primaryActionLabel: 'Ver detalhes',
     primaryActionRoute: ['/campanhas', 'eng-software-senior-backend'],
     highlighted: false,
+  },
+];
+
+export const MOCK_NOTIFICATIONS: Notification[] = [
+  {
+    id: 'notif-marina-ready',
+    actor: 'ia',
+    message: 'Marina Albuquerque (94% match) está pronta para avançar de Triagem Técnica para Entrevista Estruturada.',
+    timestampLabel: 'há 12 minutos',
+    read: false,
+    route: ['/campanhas', 'eng-software-senior-backend', 'candidatos', 'marina-albuquerque'],
+  },
+  {
+    id: 'notif-divergent-interviewers',
+    actor: 'ia',
+    message: '2 candidatos em Entrevista Estruturada têm pareceres divergentes entre entrevistadores.',
+    timestampLabel: 'há 1 hora',
+    read: false,
+    route: ['/campanhas', 'eng-software-senior-backend'],
+  },
+  {
+    id: 'notif-cs-fit-cultural',
+    actor: 'ia',
+    message: '7 novos candidatos foram analisados em Fit Cultural para Customer Success Pleno.',
+    timestampLabel: 'ontem às 17:20',
+    read: true,
+    route: ['/campanhas', 'customer-success-pleno'],
+  },
+  {
+    id: 'notif-diego-selecionado',
+    actor: 'recrutador',
+    message: 'Você aprovou Diego Salgado e moveu para Selecionados — proposta em elaboração.',
+    timestampLabel: 'há 3 horas',
+    read: true,
+    route: ['/campanhas', 'eng-software-senior-backend'],
   },
 ];
 

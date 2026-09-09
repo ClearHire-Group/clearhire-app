@@ -266,6 +266,15 @@ export interface ActivityItem {
   timestampLabel: string;
 }
 
+export interface Notification {
+  id: string;
+  actor: ActivityActor;
+  message: string;
+  timestampLabel: string;
+  read: boolean;
+  route: string[];
+}
+
 export interface CampaignPerformance {
   campaignId: string;
   campaignTitle: string;

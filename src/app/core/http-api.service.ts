@@ -16,6 +16,7 @@ import {
   CoverageEntry,
   DashboardMetrics,
   ManualTalentInput,
+  Notification,
   Phase,
   PhaseKey,
   RejectionReasonKey,
@@ -37,6 +38,8 @@ import {
  *   GET  /dashboard/metrics                           -> DashboardMetrics
  *   GET  /dashboard/ai-suggestions                    -> AiSuggestion[]
  *   GET  /dashboard/activity                          -> ActivityItem[]
+ *   GET  /notifications                               -> Notification[]
+ *   POST /notifications/:id/read                       -> Notification (404 -> undefined)
  *   GET  /reports/funnel-summary                      -> Phase[] (aggregate across campaigns)
  *   GET  /reports/campaign-performance                -> CampaignPerformance[]
  *   GET  /reports/ai-trust                            -> AiTrustMetrics
@@ -92,6 +95,16 @@ export class HttpApiService extends DataApi {
 
   getActivityFeed(): Observable<ActivityItem[]> {
     return this.http.get<ActivityItem[]>(`${APP_CONFIG.apiBaseUrl}/dashboard/activity`);
+  }
+
+  getNotifications(): Observable<Notification[]> {
+    return this.http.get<Notification[]>(`${APP_CONFIG.apiBaseUrl}/notifications`);
+  }
+
+  markNotificationRead(id: string): Observable<Notification | undefined> {
+    return this.http
+      .post<Notification>(`${APP_CONFIG.apiBaseUrl}/notifications/${id}/read`, {})
+      .pipe(catchError(() => of(undefined)));
   }
 
   getFunnelSummary(): Observable<Phase[]> {

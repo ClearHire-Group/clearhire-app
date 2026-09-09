@@ -11,6 +11,7 @@ import {
   CoverageEntry,
   DashboardMetrics,
   ManualTalentInput,
+  Notification,
   Phase,
   PhaseKey,
   RejectionReasonKey,
@@ -34,6 +35,10 @@ export abstract class DataApi {
   abstract getDashboardMetrics(): Observable<DashboardMetrics>;
   abstract getAiSuggestions(): Observable<AiSuggestion[]>;
   abstract getActivityFeed(): Observable<ActivityItem[]>;
+
+  /** Sino de notificações da top-bar, visível em toda a aplicação. */
+  abstract getNotifications(): Observable<Notification[]>;
+  abstract markNotificationRead(id: string): Observable<Notification | undefined>;
 
   /** Aggregate candidate count per funnel phase, across every campaign. */
   abstract getFunnelSummary(): Observable<Phase[]>;
