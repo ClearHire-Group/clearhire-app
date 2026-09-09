@@ -1,47 +1,100 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, finalize, map, of, shareReplay, tap } from 'rxjs';
 import { DataApi } from './data-api';
 import { AuthSession, LoginCredentials, RegisterCompanyInput, RegisterCompanyResult } from './models';
 
-const STORAGE_KEY = 'clearhire.auth.session';
+/** Renova o access token ~1min antes dos 15min de expiração (`token.AccessTokenTTL` no backend),
+ * enquanto a aba ficar aberta — evita bater um 401 em uso normal. */
+const PROACTIVE_REFRESH_MS = 14 * 60 * 1000;
 
-function readStoredSession(): AuthSession | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as AuthSession) : null;
-  } catch {
-    return null;
-  }
-}
-
-/** Sessão da aplicação — guarda o par de tokens do login e expõe `isAuthenticated` pro guard de rotas.
- * `login`/`registerCompany` só encaminham pro `DataApi`; a diferença é que `login` também persiste a sessão. */
+/**
+ * Sessão da aplicação. Access token vive só em memória (nunca localStorage/sessionStorage) — se
+ * vazar via XSS, expira em 15min e não sobrevive a um reload. O refresh token nunca aparece aqui:
+ * é um cookie httpOnly que o backend seta/lê sozinho (ver `auth.interceptor.ts`,
+ * `withCredentials: true` nas chamadas do `HttpApiService`) — o Angular não tem acesso a ele.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private api = inject(DataApi);
-  private session = signal<AuthSession | null>(readStoredSession());
 
-  readonly isAuthenticated = computed(() => this.session() !== null);
+  private _accessToken = signal<string | null>(null);
+  readonly accessToken = this._accessToken.asReadonly();
+  readonly isAuthenticated = computed(() => this._accessToken() !== null);
+
+  private refreshInFlight$: Observable<AuthSession> | null = null;
+  private refreshTimer: ReturnType<typeof setTimeout> | null = null;
 
   registerCompany(input: RegisterCompanyInput): Observable<RegisterCompanyResult> {
     return this.api.registerCompany(input);
   }
 
   login(credentials: LoginCredentials): Observable<AuthSession> {
-    return this.api.login(credentials).pipe(tap((session) => this.setSession(session)));
+    return this.api.login(credentials).pipe(tap((session) => this.applySession(session)));
   }
 
+  /**
+   * Chamado uma vez no bootstrap da app (`provideAppInitializer`) pra restaurar a sessão a partir
+   * do cookie httpOnly, sem nunca ter guardado nada em storage. NUNCA pode deixar o Observable dar
+   * erro: o caso normal de um visitante anônimo é exatamente um 401 aqui (sem cookie ainda), e um
+   * erro de app initializer derruba o bootstrap da aplicação inteira, não só desloga esse usuário.
+   */
+  bootstrap(): Observable<void> {
+    return this.refresh().pipe(
+      map(() => undefined),
+      catchError(() => of(undefined)),
+    );
+  }
+
+  /**
+   * Troca o refresh token (cookie, enviado automaticamente) por uma sessão nova. Compartilha uma
+   * única chamada em voo entre chamadores concorrentes — várias 401 simultâneas no interceptor não
+   * disparam N refreshes. `finalize` roda ANTES do `shareReplay`: garante que o guard de "em voo"
+   * é liberado exatamente uma vez, quando a chamada compartilhada de fato termina.
+   */
+  refresh(): Observable<AuthSession> {
+    if (!this.refreshInFlight$) {
+      this.refreshInFlight$ = this.api.refresh().pipe(
+        tap((session) => this.applySession(session)),
+        finalize(() => {
+          this.refreshInFlight$ = null;
+        }),
+        shareReplay(1),
+      );
+    }
+    return this.refreshInFlight$;
+  }
+
+  /** Sempre limpa a sessão local, mesmo se a revogação no servidor falhar — do ponto de vista do
+   * usuário, "sair" tem que funcionar na hora, independente de rede. */
   logout(): void {
-    this.setSession(null);
+    this.clearSession();
+    this.api
+      .logout()
+      .pipe(catchError(() => of(undefined)))
+      .subscribe();
   }
 
-  private setSession(session: AuthSession | null): void {
-    this.session.set(session);
-    try {
-      if (session) localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-      else localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      /* localStorage indisponível — sessão simplesmente não sobrevive a um reload */
+  private applySession(session: AuthSession): void {
+    this._accessToken.set(session.accessToken);
+    this.scheduleProactiveRefresh();
+  }
+
+  private clearSession(): void {
+    this._accessToken.set(null);
+    this.clearProactiveRefresh();
+  }
+
+  private scheduleProactiveRefresh(): void {
+    this.clearProactiveRefresh();
+    this.refreshTimer = setTimeout(() => {
+      this.refresh().subscribe({ error: () => undefined }); // erro aqui só significa sessão expirada — interceptor/guard tratam a partir daí
+    }, PROACTIVE_REFRESH_MS);
+  }
+
+  private clearProactiveRefresh(): void {
+    if (this.refreshTimer !== null) {
+      clearTimeout(this.refreshTimer);
+      this.refreshTimer = null;
     }
   }
 }

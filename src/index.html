@@ -2,6 +2,15 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
+  <!--
+    Defesa em profundidade contra XSS — a sanitização de template do Angular já é a defesa
+    primária (nenhum innerHTML/bypassSecurityTrust* no app). style-src precisa de 'unsafe-inline'
+    porque o encapsulamento emulado do Angular injeta <style> em runtime sem suporte a nonce (fora
+    de escopo aqui). connect-src 'self' só funciona porque o proxy do ng serve deixa front/back
+    "mesma origem" em dev — numa implantação cross-origin, atualizar isto independente do CORS do
+    backend (CSP é aplicado no browser, não sabe nada sobre o que o CORS permite).
+  -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <title>Clearhire</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">

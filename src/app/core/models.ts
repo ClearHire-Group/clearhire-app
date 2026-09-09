@@ -235,11 +235,11 @@ export interface LoginCredentials {
   password: string;
 }
 
-/** Par de tokens devolvido pelo login. `accessToken` expira em 15min; ainda não existe endpoint
- * de refresh — ver `docs/API.md` no backend. */
+/** Sessão devolvida por login/refresh. `accessToken` expira em 15min — só isso trafega em JSON.
+ * O refresh token nunca toca o frontend: o backend o entrega como cookie httpOnly (ver
+ * `auth.service.ts`), então nem o modelo nem nenhuma chamada de API o expõe aqui. */
 export interface AuthSession {
   accessToken: string;
-  refreshToken: string;
 }
 
 /** Payload de `POST /companies` — cadastra a empresa junto com o primeiro RH (`role=owner`). */

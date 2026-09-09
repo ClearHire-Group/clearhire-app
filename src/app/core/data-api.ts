@@ -35,9 +35,16 @@ export abstract class DataApi {
   /** Cadastra a empresa + primeiro RH (`role=owner`). Não devolve sessão — o cadastro não loga
    * automaticamente (ver `docs/API.md` do backend); chamar `login()` em seguida. */
   abstract registerCompany(input: RegisterCompanyInput): Observable<RegisterCompanyResult>;
-  /** Autentica e devolve o par de tokens. Erro genérico tanto pra e-mail inexistente quanto senha
-   * incorreta — de propósito, pra não revelar qual e-mail está cadastrado. */
+  /** Autentica e devolve o access token (o refresh token vem só como cookie httpOnly, nunca em
+   * JSON). Erro genérico tanto pra e-mail inexistente quanto senha incorreta — de propósito, pra
+   * não revelar qual e-mail está cadastrado. */
   abstract login(credentials: LoginCredentials): Observable<AuthSession>;
+  /** Troca o refresh token (cookie httpOnly, enviado automaticamente pelo browser) por um access
+   * token novo — chamado no bootstrap da app e proativamente antes dos 15min de expiração. */
+  abstract refresh(): Observable<AuthSession>;
+  /** Revoga a sessão no servidor e limpa o cookie de refresh. Melhor esforço — o chamador limpa o
+   * estado local independente do resultado desta chamada. */
+  abstract logout(): Observable<void>;
 
   abstract getCampaigns(): Observable<Campaign[]>;
   abstract getCampaign(id: string): Observable<Campaign | undefined>;

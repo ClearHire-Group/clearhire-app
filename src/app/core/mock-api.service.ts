@@ -55,6 +55,10 @@ export class MockApiService extends DataApi {
   private companyProfile: CompanyProfile = { ...MOCK_COMPANY_PROFILE };
   /** Estado "vivo" das contas cadastradas — registro de empresa escreve aqui em runtime. */
   private authUsers: MockAuthUser[] = [...MOCK_AUTH_USERS];
+  /** Aproximação do cookie httpOnly de refresh: "existe uma sessão renovável" enquanto esta
+   * instância do serviço estiver viva. Reseta a `false` a cada reload de verdade (instância nova),
+   * o mesmo efeito prático de um cookie que HttpApiService não consegue simular sem HTTP real. */
+  private hasRefreshSession = false;
 
   registerCompany(input: RegisterCompanyInput): Observable<RegisterCompanyResult> {
     const emailTaken = this.authUsers.some((u) => u.email.toLowerCase() === input.ownerEmail.toLowerCase());
@@ -75,10 +79,20 @@ export class MockApiService extends DataApi {
     if (!user) {
       return this.simulateError('E-mail ou senha incorretos.');
     }
-    return this.simulate({
-      accessToken: `mock-access-${Date.now()}`,
-      refreshToken: `mock-refresh-${Date.now()}`,
-    });
+    this.hasRefreshSession = true;
+    return this.simulate({ accessToken: `mock-access-${Date.now()}` });
+  }
+
+  refresh(): Observable<AuthSession> {
+    if (!this.hasRefreshSession) {
+      return this.simulateError('Sessão inválida ou expirada.');
+    }
+    return this.simulate({ accessToken: `mock-access-${Date.now()}` });
+  }
+
+  logout(): Observable<void> {
+    this.hasRefreshSession = false;
+    return this.simulate(undefined);
   }
 
   getCampaigns(): Observable<Campaign[]> {

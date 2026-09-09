@@ -34,7 +34,9 @@ import {
  * `APP_CONFIG.useMockApi` to `false` is the only change required.
  *
  *   POST /companies                                   -> { id, name }  (public — cadastro inicial da empresa + owner)
- *   POST /auth/login                                   -> { accessToken, refreshToken }  (public)
+ *   POST /auth/login                                   -> { accessToken }  (public; refresh token vem via cookie httpOnly)
+ *   POST /auth/refresh                                  -> { accessToken }  (public; lê o cookie httpOnly, rotaciona-o)
+ *   POST /auth/logout                                   -> void  (public; revoga e limpa o cookie)
  *   GET  /campaigns                                 -> Campaign[]
  *   GET  /campaigns/:id                              -> Campaign (404 -> undefined)
  *   POST /campaigns/:id/toggle-pause                   -> Campaign (404 -> undefined)
@@ -74,7 +76,15 @@ export class HttpApiService extends DataApi {
   }
 
   login(credentials: LoginCredentials): Observable<AuthSession> {
-    return this.http.post<AuthSession>(`${APP_CONFIG.apiBaseUrl}/auth/login`, credentials);
+    return this.http.post<AuthSession>(`${APP_CONFIG.apiBaseUrl}/auth/login`, credentials, { withCredentials: true });
+  }
+
+  refresh(): Observable<AuthSession> {
+    return this.http.post<AuthSession>(`${APP_CONFIG.apiBaseUrl}/auth/refresh`, {}, { withCredentials: true });
+  }
+
+  logout(): Observable<void> {
+    return this.http.post<void>(`${APP_CONFIG.apiBaseUrl}/auth/logout`, {}, { withCredentials: true });
   }
 
   getCampaigns(): Observable<Campaign[]> {
