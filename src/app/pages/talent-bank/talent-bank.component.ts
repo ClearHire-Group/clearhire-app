@@ -41,7 +41,7 @@ export class TalentBankComponent {
   });
 
   readonly subTabs: SubTab[] = [
-    { label: 'Talentos', route: '/banco-de-talentos', queryParams: { view: 'lista' }, exact: true },
+    { label: 'Talentos', route: '/banco-de-talentos', exact: true },
     { label: 'Mapa de Cobertura', route: '/banco-de-talentos', queryParams: { view: 'cobertura' }, exact: true },
   ];
 
