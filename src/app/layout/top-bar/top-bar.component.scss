@@ -67,4 +67,10 @@
   font-weight: 700;
   color: #F0F0E6;
   cursor: pointer;
+  text-decoration: none;
+  flex-shrink: 0;
+
+  &:hover {
+    filter: brightness(1.1);
+  }
 }

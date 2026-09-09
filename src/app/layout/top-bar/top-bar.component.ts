@@ -1,5 +1,6 @@
 import { Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { DataApi } from '../../core/data-api';
@@ -11,7 +12,7 @@ import { NotificationsPanelComponent } from '../notifications-panel/notification
 @Component({
   selector: 'app-top-bar',
   standalone: true,
-  imports: [CommonModule, NotificationsPanelComponent],
+  imports: [CommonModule, RouterLink, NotificationsPanelComponent],
   templateUrl: './top-bar.component.html',
   styleUrl: './top-bar.component.scss',
 })

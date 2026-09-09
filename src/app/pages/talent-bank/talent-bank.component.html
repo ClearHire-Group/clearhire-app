@@ -90,8 +90,10 @@
                   </td>
                   <td><span class="cell-text">{{ t.seniority }} · {{ t.modality }}</span></td>
                   <td>
-                    <span class="badge" [style.color]="t.depthColor" [style.background]="t.depthBg">{{ t.depthLabel }}</span>
-                    <div class="freshness">{{ t.freshnessLabel }}</div>
+                    <div class="profile-cell">
+                      <span class="badge" [style.color]="t.completenessColor" [style.background]="t.completenessBg">{{ t.completenessLabel }}</span>
+                      <span class="badge badge--freshness" [style.color]="t.freshnessColor" [style.background]="t.freshnessBg">{{ t.freshnessLabel }}</span>
+                    </div>
                   </td>
                   <td><span class="badge" [style.color]="t.consentColor" [style.background]="t.consentBg">{{ t.consentLabel }}</span></td>
                   @if (hasActiveQuery()) {

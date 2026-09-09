@@ -64,7 +64,6 @@ export interface ExperienceEntry {
 export type ConsentState = 'consentido' | 'nao_notificado' | 'notificado' | 'oposicao_exclusao';
 export type LegalBasis = 'consentimento' | 'legitimo_interesse' | 'a_avaliar';
 export type TalentOrigin = 'reprovacao_qualificada' | 'cadastro_manual' | 'importacao';
-export type ProfileDepth = 'alto' | 'medio' | 'baixo';
 
 export const CONSENT_STATE_LABELS: Record<ConsentState, string> = {
   consentido: 'Consentido',
@@ -168,9 +167,8 @@ export interface Talent {
   legalBasis: LegalBasis;
   consentState: ConsentState;
   consentDateLabel?: string;
-  profileDepth: ProfileDepth;
-  profileDepthNote: string;
-  freshnessLabel: string;
+  /** ISO date da última atualização real do registro — base para o selo de atualização (ver `talent-view.ts`). Nunca exibir direto; sempre formatar como label relativo. */
+  updatedAt: string;
   summary: string;
   experience: ExperienceEntry[];
   education: { degree: string; institution: string; period: string };

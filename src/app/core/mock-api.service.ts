@@ -188,9 +188,7 @@ export class MockApiService extends DataApi {
       origin: 'cadastro_manual',
       legalBasis: 'legitimo_interesse',
       consentState: 'nao_notificado',
-      profileDepth: 'baixo',
-      profileDepthNote: 'Cadastro manual, sem entrevistas realizadas ainda.',
-      freshnessLabel: 'Cadastrado agora',
+      updatedAt: this.today(),
       summary: input.rawProfileText,
       experience: [],
       education: { degree: '', institution: '', period: '' },
@@ -223,13 +221,6 @@ export class MockApiService extends DataApi {
     if (existing) return this.simulate({ talent: existing });
 
     const campaign = MOCK_CAMPAIGNS.find((c) => c.id === candidate.campaignId);
-    const depthByPhase: Record<string, Talent['profileDepth']> = {
-      entrevista: 'alto',
-      selecionados: 'alto',
-      tecnica: 'medio',
-      fit: 'medio',
-      recebidos: 'baixo',
-    };
 
     const talent: Talent = {
       id: candidate.id,
@@ -249,9 +240,7 @@ export class MockApiService extends DataApi {
       legalBasis: 'consentimento',
       consentState: 'consentido',
       consentDateLabel: 'Consentiu agora',
-      profileDepth: depthByPhase[candidate.phase] ?? 'baixo',
-      profileDepthNote: `Passou pela fase ${PHASE_LABELS[candidate.phase]} nesta empresa.`,
-      freshnessLabel: 'Atualizado agora',
+      updatedAt: this.today(),
       summary: `${candidate.experience}. ${candidate.location}.`,
       experience: [],
       education: { degree: '', institution: '', period: '' },
@@ -300,5 +289,9 @@ export class MockApiService extends DataApi {
 
   private simulate<T>(value: T): Observable<T> {
     return of(value).pipe(delay(APP_CONFIG.mockLatencyMs));
+  }
+
+  private today(): string {
+    return new Date().toISOString().slice(0, 10);
   }
 }
