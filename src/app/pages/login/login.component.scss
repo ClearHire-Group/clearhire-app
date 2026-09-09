@@ -1,0 +1,55 @@
+:host {
+  display: block;
+}
+
+h2 {
+  font-size: 26px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.auth-intro {
+  font-size: 13.5px;
+  margin-bottom: 24px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-block {
+  margin-bottom: 18px;
+}
+
+.form-alert {
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+.form-alert--error {
+  background: rgba(192, 146, 129, 0.12);
+  border: 1px solid rgba(192, 146, 129, 0.35);
+  color: #934832;
+}
+.form-alert--success {
+  background: rgba(58, 74, 46, 0.08);
+  border: 1px solid rgba(58, 74, 46, 0.25);
+  color: var(--color-success);
+}
+
+.auth-submit {
+  width: 100%;
+  margin-top: 6px;
+  padding: 12px 18px;
+  font-size: 13.5px;
+}
+
+.auth-switch {
+  margin-top: 24px;
+  font-size: 13px;
+  text-align: center;
+  color: var(--color-text-muted);
+}

@@ -1,0 +1,82 @@
+<app-auth-shell>
+  <h2 class="serif">Criar conta da empresa</h2>
+  <p class="muted auth-intro">Cadastre a empresa e o primeiro acesso de RH — leva menos de um minuto.</p>
+
+  @if (errorMessage()) {
+    <div class="form-alert form-alert--error">{{ errorMessage() }}</div>
+  }
+
+  <form (submit)="onSubmit($event)">
+    <div class="field-block">
+      <label class="fieldlabel" for="reg-company">Nome da empresa</label>
+      <input
+        class="field"
+        id="reg-company"
+        type="text"
+        autocomplete="organization"
+        [value]="companyName()"
+        (input)="companyName.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="field-block">
+      <label class="fieldlabel" for="reg-name">Seu nome</label>
+      <input
+        class="field"
+        id="reg-name"
+        type="text"
+        autocomplete="name"
+        [value]="ownerName()"
+        (input)="ownerName.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="field-block">
+      <label class="fieldlabel" for="reg-email">E-mail</label>
+      <input
+        class="field"
+        id="reg-email"
+        type="email"
+        autocomplete="email"
+        [value]="ownerEmail()"
+        (input)="ownerEmail.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="field-block">
+      <label class="fieldlabel" for="reg-password">Senha</label>
+      <input
+        class="field"
+        [class.field--error]="passwordTooShort()"
+        id="reg-password"
+        type="password"
+        autocomplete="new-password"
+        [value]="ownerPassword()"
+        (input)="ownerPassword.set($any($event.target).value)"
+      />
+      <span class="field-hint" [class.field-hint--error]="passwordTooShort()">Mínimo de 8 caracteres.</span>
+    </div>
+
+    <div class="field-block">
+      <label class="fieldlabel" for="reg-password-confirm">Confirmar senha</label>
+      <input
+        class="field"
+        [class.field--error]="passwordMismatch()"
+        id="reg-password-confirm"
+        type="password"
+        autocomplete="new-password"
+        [value]="confirmPassword()"
+        (input)="confirmPassword.set($any($event.target).value)"
+      />
+      @if (passwordMismatch()) {
+        <span class="field-hint field-hint--error">As senhas não coincidem.</span>
+      }
+    </div>
+
+    <button class="btn-primary auth-submit" type="submit" [disabled]="!canSubmit() || submitting()">
+      {{ submitting() ? 'Criando conta…' : 'Criar conta' }}
+    </button>
+  </form>
+
+  <p class="auth-switch">Já tem conta? <a routerLink="/login">Entrar</a></p>
+</app-auth-shell>

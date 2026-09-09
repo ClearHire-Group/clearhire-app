@@ -20,6 +20,18 @@ const FUNNEL_PHASES = (recebidos: number, fit: number, tecnica: number, entrevis
   { key: 'selecionados', num: 5, label: 'Selecionados', count: selecionados },
 ];
 
+/** Conta de demonstração — mesmos dados do exemplo em `docs/API.md` do backend (`POST /companies`). */
+export interface MockAuthUser {
+  name: string;
+  email: string;
+  password: string;
+  companyName: string;
+}
+
+export const MOCK_AUTH_USERS: MockAuthUser[] = [
+  { name: 'Pedro Soterio', email: 'pedro@aurora.com', password: 'senha12345', companyName: 'Aurora Tech' },
+];
+
 export const MOCK_COMPANY_PROFILE: CompanyProfile = {
   name: 'Aurora Tech',
   values: [

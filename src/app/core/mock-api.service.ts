@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { DataApi } from './data-api';
 import { APP_CONFIG } from './app-config';
@@ -7,6 +7,7 @@ import {
   ActivityItem,
   AiSuggestion,
   AiTrustMetrics,
+  AuthSession,
   Campaign,
   CampaignPerformance,
   Candidate,
@@ -14,12 +15,15 @@ import {
   CompanyProfile,
   CoverageEntry,
   DashboardMetrics,
+  LoginCredentials,
   ManualTalentInput,
   Notification,
   Phase,
   PhaseKey,
   PHASE_LABELS,
   REJECTION_REASONS,
+  RegisterCompanyInput,
+  RegisterCompanyResult,
   RejectionReasonKey,
   Talent,
   TalentMatch,
@@ -28,6 +32,7 @@ import {
   MOCK_ACTIVITY_FEED,
   MOCK_AI_SUGGESTIONS,
   MOCK_AI_TRUST,
+  MOCK_AUTH_USERS,
   MOCK_CAMPAIGNS,
   MOCK_CANDIDATES_BY_CAMPAIGN,
   MOCK_CANDIDATE_PROFILES,
@@ -35,6 +40,7 @@ import {
   MOCK_DASHBOARD_METRICS,
   MOCK_NOTIFICATIONS,
   MOCK_TALENTS,
+  MockAuthUser,
 } from './mock-data';
 import { computeCoverage, findSimilarInPool, reverseMatchForCriteria, searchTalentPool } from './talent-matching';
 
@@ -47,6 +53,33 @@ export class MockApiService extends DataApi {
   private notifications: Notification[] = [...MOCK_NOTIFICATIONS];
   /** Estado "vivo" do perfil da empresa — editar em Configurações escreve aqui em runtime. */
   private companyProfile: CompanyProfile = { ...MOCK_COMPANY_PROFILE };
+  /** Estado "vivo" das contas cadastradas — registro de empresa escreve aqui em runtime. */
+  private authUsers: MockAuthUser[] = [...MOCK_AUTH_USERS];
+
+  registerCompany(input: RegisterCompanyInput): Observable<RegisterCompanyResult> {
+    const emailTaken = this.authUsers.some((u) => u.email.toLowerCase() === input.ownerEmail.toLowerCase());
+    if (emailTaken) {
+      return this.simulateError('Este e-mail já está cadastrado.');
+    }
+    this.authUsers = [
+      ...this.authUsers,
+      { name: input.ownerName, email: input.ownerEmail, password: input.ownerPassword, companyName: input.companyName },
+    ];
+    return this.simulate({ id: this.slugifyCompany(input.companyName), name: input.companyName });
+  }
+
+  login(credentials: LoginCredentials): Observable<AuthSession> {
+    const user = this.authUsers.find(
+      (u) => u.email.toLowerCase() === credentials.email.toLowerCase() && u.password === credentials.password,
+    );
+    if (!user) {
+      return this.simulateError('E-mail ou senha incorretos.');
+    }
+    return this.simulate({
+      accessToken: `mock-access-${Date.now()}`,
+      refreshToken: `mock-refresh-${Date.now()}`,
+    });
+  }
 
   getCampaigns(): Observable<Campaign[]> {
     return this.simulate(MOCK_CAMPAIGNS);
@@ -287,8 +320,21 @@ export class MockApiService extends DataApi {
     return ((parts[0]?.[0] ?? '') + (parts[parts.length - 1]?.[0] ?? '')).toUpperCase();
   }
 
+  private slugifyCompany(name: string): string {
+    return name
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-');
+  }
+
   private simulate<T>(value: T): Observable<T> {
     return of(value).pipe(delay(APP_CONFIG.mockLatencyMs));
+  }
+
+  private simulateError<T>(message: string): Observable<T> {
+    return throwError(() => new Error(message)).pipe(delay(APP_CONFIG.mockLatencyMs));
   }
 
   private today(): string {

@@ -230,6 +230,31 @@ export interface CompanyProfile {
   importance: string;
 }
 
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+/** Par de tokens devolvido pelo login. `accessToken` expira em 15min; ainda não existe endpoint
+ * de refresh — ver `docs/API.md` no backend. */
+export interface AuthSession {
+  accessToken: string;
+  refreshToken: string;
+}
+
+/** Payload de `POST /companies` — cadastra a empresa junto com o primeiro RH (`role=owner`). */
+export interface RegisterCompanyInput {
+  companyName: string;
+  ownerName: string;
+  ownerEmail: string;
+  ownerPassword: string;
+}
+
+export interface RegisterCompanyResult {
+  id: string;
+  name: string;
+}
+
 export interface DashboardMetrics {
   activeCampaigns: number;
   activeCampaignsTrendLabel: string;

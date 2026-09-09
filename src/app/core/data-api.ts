@@ -3,6 +3,7 @@ import {
   ActivityItem,
   AiSuggestion,
   AiTrustMetrics,
+  AuthSession,
   Campaign,
   CampaignPerformance,
   Candidate,
@@ -10,10 +11,13 @@ import {
   CompanyProfile,
   CoverageEntry,
   DashboardMetrics,
+  LoginCredentials,
   ManualTalentInput,
   Notification,
   Phase,
   PhaseKey,
+  RegisterCompanyInput,
+  RegisterCompanyResult,
   RejectionReasonKey,
   Talent,
   TalentMatch,
@@ -27,6 +31,14 @@ import {
  * no page component references mock data or HttpClient directly.
  */
 export abstract class DataApi {
+  // --- Autenticação ----------------------------------------------------------
+  /** Cadastra a empresa + primeiro RH (`role=owner`). Não devolve sessão — o cadastro não loga
+   * automaticamente (ver `docs/API.md` do backend); chamar `login()` em seguida. */
+  abstract registerCompany(input: RegisterCompanyInput): Observable<RegisterCompanyResult>;
+  /** Autentica e devolve o par de tokens. Erro genérico tanto pra e-mail inexistente quanto senha
+   * incorreta — de propósito, pra não revelar qual e-mail está cadastrado. */
+  abstract login(credentials: LoginCredentials): Observable<AuthSession>;
+
   abstract getCampaigns(): Observable<Campaign[]>;
   abstract getCampaign(id: string): Observable<Campaign | undefined>;
   /** Alterna entre 'ativa' e 'pausada'; não afeta campanhas já encerradas. */

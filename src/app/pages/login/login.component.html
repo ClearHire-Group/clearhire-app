@@ -1,0 +1,43 @@
+<app-auth-shell>
+  <h2 class="serif">Entrar</h2>
+  <p class="muted auth-intro">Acesse o painel de recrutamento da sua empresa.</p>
+
+  @if (registered()) {
+    <div class="form-alert form-alert--success">Conta criada. Faça login para continuar.</div>
+  }
+  @if (errorMessage()) {
+    <div class="form-alert form-alert--error">{{ errorMessage() }}</div>
+  }
+
+  <form (submit)="onSubmit($event)">
+    <div class="field-block">
+      <label class="fieldlabel" for="login-email">E-mail</label>
+      <input
+        class="field"
+        id="login-email"
+        type="email"
+        autocomplete="email"
+        [value]="email()"
+        (input)="email.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="field-block">
+      <label class="fieldlabel" for="login-password">Senha</label>
+      <input
+        class="field"
+        id="login-password"
+        type="password"
+        autocomplete="current-password"
+        [value]="password()"
+        (input)="password.set($any($event.target).value)"
+      />
+    </div>
+
+    <button class="btn-primary auth-submit" type="submit" [disabled]="!canSubmit() || submitting()">
+      {{ submitting() ? 'Entrando…' : 'Entrar' }}
+    </button>
+  </form>
+
+  <p class="auth-switch">Ainda não tem conta da empresa? <a routerLink="/registro">Cadastrar empresa</a></p>
+</app-auth-shell>

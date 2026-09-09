@@ -1,8 +1,9 @@
 import { Component, ElementRef, HostListener, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs';
+import { AuthService } from '../../core/auth.service';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { Notification } from '../../core/models';
@@ -18,6 +19,8 @@ import { NotificationsPanelComponent } from '../notifications-panel/notification
 })
 export class TopBarComponent {
   private api = inject(DataApi);
+  private auth = inject(AuthService);
+  private router = inject(Router);
   private elementRef = inject(ElementRef<HTMLElement>);
 
   private refreshTrigger = signal(0);
@@ -50,5 +53,10 @@ export class TopBarComponent {
   @HostListener('document:keydown.escape')
   onEscape(): void {
     this.isPanelOpen.set(false);
+  }
+
+  logout(): void {
+    this.auth.logout();
+    this.router.navigateByUrl('/login');
   }
 }

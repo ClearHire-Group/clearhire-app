@@ -8,6 +8,7 @@ import {
   ActivityItem,
   AiSuggestion,
   AiTrustMetrics,
+  AuthSession,
   Campaign,
   CampaignPerformance,
   Candidate,
@@ -15,10 +16,13 @@ import {
   CompanyProfile,
   CoverageEntry,
   DashboardMetrics,
+  LoginCredentials,
   ManualTalentInput,
   Notification,
   Phase,
   PhaseKey,
+  RegisterCompanyInput,
+  RegisterCompanyResult,
   RejectionReasonKey,
   Talent,
   TalentMatch,
@@ -29,6 +33,8 @@ import {
  * shapes match `models.ts` exactly, so once the backend exists, flipping
  * `APP_CONFIG.useMockApi` to `false` is the only change required.
  *
+ *   POST /companies                                   -> { id, name }  (public — cadastro inicial da empresa + owner)
+ *   POST /auth/login                                   -> { accessToken, refreshToken }  (public)
  *   GET  /campaigns                                 -> Campaign[]
  *   GET  /campaigns/:id                              -> Campaign (404 -> undefined)
  *   POST /campaigns/:id/toggle-pause                   -> Campaign (404 -> undefined)
@@ -61,6 +67,14 @@ import {
 export class HttpApiService extends DataApi {
   constructor(private http: HttpClient) {
     super();
+  }
+
+  registerCompany(input: RegisterCompanyInput): Observable<RegisterCompanyResult> {
+    return this.http.post<RegisterCompanyResult>(`${APP_CONFIG.apiBaseUrl}/companies`, input);
+  }
+
+  login(credentials: LoginCredentials): Observable<AuthSession> {
+    return this.http.post<AuthSession>(`${APP_CONFIG.apiBaseUrl}/auth/login`, credentials);
   }
 
   getCampaigns(): Observable<Campaign[]> {
