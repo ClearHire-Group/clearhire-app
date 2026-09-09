@@ -1,11 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { map, switchMap } from 'rxjs';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
-import { REJECTION_REASONS, RejectionReasonKey } from '../../core/models';
+import { PHASE_LABELS, REJECTION_REASONS, RejectionReasonKey } from '../../core/models';
 
 @Component({
   selector: 'app-candidate-profile',
@@ -21,8 +22,9 @@ export class CandidateProfileComponent {
   private campaignId$ = this.route.paramMap.pipe(map((p) => p.get('campaignId') ?? ''));
   private candidateId$ = this.route.paramMap.pipe(map((p) => p.get('candidateId') ?? ''));
 
-  readonly campaignId = this.route.snapshot.paramMap.get('campaignId') ?? '';
-  readonly candidateId = this.route.snapshot.paramMap.get('candidateId') ?? '';
+  /** Reativos (não `snapshot`): o Angular reaproveita esta instância ao navegar entre dois candidatos da mesma rota. */
+  readonly campaignId = toSignal(this.campaignId$, { initialValue: '' });
+  readonly candidateId = toSignal(this.candidateId$, { initialValue: '' });
 
   readonly rejectionReasons = REJECTION_REASONS;
   readonly rejectModalOpen = signal(false);
@@ -31,6 +33,9 @@ export class CandidateProfileComponent {
   readonly sendBankInvite = signal(true);
   readonly rejectSaving = signal(false);
   readonly rejectResult = signal<{ talentId?: string } | null>(null);
+
+  readonly advanceSaving = signal(false);
+  readonly advanceResult = signal<{ nextPhaseLabel: string } | null>(null);
 
   readonly selectedReason = computed(() => this.rejectionReasons.find((r) => r.key === this.selectedReasonKey()) ?? null);
 
@@ -87,10 +92,19 @@ export class CandidateProfileComponent {
     const reason = this.selectedReason();
     if (!reason || this.rejectSaving()) return;
     this.rejectSaving.set(true);
-    this.api.submitCandidateRejection(this.candidateId, reason.key, reason.goesToBank && this.sendBankInvite()).subscribe(({ talent }) => {
+    this.api.submitCandidateRejection(this.candidateId(), reason.key, reason.goesToBank && this.sendBankInvite()).subscribe(({ talent }) => {
       this.rejectSaving.set(false);
       this.rejectModalOpen.set(false);
       this.rejectResult.set({ talentId: talent?.id });
+    });
+  }
+
+  approveAndAdvance(): void {
+    if (this.advanceSaving() || this.advanceResult() || this.rejectResult()) return;
+    this.advanceSaving.set(true);
+    this.api.advanceCandidate(this.candidateId()).subscribe((candidate) => {
+      this.advanceSaving.set(false);
+      this.advanceResult.set({ nextPhaseLabel: candidate ? PHASE_LABELS[candidate.phase] : '' });
     });
   }
 }

@@ -97,6 +97,17 @@ a:hover {
   border-color: rgba(21, 26, 34, 0.3);
 }
 
+.btn-primary:disabled,
+.btn-ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-primary:disabled:hover,
+.btn-ghost:disabled:hover {
+  filter: none;
+  border-color: var(--color-border-strong);
+}
+
 .muted {
   color: var(--color-text-muted);
 }

@@ -45,6 +45,8 @@ export class MockApiService extends DataApi {
   private talents: Talent[] = [...MOCK_TALENTS];
   /** Estado "vivo" das notificações — marcar como lida escreve aqui em runtime. */
   private notifications: Notification[] = [...MOCK_NOTIFICATIONS];
+  /** Estado "vivo" do perfil da empresa — editar em Configurações escreve aqui em runtime. */
+  private companyProfile: CompanyProfile = { ...MOCK_COMPANY_PROFILE };
 
   getCampaigns(): Observable<Campaign[]> {
     return this.simulate(MOCK_CAMPAIGNS);
@@ -52,6 +54,14 @@ export class MockApiService extends DataApi {
 
   getCampaign(id: string): Observable<Campaign | undefined> {
     return this.simulate(MOCK_CAMPAIGNS.find((c) => c.id === id));
+  }
+
+  toggleCampaignPause(campaignId: string): Observable<Campaign | undefined> {
+    const campaign = MOCK_CAMPAIGNS.find((c) => c.id === campaignId);
+    if (campaign && campaign.status !== 'encerrada') {
+      campaign.status = campaign.status === 'ativa' ? 'pausada' : 'ativa';
+    }
+    return this.simulate(campaign);
   }
 
   getCandidates(campaignId: string, phase?: PhaseKey): Observable<Candidate[]> {
@@ -63,8 +73,25 @@ export class MockApiService extends DataApi {
     return this.simulate(MOCK_CANDIDATE_PROFILES[candidateId]);
   }
 
+  advanceCandidate(candidateId: string): Observable<Candidate | undefined> {
+    const order: PhaseKey[] = ['recebidos', 'fit', 'tecnica', 'entrevista', 'selecionados'];
+    const candidate = Object.values(MOCK_CANDIDATES_BY_CAMPAIGN)
+      .flat()
+      .find((c) => c.id === candidateId);
+    if (candidate) {
+      const nextIndex = order.indexOf(candidate.phase) + 1;
+      if (nextIndex < order.length) candidate.phase = order[nextIndex];
+    }
+    return this.simulate(candidate);
+  }
+
   getCompanyProfile(): Observable<CompanyProfile> {
-    return this.simulate(MOCK_COMPANY_PROFILE);
+    return this.simulate(this.companyProfile);
+  }
+
+  updateCompanyProfile(update: Pick<CompanyProfile, 'tone' | 'importance'>): Observable<CompanyProfile> {
+    this.companyProfile = { ...this.companyProfile, ...update };
+    return this.simulate(this.companyProfile);
   }
 
   getDashboardMetrics(): Observable<DashboardMetrics> {

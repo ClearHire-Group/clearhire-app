@@ -32,6 +32,13 @@ export class CampaignsComponent {
     return status ? all.filter((c) => c.status === status) : all;
   });
 
+  /** Campanha ativa em destaque na listagem: a com mais candidatos em processo agora. */
+  readonly featuredCampaignId = computed(() => {
+    const ativas = (this.campaignsState.data() ?? []).filter((c) => c.status === 'ativa');
+    if (!ativas.length) return null;
+    return ativas.reduce((max, c) => (c.totalCandidates > max.totalCandidates ? c : max)).id;
+  });
+
   readonly subTabs = computed<SubTab[]>(() => {
     const campaigns = this.campaignsState.data() ?? [];
     const ativas = campaigns.filter((c) => c.status === 'ativa').length;

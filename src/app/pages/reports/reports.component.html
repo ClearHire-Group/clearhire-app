@@ -10,25 +10,45 @@
 
     <!-- KPIs -->
     <div class="metrics">
-      <div class="card metric">
-        <span class="muted metric__label">Conversão geral do funil</span>
-        <div class="serif metric__value">{{ overallConversionPct() }}%</div>
-        <span class="dim metric__hint">Recebidos → Selecionados</span>
+      <div class="card metric-card">
+        <span class="metric-kicker">Conversão geral do funil</span>
+        <div class="metric-value-row">
+          <p class="serif metric-value">{{ overallConversionPct() }}%</p>
+        </div>
+        <div class="metric-footer">
+          <span class="metric-footer-text">Recebidos → Selecionados</span>
+        </div>
       </div>
-      <div class="card metric">
-        <span class="muted metric__label">Aderência às recomendações da IA</span>
-        <div class="serif metric__value">{{ trustState.data()?.agreementRatePct ?? '—' }}%</div>
-        <span class="dim metric__hint">decisões manuais alinhadas à sugestão</span>
+
+      <div class="card metric-card">
+        <span class="metric-kicker">Aderência às recomendações da IA</span>
+        <div class="metric-value-row">
+          <p class="serif metric-value">{{ trustState.data()?.agreementRatePct ?? '—' }}%</p>
+        </div>
+        <div class="metric-footer">
+          <span class="metric-footer-text">decisões manuais alinhadas à sugestão</span>
+        </div>
       </div>
-      <div class="card metric">
-        <span class="muted metric__label">Candidaturas analisadas</span>
-        <div class="serif metric__value">{{ funnelRows().at(0)?.count ?? '—' }}</div>
-        <span class="dim metric__hint">em todas as campanhas</span>
+
+      <div class="card metric-card">
+        <span class="metric-kicker">Candidaturas analisadas</span>
+        <div class="metric-value-row">
+          <p class="serif metric-value">{{ receivedCount() ?? '—' }}</p>
+        </div>
+        <div class="metric-footer">
+          <span class="metric-footer-text">em todas as campanhas</span>
+        </div>
       </div>
-      <div class="card metric">
-        <span class="muted metric__label">Contratações no período</span>
-        <div class="serif metric__value">{{ funnelRows().at(4)?.count ?? '—' }}</div>
-        <span class="dim metric__hint">candidatos selecionados</span>
+
+      <div class="card metric-card metric-card--hero">
+        <div class="metric-card__accent-bar"></div>
+        <span class="metric-kicker">Contratações no período</span>
+        <div class="metric-value-row">
+          <p class="serif metric-value metric-value--accent">{{ selectedCount() ?? '—' }}</p>
+        </div>
+        <div class="metric-footer">
+          <span class="metric-footer-text">candidatos selecionados</span>
+        </div>
       </div>
     </div>
 

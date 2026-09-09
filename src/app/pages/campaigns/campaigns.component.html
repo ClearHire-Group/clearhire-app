@@ -16,8 +16,8 @@
       <p class="state-message state-message--error">Não foi possível carregar as campanhas.</p>
     } @else {
     <div class="campaign-list">
-      @for (c of filteredCampaigns(); track c.id; let first = $first) {
-        <div class="card campaign" [class.campaign--featured]="c.status === 'ativa' && first" [class.campaign--dim]="c.status !== 'ativa'">
+      @for (c of filteredCampaigns(); track c.id) {
+        <div class="card campaign" [class.campaign--featured]="c.id === featuredCampaignId()" [class.campaign--dim]="c.status !== 'ativa'">
           <div class="campaign__top">
             <div>
               <div class="campaign__title-row">

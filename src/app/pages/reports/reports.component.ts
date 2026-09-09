@@ -38,6 +38,9 @@ export class ReportsComponent {
     return first > 0 ? Math.round((last / first) * 1000) / 10 : 0;
   });
 
+  readonly receivedCount = computed(() => this.funnelState.data()?.find((p) => p.key === 'recebidos')?.count);
+  readonly selectedCount = computed(() => this.funnelState.data()?.find((p) => p.key === 'selecionados')?.count);
+
   readonly performanceRows = computed(() => {
     const rows = this.performanceState.data() ?? [];
     const max = Math.max(...rows.map((r) => r.conversionPct), 0.1);

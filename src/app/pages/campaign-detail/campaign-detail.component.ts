@@ -1,7 +1,7 @@
 import { Component, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { toObservable } from '@angular/core/rxjs-interop';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map, of, switchMap } from 'rxjs';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
 import { DataApi } from '../../core/data-api';
@@ -29,7 +29,13 @@ export class CampaignDetailComponent {
     { label: 'Configurações da Campanha' },
   ];
 
-  readonly campaignState = toLoadable(this.campaignId$.pipe(switchMap((id) => this.api.getCampaign(id))));
+  private refreshTrigger = signal(0);
+  readonly campaignState = toLoadable(
+    combineLatest([this.campaignId$, toObservable(this.refreshTrigger)]).pipe(
+      switchMap(([id]) => this.api.getCampaign(id)),
+    ),
+  );
+  readonly pauseSaving = signal(false);
 
   /** null until the campaign loads and seeds it with the campaign's current phase. */
   readonly selectedPhase = signal<PhaseKey | null>(null);
@@ -41,10 +47,16 @@ export class CampaignDetailComponent {
     ),
   );
 
+  /** Só resemeia `selectedPhase` numa troca real de campanha — um refetch da mesma campanha (ex.: após pausar) não deve descartar a fase que o recrutador escolheu ver. */
+  private lastSeenCampaignId: string | null = null;
+
   constructor() {
     effect(() => {
       const campaign = this.campaignState.data();
-      if (campaign) this.selectedPhase.set(campaign.currentPhaseKey);
+      if (campaign && campaign.id !== this.lastSeenCampaignId) {
+        this.lastSeenCampaignId = campaign.id;
+        this.selectedPhase.set(campaign.currentPhaseKey);
+      }
     });
   }
 
@@ -52,8 +64,16 @@ export class CampaignDetailComponent {
     this.selectedPhase.set(key);
   }
 
-  get campaignId(): string {
-    return this.route.snapshot.paramMap.get('campaignId') ?? '';
+  /** Reativo (não `snapshot`): o Angular reaproveita esta instância ao navegar entre duas campanhas da mesma rota. */
+  readonly campaignId = toSignal(this.campaignId$, { initialValue: '' });
+
+  togglePause(): void {
+    if (this.pauseSaving()) return;
+    this.pauseSaving.set(true);
+    this.api.toggleCampaignPause(this.campaignId()).subscribe(() => {
+      this.pauseSaving.set(false);
+      this.refreshTrigger.update((n) => n + 1);
+    });
   }
 
   get activePhaseLabel(): string {

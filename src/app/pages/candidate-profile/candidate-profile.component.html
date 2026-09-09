@@ -12,7 +12,7 @@
       <app-page-tabs [subTabs]="subTabs"></app-page-tabs>
 
       <span class="page-breadcrumb">{{ breadcrumb() }}</span>
-      <a [routerLink]="['/campanhas', campaignId]" class="back-link">
+      <a [routerLink]="['/campanhas', campaignId()]" class="back-link">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M19 12H5M11 18l-6-6 6-6" /></svg>
         Voltar para candidatos
       </a>
@@ -30,8 +30,18 @@
             </div>
           </div>
           <div class="header__actions">
-            <button class="btn-ghost reject-btn" type="button" (click)="openRejectModal()">Reprovar nesta fase</button>
-            <button class="btn-primary approve-btn" type="button">Aprovar e avançar</button>
+            <button
+              class="btn-ghost reject-btn"
+              type="button"
+              [disabled]="advanceResult() !== null"
+              (click)="openRejectModal()"
+            >Reprovar nesta fase</button>
+            <button
+              class="btn-primary approve-btn"
+              type="button"
+              [disabled]="advanceSaving() || advanceResult() !== null || rejectResult() !== null"
+              (click)="approveAndAdvance()"
+            >{{ advanceSaving() ? 'Avançando…' : advanceResult() ? 'Avançado' : 'Aprovar e avançar' }}</button>
           </div>
         </div>
 
@@ -43,6 +53,17 @@
               <span>Reprovação registrada. Este motivo não envia o perfil ao Banco de Talentos.</span>
             }
             <button type="button" class="dismiss-btn" (click)="rejectResult.set(null)">Fechar</button>
+          </div>
+        }
+
+        @if (advanceResult(); as result) {
+          <div class="card confirmation-banner">
+            @if (result.nextPhaseLabel) {
+              <span>Candidato aprovado — fase atual: <strong>{{ result.nextPhaseLabel }}</strong>.</span>
+            } @else {
+              <span>Não foi possível atualizar a fase deste candidato.</span>
+            }
+            <button type="button" class="dismiss-btn" (click)="advanceResult.set(null)">Fechar</button>
           </div>
         }
 
@@ -136,7 +157,7 @@
 
             <section>
               <div class="list-heading">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" [attr.stroke]="profile.accent === 'sand' ? '#a8674f' : '#a8674f'" stroke-width="2.4"><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" /></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a8674f" stroke-width="2.4"><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" /></svg>
                 <span>Pontos de atenção</span>
               </div>
               <ul class="point-list">

@@ -31,10 +31,13 @@ import {
  *
  *   GET  /campaigns                                 -> Campaign[]
  *   GET  /campaigns/:id                              -> Campaign (404 -> undefined)
+ *   POST /campaigns/:id/toggle-pause                   -> Campaign (404 -> undefined)
  *   GET  /campaigns/:id/candidates?phase=:phaseKey    -> Candidate[]  (phase optional)
  *   GET  /candidates/:id/profile                      -> CandidateProfileData (404 -> undefined)
+ *   POST /candidates/:id/advance                      -> Candidate (404 -> undefined)
  *   POST /candidates/:id/reject                       -> { talent?: Talent }  (body: { reasonKey, sendBankInvite })
  *   GET  /company-profile                             -> CompanyProfile
+ *   POST /company-profile                              -> CompanyProfile  (body: { tone, importance })
  *   GET  /dashboard/metrics                           -> DashboardMetrics
  *   GET  /dashboard/ai-suggestions                    -> AiSuggestion[]
  *   GET  /dashboard/activity                          -> ActivityItem[]
@@ -70,6 +73,12 @@ export class HttpApiService extends DataApi {
       .pipe(catchError(() => of(undefined)));
   }
 
+  toggleCampaignPause(campaignId: string): Observable<Campaign | undefined> {
+    return this.http
+      .post<Campaign>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/toggle-pause`, {})
+      .pipe(catchError(() => of(undefined)));
+  }
+
   getCandidates(campaignId: string, phase?: PhaseKey): Observable<Candidate[]> {
     const params = phase ? new HttpParams().set('phase', phase) : undefined;
     return this.http.get<Candidate[]>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/candidates`, { params });
@@ -81,8 +90,18 @@ export class HttpApiService extends DataApi {
       .pipe(catchError(() => of(undefined)));
   }
 
+  advanceCandidate(candidateId: string): Observable<Candidate | undefined> {
+    return this.http
+      .post<Candidate>(`${APP_CONFIG.apiBaseUrl}/candidates/${candidateId}/advance`, {})
+      .pipe(catchError(() => of(undefined)));
+  }
+
   getCompanyProfile(): Observable<CompanyProfile> {
     return this.http.get<CompanyProfile>(`${APP_CONFIG.apiBaseUrl}/company-profile`);
+  }
+
+  updateCompanyProfile(update: Pick<CompanyProfile, 'tone' | 'importance'>): Observable<CompanyProfile> {
+    return this.http.post<CompanyProfile>(`${APP_CONFIG.apiBaseUrl}/company-profile`, update);
   }
 
   getDashboardMetrics(): Observable<DashboardMetrics> {

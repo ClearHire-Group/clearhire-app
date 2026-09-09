@@ -13,8 +13,12 @@
           <span class="muted">{{ campaign.location }} · {{ campaign.meta }} · {{ campaign.totalCandidates }} candidatos no total</span>
         </div>
         <div class="header__actions">
-          <button class="btn-ghost" type="button">Pausar campanha</button>
-          <button class="btn-ghost" type="button">Editar campanha</button>
+          @if (campaign.status !== 'encerrada') {
+            <button class="btn-ghost" type="button" [disabled]="pauseSaving()" (click)="togglePause()">
+              {{ pauseSaving() ? 'Salvando…' : campaign.status === 'pausada' ? 'Retomar campanha' : 'Pausar campanha' }}
+            </button>
+          }
+          <button class="btn-ghost" type="button" disabled title="Ainda não disponível nesta prévia">Editar campanha</button>
         </div>
       </div>
 
@@ -94,7 +98,7 @@
                   </td>
                   <td><span class="status-pill" [style.color]="c.statusColor" [style.background]="c.statusBg">{{ c.status }}</span></td>
                   <td class="col-action">
-                    <a [routerLink]="['/campanhas', campaignId, 'candidatos', c.id]" class="btn-ghost view-btn">Ver perfil</a>
+                    <a [routerLink]="['/campanhas', campaignId(), 'candidatos', c.id]" class="btn-ghost view-btn">Ver perfil</a>
                   </td>
                 </tr>
               }

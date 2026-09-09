@@ -14,23 +14,57 @@
   gap: 16px;
   margin-bottom: 20px;
 }
-.metric {
-  padding: 20px 22px;
+
+.metric-card {
+  position: relative;
+  padding: 22px 24px;
+
+  &--hero {
+    padding-top: 25px;
+  }
+}
+.metric-card__accent-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--color-accent);
+  border-radius: 12px 12px 0 0;
+}
+
+.metric-kicker {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: rgba(21, 26, 34, 0.45);
+  margin-bottom: 14px;
+}
+
+.metric-value-row {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: baseline;
 }
-.metric__label {
-  font-size: 12.5px;
-  font-weight: 600;
-}
-.metric__value {
-  font-size: 30px;
-  font-weight: 600;
+.metric-value {
+  font-size: 36px;
   color: #151A22;
+
+  &--accent { color: var(--color-accent); }
 }
-.metric__hint {
-  font-size: 11.5px;
+
+.metric-footer {
+  display: flex;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(21, 26, 34, 0.07);
+}
+.metric-footer-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(21, 26, 34, 0.55);
 }
 
 .panels {

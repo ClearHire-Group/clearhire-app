@@ -29,12 +29,12 @@
 
         <div class="field-block">
           <label class="fieldlabel">Tom de comunicação</label>
-          <textarea class="field" rows="2">{{ companyProfile.tone }}</textarea>
+          <textarea class="field" rows="2" [value]="toneDraft()" (input)="toneDraft.set($any($event.target).value)"></textarea>
         </div>
 
         <div class="field-block field-block--last">
           <label class="fieldlabel">O que a empresa considera importante</label>
-          <textarea class="field" rows="3">{{ companyProfile.importance }}</textarea>
+          <textarea class="field" rows="3" [value]="importanceDraft()" (input)="importanceDraft.set($any($event.target).value)"></textarea>
         </div>
       </div>
 
@@ -44,8 +44,11 @@
       </div>
 
       <div class="submit-row">
-        <button class="btn-ghost" type="button">Descartar alterações</button>
-        <button class="btn-primary" type="button">Salvar perfil</button>
+        @if (saved()) {
+          <span class="save-confirmation">Perfil salvo.</span>
+        }
+        <button class="btn-ghost" type="button" [disabled]="!isDirty()" (click)="discard()">Descartar alterações</button>
+        <button class="btn-primary" type="button" [disabled]="!canSave()" (click)="save()">{{ saving() ? 'Salvando…' : 'Salvar perfil' }}</button>
       </div>
     } @else if (companyProfileState.loading()) {
       <p class="state-message"><span class="state-spinner"></span> Carregando perfil da empresa…</p>

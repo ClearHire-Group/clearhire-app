@@ -29,9 +29,14 @@ import {
 export abstract class DataApi {
   abstract getCampaigns(): Observable<Campaign[]>;
   abstract getCampaign(id: string): Observable<Campaign | undefined>;
+  /** Alterna entre 'ativa' e 'pausada'; não afeta campanhas já encerradas. */
+  abstract toggleCampaignPause(campaignId: string): Observable<Campaign | undefined>;
   abstract getCandidates(campaignId: string, phase?: PhaseKey): Observable<Candidate[]>;
   abstract getCandidateProfile(candidateId: string): Observable<CandidateProfileData | undefined>;
+  /** Move o candidato para a próxima fase do funil; no-op se já estiver em "Selecionados". */
+  abstract advanceCandidate(candidateId: string): Observable<Candidate | undefined>;
   abstract getCompanyProfile(): Observable<CompanyProfile>;
+  abstract updateCompanyProfile(update: Pick<CompanyProfile, 'tone' | 'importance'>): Observable<CompanyProfile>;
   abstract getDashboardMetrics(): Observable<DashboardMetrics>;
   abstract getAiSuggestions(): Observable<AiSuggestion[]>;
   abstract getActivityFeed(): Observable<ActivityItem[]>;
