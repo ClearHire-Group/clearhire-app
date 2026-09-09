@@ -4,6 +4,10 @@ import { RouterLink } from '@angular/router';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
+import { Campaign } from '../../core/models';
+
+/** Quantas campanhas o resumo do dashboard mostra antes de empurrar o resto para "Ver todas". */
+const DASHBOARD_CAMPAIGN_LIMIT = 4;
 
 @Component({
   selector: 'app-dashboard',
@@ -25,8 +29,17 @@ export class DashboardComponent {
   readonly suggestionsState = toLoadable(this.api.getAiSuggestions());
 
   readonly activeCampaigns = computed(() =>
-    (this.campaignsState.data() ?? []).filter((c) => c.status !== 'encerrada'),
+    (this.campaignsState.data() ?? [])
+      .filter((c) => c.status !== 'encerrada')
+      // Ativas primeiro — são as que pedem atenção agora; pausadas completam a lista se sobrar espaço.
+      .sort((a, b) => Number(a.status === 'pausada') - Number(b.status === 'pausada'))
+      .slice(0, DASHBOARD_CAMPAIGN_LIMIT),
   );
+
+  /** Quantos candidatos já chegaram à fase atual da campanha — leitura concreta no lugar do % abstrato do funil. */
+  phaseCount(campaign: Campaign): number {
+    return campaign.phases.find((p) => p.key === campaign.currentPhaseKey)?.count ?? 0;
+  }
 
   readonly hiresGoalPercent = computed(() => {
     const m = this.metricsState.data();

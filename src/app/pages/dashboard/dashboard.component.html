@@ -95,7 +95,7 @@
         } @else {
           <div class="campaign-rows">
             @for (c of activeCampaigns(); track c.id) {
-              <div class="campaign-row" [class.campaign-row--paused]="c.status === 'pausada'">
+              <a [routerLink]="['/campanhas', c.id]" class="campaign-row" [class.campaign-row--paused]="c.status === 'pausada'">
                 <div class="campaign-row__top">
                   <div class="campaign-row__title">
                     <span>{{ c.title }}</span>
@@ -103,18 +103,18 @@
                       {{ c.status === 'ativa' ? 'ATIVA' : 'PAUSADA' }}
                     </span>
                   </div>
-                  <span class="dim">{{ c.totalCandidates }} candidatos · {{ c.location.split(' · ')[0] }}</span>
+                  <span class="dim campaign-row__meta">{{ c.meta }}</span>
                 </div>
                 <div>
                   <div class="campaign-row__progress-label">
                     <span>{{ c.status === 'pausada' ? 'Pausada em: ' : 'Fase atual: ' }}{{ c.currentPhaseLabel }}</span>
-                    <span [class.text-accent]="c.status === 'ativa'" [class.text-sand]="c.status === 'pausada'">{{ c.funnelPercent }}% do funil</span>
+                    <span [class.text-accent]="c.status === 'ativa'" [class.text-sand]="c.status === 'pausada'">{{ phaseCount(c) }} de {{ c.totalCandidates }} candidatos</span>
                   </div>
                   <div class="progress-track">
                     <div class="progress-fill" [class.progress-fill--sand]="c.status === 'pausada'" [style.width.%]="c.funnelPercent"></div>
                   </div>
                 </div>
-              </div>
+              </a>
             }
           </div>
         }
