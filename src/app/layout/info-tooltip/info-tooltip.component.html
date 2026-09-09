@@ -1,0 +1,19 @@
+<span class="info-tooltip">
+  <button
+    type="button"
+    class="info-tooltip__trigger"
+    [attr.aria-label]="label"
+    aria-haspopup="true"
+    [attr.aria-expanded]="isOpen()"
+    (click)="toggle()"
+  >?</button>
+
+  @if (isOpen()) {
+    <div class="info-tooltip__panel" role="tooltip">
+      @if (heading) {
+        <p class="info-tooltip__heading">{{ heading }}</p>
+      }
+      <ng-content></ng-content>
+    </div>
+  }
+</span>

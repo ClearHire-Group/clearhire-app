@@ -59,8 +59,22 @@
                 <th class="col-talent">Talento</th>
                 <th>Skills</th>
                 <th>Senioridade / Modalidade</th>
-                <th>Perfil</th>
-                <th>Consentimento</th>
+                <th>
+                  Perfil
+                  <app-info-tooltip label="O que significa a coluna Perfil" heading="Dois selos, dois sinais diferentes">
+                    <p><strong>Completude</strong> — quantos campos do cadastro estão de fato preenchidos (skills, pretensão salarial, disponibilidade…). Não diz nada sobre quão bem a pessoa foi avaliada.</p>
+                    <p><strong>Atualização</strong> — há quanto tempo os dados foram atualizados. Muito tempo sem revisão, o selo avisa que os dados podem estar desatualizados.</p>
+                  </app-info-tooltip>
+                </th>
+                <th>
+                  Consentimento
+                  <app-info-tooltip label="O que significa a coluna Consentimento" heading="Base legal para usar este perfil">
+                    <p><strong>Consentido</strong> — a pessoa autorizou explicitamente o uso dos dados.</p>
+                    <p><strong>Notificado</strong> — já sabe que está no banco, mas ainda não deu consentimento formal.</p>
+                    <p><strong>Não notificado</strong> — ainda não teve o primeiro contato real.</p>
+                    <p><strong>Exclusão solicitada</strong> — pediu para saír; fica bloqueada para qualquer busca ou recomendação.</p>
+                  </app-info-tooltip>
+                </th>
                 @if (hasActiveQuery()) {
                   <th>Match</th>
                 }
