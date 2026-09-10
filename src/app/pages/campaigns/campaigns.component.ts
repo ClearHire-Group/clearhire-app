@@ -32,6 +32,35 @@ export class CampaignsComponent {
     return status ? all.filter((c) => c.status === status) : all;
   });
 
+  /** Nunca criou campanha nenhuma. */
+  readonly isFirstCampaign = computed(() => (this.campaignsState.data() ?? []).length === 0);
+
+  /** Tem histórico, mas nada ativo/pausado agora — todas as campanhas estão encerradas. As
+   * encerradas continuam acessíveis pela sub-aba própria, não precisam duplicar aqui embaixo. */
+  readonly allCampaignsClosed = computed(() => {
+    const all = this.campaignsState.data() ?? [];
+    return all.length > 0 && all.every((c) => c.status === 'encerrada');
+  });
+
+  /** O card de call-to-action só aparece na aba "Todas" (sem filtro) — abas filtradas por status
+   * já têm a mensagem contextual de `filteredEmptyMessage` pra lista vazia. */
+  readonly showCampaignPrompt = computed(
+    () => !this.statusFilter() && (this.isFirstCampaign() || this.allCampaignsClosed()),
+  );
+
+  readonly filteredEmptyMessage = computed(() => {
+    switch (this.statusFilter()) {
+      case 'ativa':
+        return 'Nenhuma campanha ativa no momento.';
+      case 'pausada':
+        return 'Nenhuma campanha pausada no momento.';
+      case 'encerrada':
+        return 'Nenhuma campanha encerrada ainda.';
+      default:
+        return 'Nenhuma campanha encontrada.';
+    }
+  });
+
   /** Campanha ativa em destaque na listagem: a com mais candidatos em processo agora. */
   readonly featuredCampaignId = computed(() => {
     const ativas = (this.campaignsState.data() ?? []).filter((c) => c.status === 'ativa');

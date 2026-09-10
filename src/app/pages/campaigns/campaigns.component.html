@@ -14,6 +14,34 @@
       <p class="state-message"><span class="state-spinner"></span> Carregando campanhas…</p>
     } @else if (campaignsState.error()) {
       <p class="state-message state-message--error">Não foi possível carregar as campanhas.</p>
+    } @else if (showCampaignPrompt()) {
+      <div class="card empty-state">
+        <div class="empty-state__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#B85A3E" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h18l-7 8.5V19l-4 2v-8.5z" /></svg>
+        </div>
+        @if (isFirstCampaign()) {
+          <h2 class="serif">Comece sua primeira campanha</h2>
+          <p class="muted empty-state__intro">
+            Cada vaga vira um funil: a IA cuida da triagem por Fit Cultural, Triagem Técnica e
+            Entrevista, e você acompanha quantos candidatos avançam em cada etapa — sem planilha,
+            sem perder o fio.
+          </p>
+          <a routerLink="/campanhas/nova" class="btn-primary empty-state__cta">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2.5"><path d="M12 5v14M5 12h14" /></svg>
+            Criar primeira campanha
+          </a>
+        } @else {
+          <h2 class="serif">Hora da próxima campanha</h2>
+          <p class="muted empty-state__intro">
+            Suas campanhas anteriores estão encerradas — elas continuam disponíveis na aba
+            Encerradas. Crie uma nova vaga para continuar recrutando.
+          </p>
+          <a routerLink="/campanhas/nova" class="btn-primary empty-state__cta">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#151A22" stroke-width="2.5"><path d="M12 5v14M5 12h14" /></svg>
+            Criar nova campanha
+          </a>
+        }
+      </div>
     } @else {
     <div class="campaign-list">
       @for (c of filteredCampaigns(); track c.id) {
@@ -48,7 +76,12 @@
           </div>
         </div>
       } @empty {
-        <p class="state-message">Nenhuma campanha nesse status.</p>
+        <div class="filtered-empty">
+          <p class="muted">{{ filteredEmptyMessage() }}</p>
+          @if (statusFilter()) {
+            <a routerLink="/campanhas" class="filtered-empty__link">Ver todas as campanhas</a>
+          }
+        </div>
       }
     </div>
     }
