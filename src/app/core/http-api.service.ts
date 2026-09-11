@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { DataApi } from './data-api';
 import { APP_CONFIG } from './app-config';
@@ -71,6 +71,24 @@ export class HttpApiService extends DataApi {
     super();
   }
 
+  /**
+   * 404 (rota inexistente) e 501 (endpoint ainda esqueleto no backend) viram lista vazia em vez de
+   * erro — pra o front, "esse domínio ainda não foi construído" e "não tem nada aqui" são a mesma
+   * coisa: nenhum dos dois é uma falha de verdade que mereça a mensagem de erro. Qualquer outro
+   * status (400/401/403/500, rede fora do ar) continua propagando como erro genuíno — só esses dois
+   * códigos têm esse significado específico neste backend (ver docs/API.md do clearhire-server).
+   */
+  private emptyOnUnavailable<T>(source$: Observable<T[]>): Observable<T[]> {
+    return source$.pipe(
+      catchError((err: unknown) => {
+        if (err instanceof HttpErrorResponse && (err.status === 404 || err.status === 501)) {
+          return of([]);
+        }
+        return throwError(() => err);
+      }),
+    );
+  }
+
   registerCompany(input: RegisterCompanyInput): Observable<RegisterCompanyResult> {
     return this.http.post<RegisterCompanyResult>(`${APP_CONFIG.apiBaseUrl}/companies`, input);
   }
@@ -88,7 +106,7 @@ export class HttpApiService extends DataApi {
   }
 
   getCampaigns(): Observable<Campaign[]> {
-    return this.http.get<Campaign[]>(`${APP_CONFIG.apiBaseUrl}/campaigns`);
+    return this.emptyOnUnavailable(this.http.get<Campaign[]>(`${APP_CONFIG.apiBaseUrl}/campaigns`));
   }
 
   getCampaign(id: string): Observable<Campaign | undefined> {
@@ -105,7 +123,9 @@ export class HttpApiService extends DataApi {
 
   getCandidates(campaignId: string, phase?: PhaseKey): Observable<Candidate[]> {
     const params = phase ? new HttpParams().set('phase', phase) : undefined;
-    return this.http.get<Candidate[]>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/candidates`, { params });
+    return this.emptyOnUnavailable(
+      this.http.get<Candidate[]>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/candidates`, { params }),
+    );
   }
 
   getCandidateProfile(candidateId: string): Observable<CandidateProfileData | undefined> {
@@ -133,15 +153,15 @@ export class HttpApiService extends DataApi {
   }
 
   getAiSuggestions(): Observable<AiSuggestion[]> {
-    return this.http.get<AiSuggestion[]>(`${APP_CONFIG.apiBaseUrl}/dashboard/ai-suggestions`);
+    return this.emptyOnUnavailable(this.http.get<AiSuggestion[]>(`${APP_CONFIG.apiBaseUrl}/dashboard/ai-suggestions`));
   }
 
   getActivityFeed(): Observable<ActivityItem[]> {
-    return this.http.get<ActivityItem[]>(`${APP_CONFIG.apiBaseUrl}/dashboard/activity`);
+    return this.emptyOnUnavailable(this.http.get<ActivityItem[]>(`${APP_CONFIG.apiBaseUrl}/dashboard/activity`));
   }
 
   getNotifications(): Observable<Notification[]> {
-    return this.http.get<Notification[]>(`${APP_CONFIG.apiBaseUrl}/notifications`);
+    return this.emptyOnUnavailable(this.http.get<Notification[]>(`${APP_CONFIG.apiBaseUrl}/notifications`));
   }
 
   markNotificationRead(id: string): Observable<Notification | undefined> {
@@ -151,11 +171,13 @@ export class HttpApiService extends DataApi {
   }
 
   getFunnelSummary(): Observable<Phase[]> {
-    return this.http.get<Phase[]>(`${APP_CONFIG.apiBaseUrl}/reports/funnel-summary`);
+    return this.emptyOnUnavailable(this.http.get<Phase[]>(`${APP_CONFIG.apiBaseUrl}/reports/funnel-summary`));
   }
 
   getCampaignPerformance(): Observable<CampaignPerformance[]> {
-    return this.http.get<CampaignPerformance[]>(`${APP_CONFIG.apiBaseUrl}/reports/campaign-performance`);
+    return this.emptyOnUnavailable(
+      this.http.get<CampaignPerformance[]>(`${APP_CONFIG.apiBaseUrl}/reports/campaign-performance`),
+    );
   }
 
   getAiTrustMetrics(): Observable<AiTrustMetrics> {
@@ -163,7 +185,7 @@ export class HttpApiService extends DataApi {
   }
 
   getTalents(): Observable<Talent[]> {
-    return this.http.get<Talent[]>(`${APP_CONFIG.apiBaseUrl}/talents`);
+    return this.emptyOnUnavailable(this.http.get<Talent[]>(`${APP_CONFIG.apiBaseUrl}/talents`));
   }
 
   getTalent(id: string): Observable<Talent | undefined> {
@@ -172,15 +194,15 @@ export class HttpApiService extends DataApi {
 
   searchTalents(query: string): Observable<TalentMatch[]> {
     const params = new HttpParams().set('q', query);
-    return this.http.get<TalentMatch[]>(`${APP_CONFIG.apiBaseUrl}/talents/search`, { params });
+    return this.emptyOnUnavailable(this.http.get<TalentMatch[]>(`${APP_CONFIG.apiBaseUrl}/talents/search`, { params }));
   }
 
   findSimilarTalents(talentId: string): Observable<TalentMatch[]> {
-    return this.http.get<TalentMatch[]>(`${APP_CONFIG.apiBaseUrl}/talents/${talentId}/similar`);
+    return this.emptyOnUnavailable(this.http.get<TalentMatch[]>(`${APP_CONFIG.apiBaseUrl}/talents/${talentId}/similar`));
   }
 
   getTalentPoolCoverage(): Observable<CoverageEntry[]> {
-    return this.http.get<CoverageEntry[]>(`${APP_CONFIG.apiBaseUrl}/talents/coverage`);
+    return this.emptyOnUnavailable(this.http.get<CoverageEntry[]>(`${APP_CONFIG.apiBaseUrl}/talents/coverage`));
   }
 
   registerManualTalent(input: ManualTalentInput): Observable<Talent> {
@@ -209,6 +231,6 @@ export class HttpApiService extends DataApi {
     modality?: string;
     seniority?: string;
   }): Observable<TalentMatch[]> {
-    return this.http.post<TalentMatch[]>(`${APP_CONFIG.apiBaseUrl}/campaigns/reverse-match`, criteria);
+    return this.emptyOnUnavailable(this.http.post<TalentMatch[]>(`${APP_CONFIG.apiBaseUrl}/campaigns/reverse-match`, criteria));
   }
 }

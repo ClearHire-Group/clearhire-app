@@ -115,6 +115,8 @@
                   </div>
                 </div>
               </a>
+            } @empty {
+              <p class="state-message">Nenhuma campanha ativa no momento.</p>
             }
           </div>
         }
@@ -138,6 +140,8 @@
                 <p>{{ s.message }}</p>
                 <a [routerLink]="s.primaryActionRoute" class="review__btn" [class.btn-primary]="s.highlighted" [class.btn-ghost]="!s.highlighted">{{ s.primaryActionLabel }}</a>
               </div>
+            } @empty {
+              <p class="state-message">Nenhuma sugestão da IA no momento.</p>
             }
           </div>
         }

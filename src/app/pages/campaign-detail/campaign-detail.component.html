@@ -101,6 +101,10 @@
                     <a [routerLink]="['/campanhas', campaignId(), 'candidatos', c.id]" class="btn-ghost view-btn">Ver perfil</a>
                   </td>
                 </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6"><p class="empty-row">Nenhum candidato nesta fase ainda.</p></td>
+                </tr>
               }
             </tbody>
           </table>

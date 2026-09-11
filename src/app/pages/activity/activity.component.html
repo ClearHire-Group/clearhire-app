@@ -28,6 +28,8 @@
               <p class="feed__message">{{ item.message }}</p>
             </div>
           </div>
+        } @empty {
+          <p class="state-message">Nenhuma atividade registrada ainda.</p>
         }
       </div>
     } @else if (activityState.loading()) {
