@@ -10,6 +10,7 @@ import {
   Notification,
   Phase,
   Talent,
+  UserRole,
 } from './models';
 
 const FUNNEL_PHASES = (recebidos: number, fit: number, tecnica: number, entrevista: number, selecionados: number): Phase[] => [
@@ -22,14 +23,27 @@ const FUNNEL_PHASES = (recebidos: number, fit: number, tecnica: number, entrevis
 
 /** Conta de demonstração — mesmos dados do exemplo em `docs/API.md` do backend (`POST /companies`). */
 export interface MockAuthUser {
+  id: string;
   name: string;
   email: string;
   password: string;
   companyName: string;
+  companyId: string;
+  role: UserRole;
+  isActive: boolean;
 }
 
 export const MOCK_AUTH_USERS: MockAuthUser[] = [
-  { name: 'Pedro Soterio', email: 'pedro@aurora.com', password: 'senha12345', companyName: 'Aurora Tech' },
+  {
+    id: 'user-pedro-soterio',
+    name: 'Pedro Soterio',
+    email: 'pedro@aurora.com',
+    password: 'senha12345',
+    companyName: 'Aurora Tech',
+    companyId: 'aurora-tech',
+    role: 'owner',
+    isActive: true,
+  },
 ];
 
 export const MOCK_COMPANY_PROFILE: CompanyProfile = {

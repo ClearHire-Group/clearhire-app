@@ -24,16 +24,21 @@ export class LoginComponent {
   readonly submitting = signal(false);
   readonly errorMessage = signal('');
   readonly registered = signal(false);
+  readonly passwordReset = signal(false);
+  readonly invitationAccepted = signal(false);
 
   readonly canSubmit = computed(() => this.email().trim().length > 0 && this.password().length > 0);
 
   constructor() {
-    // Preenche a partir de /login?registrado=1&email=... (redirecionamento pós-cadastro) — reativo via
-    // queryParamMap em vez de snapshot, mesma regra de `route.paramMap` do resto do app.
+    // Preenche a partir de /login?registrado=1&email=... (redirecionamento pós-cadastro),
+    // ?redefinido=1 (pós-reset de senha) ou ?convite_aceito=1&email=... (pós-aceite de convite) —
+    // reativo via queryParamMap em vez de snapshot, mesma regra de `route.paramMap` do resto do app.
     effect(() => {
       const params = this.queryParamMap();
       if (!params) return;
       if (params.get('registrado') === '1') this.registered.set(true);
+      if (params.get('redefinido') === '1') this.passwordReset.set(true);
+      if (params.get('convite_aceito') === '1') this.invitationAccepted.set(true);
       const prefillEmail = params.get('email');
       if (prefillEmail) this.email.set(prefillEmail);
     });

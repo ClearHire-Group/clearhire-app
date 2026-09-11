@@ -1,0 +1,135 @@
+<div class="page">
+  <div class="page-body page-body--narrow">
+    <h1 class="serif">Equipe</h1>
+
+    <app-page-tabs [subTabs]="subTabs"></app-page-tabs>
+
+    <p class="muted intro">RHs com acesso a esta empresa. O plano atual permite até 2 assentos ativos.</p>
+
+    @if (pageState.data(); as page) {
+      <div class="card panel">
+        <div class="panel__header">
+          <div>
+            <div class="panel__title">Minha conta</div>
+            <div class="dim panel__hint">{{ page.me.email }} · {{ roleLabels[page.me.role] }}</div>
+          </div>
+        </div>
+
+        <div class="field-block field-block--last">
+          <label class="fieldlabel" for="my-name">Nome</label>
+          <input
+            class="field"
+            id="my-name"
+            type="text"
+            [value]="nameDraft()"
+            (input)="nameDraft.set($any($event.target).value)"
+          />
+        </div>
+
+        @if (nameError()) {
+          <p class="state-message state-message--error name-error">{{ nameError() }}</p>
+        }
+
+        <div class="submit-row">
+          @if (nameSaved()) {
+            <span class="save-confirmation">Nome salvo.</span>
+          }
+          <button class="btn-ghost" type="button" [disabled]="!nameDirty()" (click)="discardName()">Descartar</button>
+          <button class="btn-primary" type="button" [disabled]="!nameDirty() || savingName()" (click)="saveName()">
+            {{ savingName() ? 'Salvando…' : 'Salvar nome' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="card panel">
+        <div class="panel__header">
+          <div class="panel__title">Assentos da empresa</div>
+        </div>
+
+        @if (deactivateError()) {
+          <p class="state-message state-message--error">{{ deactivateError() }}</p>
+        }
+
+        <table class="team-table">
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Papel</th>
+              <th>Status</th>
+              @if (isOwner()) {
+                <th></th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (member of page.team; track member.id) {
+              <tr>
+                <td>{{ member.name || '—' }}</td>
+                <td>{{ member.email }}</td>
+                <td>{{ roleLabels[member.role] }}</td>
+                <td>
+                  <span class="status-badge" [class]="'status-badge--' + member.status">{{ statusLabels[member.status] }}</span>
+                </td>
+                @if (isOwner()) {
+                  <td class="team-table__actions">
+                    @if (member.status === 'active' && member.id !== page.me.id) {
+                      <button
+                        class="btn-ghost btn-ghost--small"
+                        type="button"
+                        [disabled]="deactivatingId() === member.id"
+                        (click)="deactivate(member.id, member.name)"
+                      >
+                        {{ deactivatingId() === member.id ? 'Desativando…' : 'Desativar' }}
+                      </button>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (isOwner()) {
+        <div class="card panel">
+          <div class="panel__header">
+            <div class="panel__title">Convidar novo RH</div>
+            <div class="dim panel__hint">A pessoa recebe um link para criar a própria senha.</div>
+          </div>
+
+          @if (inviteError()) {
+            <p class="state-message state-message--error">{{ inviteError() }}</p>
+          }
+          @if (inviteLink()) {
+            <div class="notice">
+              <p>
+                Convite criado. Modo desenvolvimento (sem e-mail real configurado) — envie este link diretamente:
+                <a [href]="inviteLink()">{{ inviteLink() }}</a>
+              </p>
+            </div>
+          }
+
+          <div class="invite-row">
+            <input
+              class="field"
+              type="email"
+              placeholder="email@empresa.com"
+              [value]="inviteEmail()"
+              (input)="inviteEmail.set($any($event.target).value)"
+              (keydown.enter)="$event.preventDefault(); sendInvite()"
+            />
+            <button class="btn-primary invite-row__btn" type="button" [disabled]="!canInvite()" (click)="sendInvite()">
+              {{ inviting() ? 'Convidando…' : 'Convidar' }}
+            </button>
+          </div>
+        </div>
+      }
+    } @else if (pageState.loading()) {
+      <p class="state-message"><span class="state-spinner"></span> Carregando equipe…</p>
+    } @else {
+      <p class="state-message state-message--error">Não foi possível carregar a equipe.</p>
+      <button class="btn-ghost" type="button" (click)="retry()">Tentar novamente</button>
+    }
+  </div>
+</div>

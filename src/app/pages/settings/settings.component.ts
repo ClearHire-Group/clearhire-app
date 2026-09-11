@@ -17,8 +17,8 @@ const MAX_VALUES = 10;
 })
 export class SettingsComponent {
   readonly subTabs: SubTab[] = [
-    { label: 'Perfil da Empresa', active: true },
-    { label: 'Equipe', disabled: true },
+    { label: 'Perfil da Empresa', route: ['/configuracoes'], exact: true },
+    { label: 'Equipe', route: ['/configuracoes/equipe'], exact: true },
     { label: 'Integrações', disabled: true },
   ];
 

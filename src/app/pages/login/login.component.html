@@ -5,6 +5,12 @@
   @if (registered()) {
     <div class="form-alert form-alert--success">Conta criada. Faça login para continuar.</div>
   }
+  @if (passwordReset()) {
+    <div class="form-alert form-alert--success">Senha redefinida. Faça login com a nova senha.</div>
+  }
+  @if (invitationAccepted()) {
+    <div class="form-alert form-alert--success">Convite aceito. Faça login para continuar.</div>
+  }
   @if (errorMessage()) {
     <div class="form-alert form-alert--error">{{ errorMessage() }}</div>
   }
@@ -39,5 +45,6 @@
     </button>
   </form>
 
+  <p class="auth-switch"><a routerLink="/esqueci-senha">Esqueci minha senha</a></p>
   <p class="auth-switch">Ainda não tem conta da empresa? <a routerLink="/registro">Cadastrar empresa</a></p>
 </app-auth-shell>

@@ -255,6 +255,29 @@ export interface RegisterCompanyResult {
   name: string;
 }
 
+export type UserRole = 'owner' | 'member';
+
+/** Conta de RH autenticada — não confundir com Candidate/Talent, é conceito novo do backend, sem
+ * equivalente no protótipo original (ver `GET /users/me`). */
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+}
+
+export type TeamMemberStatus = 'active' | 'inactive' | 'pending';
+
+/** Linha da tela Equipe (Configurações) — RH ativo/inativo e convite pendente na mesma forma;
+ * `name` vem vazio pra um convite ainda não aceito (a pessoa não definiu nome nenhum ainda). */
+export interface TeamMember {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  status: TeamMemberStatus;
+}
+
 export interface DashboardMetrics {
   activeCampaigns: number;
   activeCampaignsTrendLabel: string;

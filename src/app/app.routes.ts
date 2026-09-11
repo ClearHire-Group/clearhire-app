@@ -9,13 +9,20 @@ import { NewCampaignComponent } from './pages/new-campaign/new-campaign.componen
 import { CampaignDetailComponent } from './pages/campaign-detail/campaign-detail.component';
 import { CandidateProfileComponent } from './pages/candidate-profile/candidate-profile.component';
 import { SettingsComponent } from './pages/settings/settings.component';
+import { SettingsTeamComponent } from './pages/settings-team/settings-team.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
+import { AcceptInvitationComponent } from './pages/accept-invitation/accept-invitation.component';
 import { authGuard, guestGuard } from './core/auth.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
   { path: 'registro', component: RegisterComponent, canActivate: [guestGuard] },
+  { path: 'esqueci-senha', component: ForgotPasswordComponent, canActivate: [guestGuard] },
+  { path: 'redefinir-senha/:token', component: ResetPasswordComponent, canActivate: [guestGuard] },
+  { path: 'aceitar-convite/:token', component: AcceptInvitationComponent, canActivate: [guestGuard] },
   {
     path: '',
     canActivate: [authGuard],
@@ -32,6 +39,7 @@ export const routes: Routes = [
       { path: 'campanhas/:campaignId/candidatos/:candidateId', component: CandidateProfileComponent },
       { path: 'campanhas/:campaignId', component: CampaignDetailComponent },
       { path: 'configuracoes', component: SettingsComponent },
+      { path: 'configuracoes/equipe', component: SettingsTeamComponent },
     ],
   },
   { path: '**', redirectTo: 'dashboard' },

@@ -26,6 +26,8 @@ import {
   RejectionReasonKey,
   Talent,
   TalentMatch,
+  TeamMember,
+  UserProfile,
 } from './models';
 
 /**
@@ -37,6 +39,14 @@ import {
  *   POST /auth/login                                   -> { accessToken }  (public; refresh token vem via cookie httpOnly)
  *   POST /auth/refresh                                  -> { accessToken }  (public; lê o cookie httpOnly, rotaciona-o)
  *   POST /auth/logout                                   -> void  (public; revoga e limpa o cookie)
+ *   POST /auth/invitations/:token/accept                -> { email }  (public; não loga, front redireciona pro login)
+ *   POST /auth/password-reset                           -> { resetLink? }  (public; sempre 200, nunca revela se o e-mail existe)
+ *   POST /auth/password-reset/:token                    -> void  (public)
+ *   GET  /users/me                                      -> UserProfile
+ *   PATCH /users/me                                      -> UserProfile  (body: { name })
+ *   GET  /users                                          -> TeamMember[]  (ativos/inativos + convites pendentes)
+ *   POST /users/invitations                              -> { inviteLink? }  (só owner; body: { email })
+ *   DELETE /users/:id                                     -> void  (só owner; nunca a própria conta)
  *   GET  /campaigns                                 -> Campaign[]
  *   GET  /campaigns/:id                              -> Campaign (404 -> undefined)
  *   POST /campaigns/:id/toggle-pause                   -> Campaign (404 -> undefined)
@@ -103,6 +113,18 @@ export class HttpApiService extends DataApi {
 
   logout(): Observable<void> {
     return this.http.post<void>(`${APP_CONFIG.apiBaseUrl}/auth/logout`, {}, { withCredentials: true });
+  }
+
+  acceptInvitation(token: string, input: { name: string; password: string }): Observable<{ email: string }> {
+    return this.http.post<{ email: string }>(`${APP_CONFIG.apiBaseUrl}/auth/invitations/${token}/accept`, input);
+  }
+
+  requestPasswordReset(email: string): Observable<{ resetLink?: string }> {
+    return this.http.post<{ resetLink?: string }>(`${APP_CONFIG.apiBaseUrl}/auth/password-reset`, { email });
+  }
+
+  confirmPasswordReset(token: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${APP_CONFIG.apiBaseUrl}/auth/password-reset/${token}`, { newPassword });
   }
 
   getCampaigns(): Observable<Campaign[]> {
@@ -232,5 +254,25 @@ export class HttpApiService extends DataApi {
     seniority?: string;
   }): Observable<TalentMatch[]> {
     return this.emptyOnUnavailable(this.http.post<TalentMatch[]>(`${APP_CONFIG.apiBaseUrl}/campaigns/reverse-match`, criteria));
+  }
+
+  getMyProfile(): Observable<UserProfile> {
+    return this.http.get<UserProfile>(`${APP_CONFIG.apiBaseUrl}/users/me`);
+  }
+
+  updateMyProfile(name: string): Observable<UserProfile> {
+    return this.http.patch<UserProfile>(`${APP_CONFIG.apiBaseUrl}/users/me`, { name });
+  }
+
+  getTeam(): Observable<TeamMember[]> {
+    return this.emptyOnUnavailable(this.http.get<TeamMember[]>(`${APP_CONFIG.apiBaseUrl}/users`));
+  }
+
+  inviteTeamMember(email: string): Observable<{ inviteLink?: string }> {
+    return this.http.post<{ inviteLink?: string }>(`${APP_CONFIG.apiBaseUrl}/users/invitations`, { email });
+  }
+
+  deactivateTeamMember(userId: string): Observable<void> {
+    return this.http.delete<void>(`${APP_CONFIG.apiBaseUrl}/users/${userId}`);
   }
 }

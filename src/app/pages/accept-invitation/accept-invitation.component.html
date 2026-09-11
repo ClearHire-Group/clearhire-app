@@ -1,0 +1,58 @@
+<app-auth-shell>
+  <h2 class="serif">Aceitar convite</h2>
+  <p class="muted auth-intro">Você foi convidado para o time de RH. Defina seu nome e uma senha para começar.</p>
+
+  @if (errorMessage()) {
+    <div class="form-alert form-alert--error">{{ errorMessage() }}</div>
+  }
+
+  <form (submit)="onSubmit($event)">
+    <div class="field-block">
+      <label class="fieldlabel" for="invite-name">Nome</label>
+      <input
+        class="field"
+        id="invite-name"
+        type="text"
+        autocomplete="name"
+        [value]="name()"
+        (input)="name.set($any($event.target).value)"
+      />
+    </div>
+
+    <div class="field-block">
+      <label class="fieldlabel" for="invite-password">Senha</label>
+      <input
+        class="field"
+        id="invite-password"
+        type="password"
+        autocomplete="new-password"
+        [class.field--error]="passwordTooShort()"
+        [value]="password()"
+        (input)="password.set($any($event.target).value)"
+      />
+      <span class="field-hint" [class.field-hint--error]="passwordTooShort()">Mínimo de 8 caracteres.</span>
+    </div>
+
+    <div class="field-block">
+      <label class="fieldlabel" for="invite-confirm">Confirmar senha</label>
+      <input
+        class="field"
+        id="invite-confirm"
+        type="password"
+        autocomplete="new-password"
+        [class.field--error]="passwordMismatch()"
+        [value]="confirmPassword()"
+        (input)="confirmPassword.set($any($event.target).value)"
+      />
+      @if (passwordMismatch()) {
+        <span class="field-hint field-hint--error">As senhas não coincidem.</span>
+      }
+    </div>
+
+    <button class="btn-primary auth-submit" type="submit" [disabled]="!canSubmit() || submitting()">
+      {{ submitting() ? 'Criando conta…' : 'Aceitar convite e criar conta' }}
+    </button>
+  </form>
+
+  <p class="auth-switch">Já tem conta? <a routerLink="/login">Entrar</a></p>
+</app-auth-shell>

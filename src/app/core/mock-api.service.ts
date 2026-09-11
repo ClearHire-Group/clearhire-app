@@ -27,6 +27,8 @@ import {
   RejectionReasonKey,
   Talent,
   TalentMatch,
+  TeamMember,
+  UserProfile,
 } from './models';
 import {
   MOCK_ACTIVITY_FEED,
@@ -53,33 +55,51 @@ export class MockApiService extends DataApi {
   private notifications: Notification[] = [...MOCK_NOTIFICATIONS];
   /** Estado "vivo" do perfil da empresa — editar em Configurações escreve aqui em runtime. */
   private companyProfile: CompanyProfile = { ...MOCK_COMPANY_PROFILE };
-  /** Estado "vivo" das contas cadastradas — registro de empresa escreve aqui em runtime. */
+  /** Estado "vivo" das contas cadastradas — registro de empresa, convite aceito e desativação de
+   * assento escrevem aqui em runtime. */
   private authUsers: MockAuthUser[] = [...MOCK_AUTH_USERS];
+  /** Convites de segundo RH ainda não aceitos — token é só o e-mail (mock não precisa de segredo
+   * real, HttpApiService é quem fala com o backend de verdade). */
+  private pendingInvitations: { email: string; companyId: string; companyName: string }[] = [];
   /** Aproximação do cookie httpOnly de refresh: "existe uma sessão renovável" enquanto esta
    * instância do serviço estiver viva. Reseta a `false` a cada reload de verdade (instância nova),
    * o mesmo efeito prático de um cookie que HttpApiService não consegue simular sem HTTP real. */
   private hasRefreshSession = false;
+  /** E-mail do usuário da sessão atual — só existe em memória, nunca em storage (mesma regra do
+   * access token real, ver `auth.service.ts`). */
+  private currentUserEmail: string | null = null;
 
   registerCompany(input: RegisterCompanyInput): Observable<RegisterCompanyResult> {
     const emailTaken = this.authUsers.some((u) => u.email.toLowerCase() === input.ownerEmail.toLowerCase());
     if (emailTaken) {
       return this.simulateError('Este e-mail já está cadastrado.');
     }
+    const companyId = this.slugifyCompany(input.companyName);
     this.authUsers = [
       ...this.authUsers,
-      { name: input.ownerName, email: input.ownerEmail, password: input.ownerPassword, companyName: input.companyName },
+      {
+        id: `user-${Date.now()}`,
+        name: input.ownerName,
+        email: input.ownerEmail,
+        password: input.ownerPassword,
+        companyName: input.companyName,
+        companyId,
+        role: 'owner',
+        isActive: true,
+      },
     ];
-    return this.simulate({ id: this.slugifyCompany(input.companyName), name: input.companyName });
+    return this.simulate({ id: companyId, name: input.companyName });
   }
 
   login(credentials: LoginCredentials): Observable<AuthSession> {
     const user = this.authUsers.find(
       (u) => u.email.toLowerCase() === credentials.email.toLowerCase() && u.password === credentials.password,
     );
-    if (!user) {
+    if (!user || !user.isActive) {
       return this.simulateError('E-mail ou senha incorretos.');
     }
     this.hasRefreshSession = true;
+    this.currentUserEmail = user.email;
     return this.simulate({ accessToken: `mock-access-${Date.now()}` });
   }
 
@@ -92,6 +112,43 @@ export class MockApiService extends DataApi {
 
   logout(): Observable<void> {
     this.hasRefreshSession = false;
+    this.currentUserEmail = null;
+    return this.simulate(undefined);
+  }
+
+  acceptInvitation(token: string, input: { name: string; password: string }): Observable<{ email: string }> {
+    const invitation = this.pendingInvitations.find((i) => i.email === token);
+    if (!invitation) {
+      return this.simulateError('Convite inválido ou expirado.');
+    }
+    this.authUsers = [
+      ...this.authUsers,
+      {
+        id: `user-${Date.now()}`,
+        name: input.name,
+        email: invitation.email,
+        password: input.password,
+        companyName: invitation.companyName,
+        companyId: invitation.companyId,
+        role: 'member',
+        isActive: true,
+      },
+    ];
+    this.pendingInvitations = this.pendingInvitations.filter((i) => i.email !== token);
+    return this.simulate({ email: invitation.email });
+  }
+
+  requestPasswordReset(email: string): Observable<{ resetLink?: string }> {
+    const exists = this.authUsers.some((u) => u.email.toLowerCase() === email.toLowerCase() && u.isActive);
+    return this.simulate(exists ? { resetLink: `/redefinir-senha/${email}` } : {});
+  }
+
+  confirmPasswordReset(token: string, newPassword: string): Observable<void> {
+    const user = this.authUsers.find((u) => u.email === token);
+    if (!user) {
+      return this.simulateError('Link inválido ou expirado.');
+    }
+    user.password = newPassword;
     return this.simulate(undefined);
   }
 
@@ -317,6 +374,78 @@ export class MockApiService extends DataApi {
 
   getReverseMatchForNewCampaign(criteria: { title: string; modality?: string; seniority?: string }): Observable<TalentMatch[]> {
     return this.simulate(reverseMatchForCriteria(criteria, this.talents));
+  }
+
+  private currentUser(): MockAuthUser | undefined {
+    return this.authUsers.find((u) => u.email === this.currentUserEmail);
+  }
+
+  getMyProfile(): Observable<UserProfile> {
+    const user = this.currentUser();
+    if (!user) {
+      return this.simulateError('Sessão inválida.');
+    }
+    return this.simulate({ id: user.id, name: user.name, email: user.email, role: user.role });
+  }
+
+  updateMyProfile(name: string): Observable<UserProfile> {
+    const user = this.currentUser();
+    if (!user) {
+      return this.simulateError('Sessão inválida.');
+    }
+    user.name = name;
+    return this.simulate({ id: user.id, name: user.name, email: user.email, role: user.role });
+  }
+
+  getTeam(): Observable<TeamMember[]> {
+    const user = this.currentUser();
+    if (!user) {
+      return this.simulate([]);
+    }
+    const members: TeamMember[] = this.authUsers
+      .filter((u) => u.companyId === user.companyId)
+      .map((u) => ({ id: u.id, name: u.name, email: u.email, role: u.role, status: u.isActive ? 'active' : 'inactive' }));
+    const pending: TeamMember[] = this.pendingInvitations
+      .filter((i) => i.companyId === user.companyId)
+      .map((i) => ({ id: i.email, name: '', email: i.email, role: 'member', status: 'pending' }));
+    return this.simulate([...members, ...pending]);
+  }
+
+  inviteTeamMember(email: string): Observable<{ inviteLink?: string }> {
+    const user = this.currentUser();
+    if (!user) {
+      return this.simulateError('Sessão inválida.');
+    }
+    if (user.role !== 'owner') {
+      return this.simulateError('Apenas o owner pode convidar novos RHs.');
+    }
+    if (this.authUsers.some((u) => u.email.toLowerCase() === email.toLowerCase())) {
+      return this.simulateError('Já existe uma conta com este e-mail.');
+    }
+    if (this.pendingInvitations.some((i) => i.email.toLowerCase() === email.toLowerCase())) {
+      return this.simulateError('Já existe um convite pendente para este e-mail.');
+    }
+    this.pendingInvitations = [...this.pendingInvitations, { email, companyId: user.companyId, companyName: user.companyName }];
+    return this.simulate({ inviteLink: `/aceitar-convite/${email}` });
+  }
+
+  deactivateTeamMember(userId: string): Observable<void> {
+    const user = this.currentUser();
+    if (!user) {
+      return this.simulateError('Sessão inválida.');
+    }
+    if (user.role !== 'owner') {
+      return this.simulateError('Apenas o owner pode desativar assentos.');
+    }
+    if (userId === user.id) {
+      return this.simulateError('Não é possível desativar sua própria conta.');
+    }
+    const target = this.authUsers.find((u) => u.id === userId && u.companyId === user.companyId);
+    if (!target) {
+      return this.simulateError('Usuário não encontrado.');
+    }
+    target.isActive = false;
+    return this.simulate(undefined);
   }
 
   private slugify(name: string): string {

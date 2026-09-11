@@ -21,6 +21,8 @@ import {
   RejectionReasonKey,
   Talent,
   TalentMatch,
+  TeamMember,
+  UserProfile,
 } from './models';
 
 /**
@@ -45,6 +47,24 @@ export abstract class DataApi {
   /** Revoga a sessão no servidor e limpa o cookie de refresh. Melhor esforço — o chamador limpa o
    * estado local independente do resultado desta chamada. */
   abstract logout(): Observable<void>;
+  /** Aceita um convite de segundo RH — cria a conta (role=member) e define a senha. Não loga
+   * automaticamente (mesmo padrão de `registerCompany`); devolve o e-mail pra pré-preencher o
+   * login. */
+  abstract acceptInvitation(token: string, input: { name: string; password: string }): Observable<{ email: string }>;
+  /** Sempre "funciona" do ponto de vista do chamador, exista ou não o e-mail — nunca revela se
+   * uma conta existe. `resetLink` só vem preenchido em desenvolvimento (sem e-mail real ainda). */
+  abstract requestPasswordReset(email: string): Observable<{ resetLink?: string }>;
+  abstract confirmPasswordReset(token: string, newPassword: string): Observable<void>;
+
+  // --- Conta e equipe ----------------------------------------------------------
+  abstract getMyProfile(): Observable<UserProfile>;
+  abstract updateMyProfile(name: string): Observable<UserProfile>;
+  /** Roster da empresa — RH ativos/inativos e convites pendentes, tela Equipe em Configurações. */
+  abstract getTeam(): Observable<TeamMember[]>;
+  /** Só o owner pode convidar; `inviteLink` só vem preenchido em desenvolvimento. */
+  abstract inviteTeamMember(email: string): Observable<{ inviteLink?: string }>;
+  /** Só o owner pode desativar, e nunca a própria conta — a API recusa os dois casos. */
+  abstract deactivateTeamMember(userId: string): Observable<void>;
 
   abstract getCampaigns(): Observable<Campaign[]>;
   abstract getCampaign(id: string): Observable<Campaign | undefined>;
