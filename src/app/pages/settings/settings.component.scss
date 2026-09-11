@@ -21,7 +21,7 @@ h1 {
   width: 48px;
   height: 48px;
   border-radius: 10px;
-  background: rgba(141, 145, 103, 0.15);
+  background: rgba(184, 90, 62, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -48,14 +48,53 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-bottom: 12px;
+}
+.values__empty {
+  font-size: 13px;
 }
 .value-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12.5px;
   font-weight: 600;
-  background: rgba(141, 145, 103, 0.13);
+  background: rgba(184, 90, 62, 0.1);
   color: #934832;
-  padding: 7px 14px;
+  padding: 7px 10px 7px 14px;
   border-radius: 100px;
+}
+.value-chip__remove {
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.6;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+.values__add {
+  display: flex;
+  gap: 8px;
+
+  .field {
+    flex: 1;
+  }
+}
+.values__add-btn {
+  padding: 10px 18px;
+  white-space: nowrap;
+}
+.values__limit {
+  display: block;
+  font-size: 11.5px;
+  margin-top: 8px;
 }
 
 .notice {
@@ -77,6 +116,10 @@ h1 {
     color: #151A22;
     line-height: 1.55;
   }
+}
+
+.save-error {
+  padding: 0 0 12px;
 }
 
 .submit-row {

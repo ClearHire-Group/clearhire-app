@@ -136,7 +136,7 @@ export class MockApiService extends DataApi {
     return this.simulate(this.companyProfile);
   }
 
-  updateCompanyProfile(update: Pick<CompanyProfile, 'tone' | 'importance'>): Observable<CompanyProfile> {
+  updateCompanyProfile(update: Pick<CompanyProfile, 'tone' | 'importance' | 'values'>): Observable<CompanyProfile> {
     this.companyProfile = { ...this.companyProfile, ...update };
     return this.simulate(this.companyProfile);
   }

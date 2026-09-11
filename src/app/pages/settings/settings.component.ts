@@ -6,6 +6,8 @@ import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.comp
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 
+const MAX_VALUES = 10;
+
 @Component({
   selector: 'app-settings',
   standalone: true,
@@ -28,12 +30,22 @@ export class SettingsComponent {
 
   readonly toneDraft = signal('');
   readonly importanceDraft = signal('');
+  readonly valuesDraft = signal<string[]>([]);
+  readonly newValueInput = signal('');
   readonly saving = signal(false);
   readonly saved = signal(false);
+  readonly saveError = signal('');
+
+  readonly canAddValue = computed(() => this.newValueInput().trim().length > 0 && this.valuesDraft().length < MAX_VALUES);
 
   readonly isDirty = computed(() => {
     const profile = this.companyProfileState.data();
-    return !!profile && (this.toneDraft() !== profile.tone || this.importanceDraft() !== profile.importance);
+    if (!profile) return false;
+    return (
+      this.toneDraft() !== profile.tone ||
+      this.importanceDraft() !== profile.importance ||
+      !arraysEqual(this.valuesDraft(), profile.values)
+    );
   });
   readonly canSave = computed(() => this.isDirty() && !this.saving());
 
@@ -43,8 +55,28 @@ export class SettingsComponent {
       if (profile) {
         this.toneDraft.set(profile.tone);
         this.importanceDraft.set(profile.importance);
+        this.valuesDraft.set([...profile.values]);
       }
     });
+  }
+
+  retry(): void {
+    this.refreshTrigger.update((n) => n + 1);
+  }
+
+  addValue(): void {
+    const value = this.newValueInput().trim();
+    if (!value || this.valuesDraft().length >= MAX_VALUES) return;
+    if (this.valuesDraft().includes(value)) {
+      this.newValueInput.set('');
+      return;
+    }
+    this.valuesDraft.update((values) => [...values, value]);
+    this.newValueInput.set('');
+  }
+
+  removeValue(index: number): void {
+    this.valuesDraft.update((values) => values.filter((_, i) => i !== index));
   }
 
   discard(): void {
@@ -52,17 +84,33 @@ export class SettingsComponent {
     if (!profile) return;
     this.toneDraft.set(profile.tone);
     this.importanceDraft.set(profile.importance);
+    this.valuesDraft.set([...profile.values]);
+    this.newValueInput.set('');
     this.saved.set(false);
+    this.saveError.set('');
   }
 
   save(): void {
     if (!this.canSave()) return;
     this.saving.set(true);
     this.saved.set(false);
-    this.api.updateCompanyProfile({ tone: this.toneDraft(), importance: this.importanceDraft() }).subscribe(() => {
-      this.saving.set(false);
-      this.saved.set(true);
-      this.refreshTrigger.update((n) => n + 1);
-    });
+    this.saveError.set('');
+    this.api
+      .updateCompanyProfile({ tone: this.toneDraft(), importance: this.importanceDraft(), values: this.valuesDraft() })
+      .subscribe({
+        next: () => {
+          this.saving.set(false);
+          this.saved.set(true);
+          this.refreshTrigger.update((n) => n + 1);
+        },
+        error: () => {
+          this.saving.set(false);
+          this.saveError.set('Não foi possível salvar o perfil. Tente novamente.');
+        },
+      });
   }
+}
+
+function arraysEqual(a: string[], b: string[]): boolean {
+  return a.length === b.length && a.every((v, i) => v === b[i]);
 }

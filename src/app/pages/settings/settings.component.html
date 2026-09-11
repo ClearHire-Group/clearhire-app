@@ -21,10 +21,30 @@
         <div class="field-block">
           <label class="fieldlabel">Valores organizacionais</label>
           <div class="values">
-            @for (v of companyProfile.values; track v) {
-              <span class="value-chip">{{ v }}</span>
+            @for (v of valuesDraft(); track v; let i = $index) {
+              <span class="value-chip">
+                {{ v }}
+                <button type="button" class="value-chip__remove" aria-label="Remover valor" (click)="removeValue(i)">×</button>
+              </span>
+            } @empty {
+              <span class="dim values__empty">Nenhum valor cadastrado ainda.</span>
             }
           </div>
+          <div class="values__add">
+            <input
+              class="field"
+              type="text"
+              placeholder="Ex.: Transparência radical"
+              maxlength="60"
+              [value]="newValueInput()"
+              (input)="newValueInput.set($any($event.target).value)"
+              (keydown.enter)="$event.preventDefault(); addValue()"
+            />
+            <button type="button" class="btn-ghost values__add-btn" [disabled]="!canAddValue()" (click)="addValue()">Adicionar</button>
+          </div>
+          @if (valuesDraft().length >= 10) {
+            <span class="dim values__limit">Máximo de 10 valores.</span>
+          }
         </div>
 
         <div class="field-block">
@@ -43,6 +63,10 @@
         <p>Alterações aqui não afetam campanhas já em andamento — apenas novas campanhas herdarão a versão atualizada deste perfil.</p>
       </div>
 
+      @if (saveError()) {
+        <p class="state-message state-message--error save-error">{{ saveError() }}</p>
+      }
+
       <div class="submit-row">
         @if (saved()) {
           <span class="save-confirmation">Perfil salvo.</span>
@@ -54,6 +78,7 @@
       <p class="state-message"><span class="state-spinner"></span> Carregando perfil da empresa…</p>
     } @else {
       <p class="state-message state-message--error">Não foi possível carregar o perfil cultural da empresa.</p>
+      <button class="btn-ghost" type="button" (click)="retry()">Tentar novamente</button>
     }
   </div>
 </div>

@@ -45,7 +45,7 @@ import {
  *   POST /candidates/:id/advance                      -> Candidate (404 -> undefined)
  *   POST /candidates/:id/reject                       -> { talent?: Talent }  (body: { reasonKey, sendBankInvite })
  *   GET  /company-profile                             -> CompanyProfile
- *   POST /company-profile                              -> CompanyProfile  (body: { tone, importance })
+ *   POST /company-profile                              -> CompanyProfile  (body: { tone, importance, values })
  *   GET  /dashboard/metrics                           -> DashboardMetrics
  *   GET  /dashboard/ai-suggestions                    -> AiSuggestion[]
  *   GET  /dashboard/activity                          -> ActivityItem[]
@@ -124,7 +124,7 @@ export class HttpApiService extends DataApi {
     return this.http.get<CompanyProfile>(`${APP_CONFIG.apiBaseUrl}/company-profile`);
   }
 
-  updateCompanyProfile(update: Pick<CompanyProfile, 'tone' | 'importance'>): Observable<CompanyProfile> {
+  updateCompanyProfile(update: Pick<CompanyProfile, 'tone' | 'importance' | 'values'>): Observable<CompanyProfile> {
     return this.http.post<CompanyProfile>(`${APP_CONFIG.apiBaseUrl}/company-profile`, update);
   }
 

@@ -55,7 +55,9 @@ export abstract class DataApi {
   /** Move o candidato para a próxima fase do funil; no-op se já estiver em "Selecionados". */
   abstract advanceCandidate(candidateId: string): Observable<Candidate | undefined>;
   abstract getCompanyProfile(): Observable<CompanyProfile>;
-  abstract updateCompanyProfile(update: Pick<CompanyProfile, 'tone' | 'importance'>): Observable<CompanyProfile>;
+  /** Substitui tone/importance/values por inteiro — não é merge; mandar `values` sem um item
+   * existente remove esse item. Perfil único por empresa, sem override por campanha. */
+  abstract updateCompanyProfile(update: Pick<CompanyProfile, 'tone' | 'importance' | 'values'>): Observable<CompanyProfile>;
   abstract getDashboardMetrics(): Observable<DashboardMetrics>;
   abstract getAiSuggestions(): Observable<AiSuggestion[]>;
   abstract getActivityFeed(): Observable<ActivityItem[]>;
