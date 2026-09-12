@@ -90,6 +90,13 @@ export class SettingsTeamComponent {
   readonly cancelingInvite = signal(false);
   readonly cancelInviteError = signal('');
 
+  // --- Reenviar convite --------------------------------------------------------
+  // O link original nunca pode ser "reexibido" (servidor só guarda o hash do token, nunca o valor
+  // cru — mesma lógica de senha) — reenviar sempre gera um convite novo e invalida o anterior.
+  readonly resendingInviteId = signal('');
+  readonly resendError = signal('');
+  readonly resendLink = signal<{ email: string; link: string } | null>(null);
+
   retry(): void {
     this.refreshTrigger.update((n) => n + 1);
   }
@@ -194,6 +201,24 @@ export class SettingsTeamComponent {
       error: () => {
         this.cancelingInvite.set(false);
         this.cancelInviteError.set('Não foi possível cancelar o convite. Tente novamente.');
+      },
+    });
+  }
+
+  resendInvitation(invitationId: string, email: string): void {
+    if (this.resendingInviteId()) return;
+    this.resendingInviteId.set(invitationId);
+    this.resendError.set('');
+    this.resendLink.set(null);
+    this.api.resendInvitation(invitationId).subscribe({
+      next: ({ inviteLink }) => {
+        this.resendingInviteId.set('');
+        if (inviteLink) this.resendLink.set({ email, link: inviteLink });
+        this.refreshTrigger.update((n) => n + 1);
+      },
+      error: () => {
+        this.resendingInviteId.set('');
+        this.resendError.set('Não foi possível gerar um novo link. Tente novamente.');
       },
     });
   }

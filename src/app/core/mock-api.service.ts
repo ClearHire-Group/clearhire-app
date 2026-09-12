@@ -447,6 +447,23 @@ export class MockApiService extends DataApi {
     return this.simulate(undefined);
   }
 
+  resendInvitation(invitationId: string): Observable<{ inviteLink?: string }> {
+    const user = this.currentUser();
+    if (!user) {
+      return this.simulateError('Sessão inválida.');
+    }
+    if (user.role !== 'owner') {
+      return this.simulateError('Apenas o owner pode reenviar convites.');
+    }
+    const invite = this.pendingInvitations.find((i) => i.email === invitationId && i.companyId === user.companyId);
+    if (!invite) {
+      return this.simulateError('Convite não encontrado ou já processado.');
+    }
+    // No mock o "token" é o próprio e-mail (ver acceptInvitation) — não há token de verdade pra
+    // regenerar, então só devolve o mesmo link de convite pra manter o contrato consistente.
+    return this.simulate({ inviteLink: `/aceitar-convite/${invite.email}` });
+  }
+
   deactivateTeamMember(userId: string, password: string): Observable<void> {
     const user = this.currentUser();
     if (!user) {

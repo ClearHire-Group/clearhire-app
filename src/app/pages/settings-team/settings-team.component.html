@@ -46,6 +46,18 @@
           <div class="panel__title">Assentos da empresa</div>
         </div>
 
+        @if (resendLink(); as resent) {
+          <div class="notice">
+            <p>
+              Novo link gerado para {{ resent.email }} (o anterior parou de funcionar). Modo desenvolvimento — envie este link diretamente:
+              <a [href]="resent.link">{{ resent.link }}</a>
+            </p>
+          </div>
+        }
+        @if (resendError()) {
+          <p class="state-message state-message--error">{{ resendError() }}</p>
+        }
+
         <table class="team-table">
           <thead>
             <tr>
@@ -79,6 +91,15 @@
                       </button>
                     }
                     @if (member.status === 'pending') {
+                      <button
+                        class="btn-ghost btn-ghost--small"
+                        type="button"
+                        title="Gera um novo link de convite para reenviar ao RH — o link anterior deixa de funcionar"
+                        [disabled]="resendingInviteId() === member.id"
+                        (click)="resendInvitation(member.id, member.email)"
+                      >
+                        {{ resendingInviteId() === member.id ? 'Gerando…' : 'Reenviar convite' }}
+                      </button>
                       <button
                         class="btn-ghost btn-ghost--small"
                         type="button"

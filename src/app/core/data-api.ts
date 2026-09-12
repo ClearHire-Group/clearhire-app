@@ -67,6 +67,10 @@ export abstract class DataApi {
    * não consegue mais aceitar com ele). Só o owner pode cancelar; um convite já aceito, expirado
    * ou já cancelado não pode ser cancelado de novo. */
   abstract cancelInvitation(invitationId: string): Observable<void>;
+  /** Gera um convite NOVO pro mesmo e-mail e invalida o antigo — não existe "recuperar" o link
+   * original (o servidor nunca guarda o token em texto puro, só o hash, igual senha). `inviteLink`
+   * só vem preenchido em desenvolvimento; em produção a pessoa recebe por e-mail de novo. */
+  abstract resendInvitation(invitationId: string): Observable<{ inviteLink?: string }>;
   /** Só o owner pode desativar, e nunca a própria conta — a API recusa os dois casos. `password`
    * é a senha do OWNER autenticado (reconfirmação), nunca a do alvo — ação destrutiva sobre outra
    * conta exige provar posse da própria, não só o access token já em mãos. */
