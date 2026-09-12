@@ -63,8 +63,10 @@ export abstract class DataApi {
   abstract getTeam(): Observable<TeamMember[]>;
   /** Só o owner pode convidar; `inviteLink` só vem preenchido em desenvolvimento. */
   abstract inviteTeamMember(email: string): Observable<{ inviteLink?: string }>;
-  /** Só o owner pode desativar, e nunca a própria conta — a API recusa os dois casos. */
-  abstract deactivateTeamMember(userId: string): Observable<void>;
+  /** Só o owner pode desativar, e nunca a própria conta — a API recusa os dois casos. `password`
+   * é a senha do OWNER autenticado (reconfirmação), nunca a do alvo — ação destrutiva sobre outra
+   * conta exige provar posse da própria, não só o access token já em mãos. */
+  abstract deactivateTeamMember(userId: string, password: string): Observable<void>;
 
   abstract getCampaigns(): Observable<Campaign[]>;
   abstract getCampaign(id: string): Observable<Campaign | undefined>;

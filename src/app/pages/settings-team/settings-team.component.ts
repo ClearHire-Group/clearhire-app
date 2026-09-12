@@ -75,8 +75,12 @@ export class SettingsTeamComponent {
   readonly canInvite = computed(() => this.inviteEmail().trim().length > 0 && !this.inviting());
 
   // --- Desativar -------------------------------------------------------------
-  readonly deactivatingId = signal('');
-  readonly deactivateError = signal('');
+  // confirmTarget != null abre o modal de confirmação (senha do owner obrigatória — ver
+  // CLAUDE.md/backend: DELETE /users/:id agora exige reconfirmação de senha).
+  readonly confirmTarget = signal<{ id: string; name: string } | null>(null);
+  readonly confirmPassword = signal('');
+  readonly confirmSubmitting = signal(false);
+  readonly confirmError = signal('');
 
   retry(): void {
     this.refreshTrigger.update((n) => n + 1);
@@ -126,19 +130,34 @@ export class SettingsTeamComponent {
     });
   }
 
-  deactivate(memberId: string, memberName: string): void {
-    if (this.deactivatingId()) return;
-    if (!confirm(`Desativar o assento de ${memberName || 'este RH'}? A pessoa perde acesso imediatamente.`)) return;
-    this.deactivatingId.set(memberId);
-    this.deactivateError.set('');
-    this.api.deactivateTeamMember(memberId).subscribe({
+  openDeactivateModal(memberId: string, memberName: string): void {
+    this.confirmTarget.set({ id: memberId, name: memberName });
+    this.confirmPassword.set('');
+    this.confirmError.set('');
+  }
+
+  closeDeactivateModal(): void {
+    if (this.confirmSubmitting()) return; // não fecha no meio de uma chamada em andamento
+    this.confirmTarget.set(null);
+  }
+
+  confirmDeactivate(): void {
+    const target = this.confirmTarget();
+    if (!target || !this.confirmPassword() || this.confirmSubmitting()) return;
+    this.confirmSubmitting.set(true);
+    this.confirmError.set('');
+    this.api.deactivateTeamMember(target.id, this.confirmPassword()).subscribe({
       next: () => {
-        this.deactivatingId.set('');
+        this.confirmSubmitting.set(false);
+        this.confirmTarget.set(null);
         this.refreshTrigger.update((n) => n + 1);
       },
       error: () => {
-        this.deactivatingId.set('');
-        this.deactivateError.set('Não foi possível desativar este assento. Tente novamente.');
+        this.confirmSubmitting.set(false);
+        // Mensagem genérica de propósito — cobre tanto senha incorreta quanto rate limit (muitas
+        // tentativas) sem diferenciar no cliente, mesma filosofia de nunca dar pista específica
+        // demais sobre o motivo exato de uma falha de autenticação (ver login()).
+        this.confirmError.set('Não foi possível confirmar. Verifique a senha e tente novamente.');
       },
     });
   }

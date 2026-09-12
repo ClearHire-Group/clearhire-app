@@ -46,10 +46,6 @@
           <div class="panel__title">Assentos da empresa</div>
         </div>
 
-        @if (deactivateError()) {
-          <p class="state-message state-message--error">{{ deactivateError() }}</p>
-        }
-
         <table class="team-table">
           <thead>
             <tr>
@@ -77,10 +73,9 @@
                       <button
                         class="btn-ghost btn-ghost--small"
                         type="button"
-                        [disabled]="deactivatingId() === member.id"
-                        (click)="deactivate(member.id, member.name)"
+                        (click)="openDeactivateModal(member.id, member.name)"
                       >
-                        {{ deactivatingId() === member.id ? 'Desativando…' : 'Desativar' }}
+                        Desativar
                       </button>
                     }
                   </td>
@@ -90,6 +85,46 @@
           </tbody>
         </table>
       </div>
+
+      @if (confirmTarget(); as target) {
+        <div class="modal-backdrop" (click)="closeDeactivateModal()">
+          <div class="card modal-card" (click)="$event.stopPropagation()">
+            <h2 class="serif">Desativar assento</h2>
+            <p class="muted modal-intro">
+              {{ target.name || 'Este RH' }} perde acesso imediatamente. Digite sua senha para confirmar.
+            </p>
+
+            <div class="field-block field-block--last">
+              <label class="fieldlabel" for="confirm-password">Sua senha</label>
+              <input
+                class="field"
+                id="confirm-password"
+                type="password"
+                autocomplete="current-password"
+                [value]="confirmPassword()"
+                (input)="confirmPassword.set($any($event.target).value)"
+                (keydown.enter)="$event.preventDefault(); confirmDeactivate()"
+              />
+            </div>
+
+            @if (confirmError()) {
+              <p class="state-message state-message--error">{{ confirmError() }}</p>
+            }
+
+            <div class="modal-actions">
+              <button type="button" class="btn-ghost" [disabled]="confirmSubmitting()" (click)="closeDeactivateModal()">Cancelar</button>
+              <button
+                type="button"
+                class="btn-primary"
+                [disabled]="!confirmPassword() || confirmSubmitting()"
+                (click)="confirmDeactivate()"
+              >
+                {{ confirmSubmitting() ? 'Confirmando…' : 'Confirmar' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
 
       @if (isOwner()) {
         <div class="card panel">

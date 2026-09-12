@@ -429,7 +429,7 @@ export class MockApiService extends DataApi {
     return this.simulate({ inviteLink: `/aceitar-convite/${email}` });
   }
 
-  deactivateTeamMember(userId: string): Observable<void> {
+  deactivateTeamMember(userId: string, password: string): Observable<void> {
     const user = this.currentUser();
     if (!user) {
       return this.simulateError('Sessão inválida.');
@@ -439,6 +439,10 @@ export class MockApiService extends DataApi {
     }
     if (userId === user.id) {
       return this.simulateError('Não é possível desativar sua própria conta.');
+    }
+    // Reconfirma a senha do OWNER (user), nunca a do alvo — mesmo comparativo usado em login().
+    if (user.password !== password) {
+      return this.simulateError('Senha incorreta.');
     }
     const target = this.authUsers.find((u) => u.id === userId && u.companyId === user.companyId);
     if (!target) {

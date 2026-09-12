@@ -46,7 +46,7 @@ import {
  *   PATCH /users/me                                      -> UserProfile  (body: { name })
  *   GET  /users                                          -> TeamMember[]  (ativos/inativos + convites pendentes)
  *   POST /users/invitations                              -> { inviteLink? }  (só owner; body: { email })
- *   DELETE /users/:id                                     -> void  (só owner; nunca a própria conta)
+ *   DELETE /users/:id                                     -> void  (só owner; nunca a própria conta; body: { password } — senha do owner)
  *   GET  /campaigns                                 -> Campaign[]
  *   GET  /campaigns/:id                              -> Campaign (404 -> undefined)
  *   POST /campaigns/:id/toggle-pause                   -> Campaign (404 -> undefined)
@@ -272,7 +272,7 @@ export class HttpApiService extends DataApi {
     return this.http.post<{ inviteLink?: string }>(`${APP_CONFIG.apiBaseUrl}/users/invitations`, { email });
   }
 
-  deactivateTeamMember(userId: string): Observable<void> {
-    return this.http.delete<void>(`${APP_CONFIG.apiBaseUrl}/users/${userId}`);
+  deactivateTeamMember(userId: string, password: string): Observable<void> {
+    return this.http.delete<void>(`${APP_CONFIG.apiBaseUrl}/users/${userId}`, { body: { password } });
   }
 }
