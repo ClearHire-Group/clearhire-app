@@ -82,6 +82,14 @@ export class SettingsTeamComponent {
   readonly confirmSubmitting = signal(false);
   readonly confirmError = signal('');
 
+  // --- Cancelar convite --------------------------------------------------------
+  // Sem senha aqui de propósito: diferente de desativar um assento ativo, cancelar um convite
+  // pendente não tira acesso de ninguém (a pessoa nunca chegou a entrar) — o risco é bem menor,
+  // então um confirm simples (sem reautenticação) já cobre.
+  readonly cancelInviteTarget = signal<{ id: string; email: string } | null>(null);
+  readonly cancelingInvite = signal(false);
+  readonly cancelInviteError = signal('');
+
   retry(): void {
     this.refreshTrigger.update((n) => n + 1);
   }
@@ -158,6 +166,34 @@ export class SettingsTeamComponent {
         // tentativas) sem diferenciar no cliente, mesma filosofia de nunca dar pista específica
         // demais sobre o motivo exato de uma falha de autenticação (ver login()).
         this.confirmError.set('Não foi possível confirmar. Verifique a senha e tente novamente.');
+      },
+    });
+  }
+
+  openCancelInviteModal(invitationId: string, email: string): void {
+    this.cancelInviteTarget.set({ id: invitationId, email });
+    this.cancelInviteError.set('');
+  }
+
+  closeCancelInviteModal(): void {
+    if (this.cancelingInvite()) return;
+    this.cancelInviteTarget.set(null);
+  }
+
+  confirmCancelInvite(): void {
+    const target = this.cancelInviteTarget();
+    if (!target || this.cancelingInvite()) return;
+    this.cancelingInvite.set(true);
+    this.cancelInviteError.set('');
+    this.api.cancelInvitation(target.id).subscribe({
+      next: () => {
+        this.cancelingInvite.set(false);
+        this.cancelInviteTarget.set(null);
+        this.refreshTrigger.update((n) => n + 1);
+      },
+      error: () => {
+        this.cancelingInvite.set(false);
+        this.cancelInviteError.set('Não foi possível cancelar o convite. Tente novamente.');
       },
     });
   }

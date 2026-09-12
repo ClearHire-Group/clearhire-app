@@ -429,6 +429,24 @@ export class MockApiService extends DataApi {
     return this.simulate({ inviteLink: `/aceitar-convite/${email}` });
   }
 
+  cancelInvitation(invitationId: string): Observable<void> {
+    const user = this.currentUser();
+    if (!user) {
+      return this.simulateError('Sessão inválida.');
+    }
+    if (user.role !== 'owner') {
+      return this.simulateError('Apenas o owner pode cancelar convites.');
+    }
+    // getTeam() expõe o e-mail como "id" de uma linha pendente (não existe token/id próprio no
+    // mock) — mesma convenção usada lá, ver abaixo.
+    const invite = this.pendingInvitations.find((i) => i.email === invitationId && i.companyId === user.companyId);
+    if (!invite) {
+      return this.simulateError('Convite não encontrado ou já processado.');
+    }
+    this.pendingInvitations = this.pendingInvitations.filter((i) => i !== invite);
+    return this.simulate(undefined);
+  }
+
   deactivateTeamMember(userId: string, password: string): Observable<void> {
     const user = this.currentUser();
     if (!user) {

@@ -78,6 +78,15 @@
                         Desativar
                       </button>
                     }
+                    @if (member.status === 'pending') {
+                      <button
+                        class="btn-ghost btn-ghost--small"
+                        type="button"
+                        (click)="openCancelInviteModal(member.id, member.email)"
+                      >
+                        Cancelar convite
+                      </button>
+                    }
                   </td>
                 }
               </tr>
@@ -120,6 +129,28 @@
                 (click)="confirmDeactivate()"
               >
                 {{ confirmSubmitting() ? 'Confirmando…' : 'Confirmar' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (cancelInviteTarget(); as invite) {
+        <div class="modal-backdrop" (click)="closeCancelInviteModal()">
+          <div class="card modal-card" (click)="$event.stopPropagation()">
+            <h2 class="serif">Cancelar convite</h2>
+            <p class="muted modal-intro">
+              O convite para {{ invite.email }} será invalidado — o link já enviado deixa de funcionar.
+            </p>
+
+            @if (cancelInviteError()) {
+              <p class="state-message state-message--error">{{ cancelInviteError() }}</p>
+            }
+
+            <div class="modal-actions">
+              <button type="button" class="btn-ghost" [disabled]="cancelingInvite()" (click)="closeCancelInviteModal()">Voltar</button>
+              <button type="button" class="btn-primary" [disabled]="cancelingInvite()" (click)="confirmCancelInvite()">
+                {{ cancelingInvite() ? 'Cancelando…' : 'Cancelar convite' }}
               </button>
             </div>
           </div>

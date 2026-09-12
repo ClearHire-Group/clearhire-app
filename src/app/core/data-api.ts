@@ -63,6 +63,10 @@ export abstract class DataApi {
   abstract getTeam(): Observable<TeamMember[]>;
   /** Só o owner pode convidar; `inviteLink` só vem preenchido em desenvolvimento. */
   abstract inviteTeamMember(email: string): Observable<{ inviteLink?: string }>;
+  /** Revoga um convite ainda pendente — o link já enviado vira permanentemente inválido (a pessoa
+   * não consegue mais aceitar com ele). Só o owner pode cancelar; um convite já aceito, expirado
+   * ou já cancelado não pode ser cancelado de novo. */
+  abstract cancelInvitation(invitationId: string): Observable<void>;
   /** Só o owner pode desativar, e nunca a própria conta — a API recusa os dois casos. `password`
    * é a senha do OWNER autenticado (reconfirmação), nunca a do alvo — ação destrutiva sobre outra
    * conta exige provar posse da própria, não só o access token já em mãos. */
