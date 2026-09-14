@@ -1,0 +1,38 @@
+.copy-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.copy-link__url {
+  font-size: 13px;
+  color: #B85A3E;
+  font-weight: 600;
+  word-break: break-all;
+}
+.copy-link__btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(21, 26, 34, 0.15);
+  background: #FFFFFF;
+  color: #151A22;
+  font-size: 12.5px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: all 0.12s ease;
+
+  &:hover {
+    border-color: rgba(184, 90, 62, 0.5);
+  }
+
+  &--copied {
+    border-color: #3A4A2E;
+    background: rgba(58, 74, 46, 0.1);
+    color: #3A4A2E;
+  }
+}

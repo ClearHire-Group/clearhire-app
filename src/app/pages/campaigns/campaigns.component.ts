@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -83,6 +83,21 @@ export class CampaignsComponent {
 
   statusLabel(status: Campaign['status']): string {
     return status === 'ativa' ? 'ATIVA' : status === 'pausada' ? 'PAUSADA' : 'ENCERRADA';
+  }
+
+  readonly copiedCampaignId = signal<string | null>(null);
+
+  copyLink(campaign: Campaign, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    if (!campaign.acceptsPublicApplications) return;
+    const url = `${location.origin}/vagas/${campaign.id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      this.copiedCampaignId.set(campaign.id);
+      setTimeout(() => {
+        if (this.copiedCampaignId() === campaign.id) this.copiedCampaignId.set(null);
+      }, 1800);
+    });
   }
 
   /** Funnel-bar color: gray track (not reached), sand (current stage),

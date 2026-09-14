@@ -1,0 +1,12 @@
+<div class="copy-link">
+  <a class="copy-link__url" [href]="link" target="_blank" rel="noopener">{{ link }}</a>
+  <button type="button" class="copy-link__btn" [class.copy-link__btn--copied]="copied()" (click)="copy()">
+    @if (copied()) {
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5" /></svg>
+      Copiado!
+    } @else {
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15V5a2 2 0 012-2h10" /></svg>
+      Copiar link
+    }
+  </button>
+</div>

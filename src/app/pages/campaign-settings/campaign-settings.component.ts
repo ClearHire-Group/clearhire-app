@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DataApi } from '../../core/data-api';
 import { CampaignContextService } from '../../core/campaign-context';
+import { CopyLinkButtonComponent } from '../../layout/copy-link-button/copy-link-button.component';
 
 /**
  * Sub-tela "Configurações da Campanha" — v1 cobre só o que a API já suporta hoje (pausar/retomar,
@@ -11,7 +12,7 @@ import { CampaignContextService } from '../../core/campaign-context';
 @Component({
   selector: 'app-campaign-settings',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CopyLinkButtonComponent],
   templateUrl: './campaign-settings.component.html',
   styleUrl: './campaign-settings.component.scss',
 })

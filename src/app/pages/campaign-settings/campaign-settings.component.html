@@ -32,7 +32,7 @@
       </p>
       @if (campaign.acceptsPublicApplications) {
         <div class="notice">
-          <a [href]="publicApplicationUrl" target="_blank" rel="noopener">{{ publicApplicationUrl }}</a>
+          <app-copy-link-button [link]="publicApplicationUrl"></app-copy-link-button>
         </div>
         <button class="btn-ghost" type="button" [disabled]="linkSaving()" (click)="setPublicLink(false)">
           {{ linkSaving() ? 'Desativando…' : 'Desativar link' }}

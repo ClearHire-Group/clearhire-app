@@ -40,10 +40,7 @@
 
         @if (campaign.acceptsPublicApplications) {
           <div class="notice">
-            <p>
-              Link ativo — envie diretamente:
-              <a [href]="publicApplicationUrl" target="_blank" rel="noopener">{{ publicApplicationUrl }}</a>
-            </p>
+            <app-copy-link-button [link]="publicApplicationUrl"></app-copy-link-button>
           </div>
         } @else {
           <p class="muted">O link ainda não está ativo para esta vaga.</p>
