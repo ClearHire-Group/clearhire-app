@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    {
+      "source": "/:path((?!favicon\\.svg|favicon\\.ico|robots\\.txt).+)",
+      "has": [{ "type": "host", "value": "clearhire.example" }],
+      "destination": "https://app.clearhire.example/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/:path((?!favicon\\.svg|favicon\\.ico|robots\\.txt).+)",
+      "has": [{ "type": "host", "value": "www.clearhire.example" }],
+      "destination": "https://app.clearhire.example/:path*",
+      "permanent": false
+    }
+  ]
+}

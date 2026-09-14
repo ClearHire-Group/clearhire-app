@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /$
+Allow: /landing
+Disallow: /dashboard
+Disallow: /campanhas
+Disallow: /banco-de-talentos
+Disallow: /relatorios
+Disallow: /configuracoes

@@ -8,10 +8,15 @@ import { FatalErrorComponent } from './layout/fatal-error/fatal-error.component'
 import { RuntimeErrorService } from './core/runtime-error.service';
 
 /** Rotas fora de sessão — sem sidebar/top-bar, que dependem de empresa/usuário autenticado. */
-const CHROMELESS_PREFIXES = ['/login', '/registro', '/esqueci-senha', '/redefinir-senha', '/aceitar-convite', '/vagas'];
+const CHROMELESS_PREFIXES = ['/login', '/registro', '/esqueci-senha', '/redefinir-senha', '/aceitar-convite', '/vagas', '/landing'];
 
 function hasChrome(url: string): boolean {
-  return !CHROMELESS_PREFIXES.some((prefix) => url.startsWith(prefix));
+  const path = url.split('?')[0].split('#')[0];
+  // `/` exata só é alcançada com chrome quando o apexHostGuard casa (landing no domínio raiz) —
+  // o fluxo autenticado sempre redireciona `/` para `/dashboard` (ou `/login`) antes do
+  // NavigationEnd, nunca fica parado em `/`.
+  if (path === '/') return false;
+  return !CHROMELESS_PREFIXES.some((prefix) => path.startsWith(prefix));
 }
 
 @Component({

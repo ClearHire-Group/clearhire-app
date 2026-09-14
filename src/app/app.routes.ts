@@ -21,9 +21,19 @@ import { ResetPasswordComponent } from './pages/reset-password/reset-password.co
 import { AcceptInvitationComponent } from './pages/accept-invitation/accept-invitation.component';
 import { PublicApplicationComponent } from './pages/public-application/public-application.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
+import { LandingComponent } from './pages/landing/landing.component';
 import { authGuard, guestGuard } from './core/auth.guard';
+import { apexHostGuard } from './core/apex-host.guard';
 
 export const routes: Routes = [
+  // Domínio raiz (apexHostGuard) mostra a landing pública em vez do dashboard/login —
+  // precisa vir ANTES do bloco `path: ''` protegido: canMatch=false faz o Router pular
+  // esta entrada e tentar a próxima com o mesmo path. Em app.clearhire.example (e em dev
+  // local) o guard nunca casa, então o bloco protegido abaixo continua sendo o dono de `/`.
+  { path: '', canMatch: [apexHostGuard], component: LandingComponent },
+  // Alias estável, sem guard de host — útil pra pré-visualizar a landing em qualquer
+  // ambiente (dev local, app.clearhire.example/landing, preview deploy).
+  { path: 'landing', component: LandingComponent },
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
   { path: 'registro', component: RegisterComponent, canActivate: [guestGuard] },
   { path: 'esqueci-senha', component: ForgotPasswordComponent, canActivate: [guestGuard] },

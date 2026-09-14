@@ -1,0 +1,60 @@
+<div class="landing">
+  <header class="landing__header">
+    <div class="landing__mark">
+      <svg width="28" height="28" viewBox="0 0 360 360" aria-hidden="true">
+        <circle cx="180" cy="180" r="180" fill="#151A22" />
+        <polygon points="180,92 240,152 180,268 120,152" fill="#F0F0E6" />
+        <line x1="120" y1="152" x2="240" y2="152" stroke="#151A22" stroke-width="6" stroke-opacity="0.35" />
+        <line x1="180" y1="92" x2="180" y2="152" stroke="#151A22" stroke-width="6" stroke-opacity="0.35" />
+      </svg>
+      <span class="serif landing__wordmark">Clearhire</span>
+    </div>
+    <a class="btn-primary" [href]="appBase + '/registro'">Criar conta</a>
+  </header>
+
+  <main>
+    <section class="landing__hero">
+      <h1 class="serif">Recrutamento com clareza, da triagem à decisão.</h1>
+      <p class="landing__pitch">
+        A IA cuida do volume — fit cultural, triagem técnica, priorização. Sua equipe decide com contexto,
+        não com ruído.
+      </p>
+      <div class="landing__cta-group">
+        <a class="btn-primary" [href]="appBase + '/registro'">Começar agora</a>
+        <a class="btn-ghost" [href]="appBase + '/login'">Já tenho conta</a>
+      </div>
+    </section>
+
+    <section class="landing__steps" aria-label="Como funciona">
+      <span class="sectionlabel landing__steps-label">Como funciona</span>
+      <div class="landing__steps-grid">
+        <article class="card landing__step">
+          <span class="landing__step-index">1</span>
+          <h2 class="serif">Publique a vaga</h2>
+          <p class="muted">Descreva a posição e o perfil que sua equipe precisa — em minutos, não em dias.</p>
+        </article>
+        <article class="card landing__step">
+          <span class="landing__step-index">2</span>
+          <h2 class="serif">A IA faz a triagem</h2>
+          <p class="muted">Fit cultural, triagem técnica e priorização automática de cada candidato recebido.</p>
+        </article>
+        <article class="card landing__step">
+          <span class="landing__step-index">3</span>
+          <h2 class="serif">Sua equipe decide</h2>
+          <p class="muted">Contexto claro em cada etapa do funil, da entrevista até a decisão final.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="landing__final-cta">
+      <h2 class="serif">Pronto para recrutar com mais clareza?</h2>
+      <a class="btn-primary landing__final-cta-btn" [href]="appBase + '/registro'">Criar conta gratuita</a>
+    </section>
+  </main>
+
+  <footer class="landing__footer">
+    <span class="serif landing__footer-wordmark">Clearhire</span>
+    <span class="dim">&copy; {{ currentYear }} Clearhire. Todos os direitos reservados.</span>
+    <a class="dim" href="mailto:contato@clearhire.example">contato&#64;clearhire.example</a>
+  </footer>
+</div>
