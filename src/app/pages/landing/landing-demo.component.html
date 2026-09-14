@@ -1,0 +1,36 @@
+      <div class="product-frame">
+        <aside class="sidebar" aria-label="Contexto da demonstração">
+          <span class="serif brand">◆ <span>Clearhire</span></span><span class="workspace">ESPAÇO DA EMPRESA</span>
+          <span class="nav-item"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</span>
+          <span class="nav-item nav-item--active"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V3h8v4M3 12h18M10 12v3h4v-3"/></svg>Campanhas</span>
+          <span class="nav-item"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="7" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 4a3 3 0 0 1 0 6M18 13a5 5 0 0 1 3 5v3"/></svg>Banco de talentos</span>
+          <div class="team"><span class="team-avatar">AC</span><span>Acme Studio<small>Equipe de recrutamento</small></span></div>
+        </aside>
+        <div class="app-main">
+          <div class="topbar"><span>Campanhas <span aria-hidden="true">/</span> Designer de Produto</span><span class="demo-label">Demonstração</span></div>
+          <div class="content">
+            <div class="heading"><div><p class="small-label">ACOMPANHAMENTO DA VAGA</p><h2 class="serif">Designer de Produto</h2></div><span class="pill">Vaga ativa</span></div>
+            <p class="meta">Produto & Design <span aria-hidden="true">·</span> Remoto <span aria-hidden="true">·</span> Pleno</p>
+            <div class="view-label">Funil de candidatos <span>Visão do processo</span></div>
+            <div class="stages" role="group" aria-label="Escolha uma etapa do funil de demonstração">
+              @for (stage of stages; track stage.label; let i = $index) {
+                <button type="button" class="stage" [class.stage--active]="selectedStage() === i" [attr.aria-pressed]="selectedStage() === i" aria-controls="demo-candidates" (click)="selectedStage.set(i)"><span class="stage-label"><span class="stage-index">{{ i + 1 }}</span>{{ stage.label }}</span><span class="serif stage-count">{{ stage.candidates.length.toString().padStart(2, '0') }}</span></button>
+              }
+            </div>
+            <div class="candidates" id="demo-candidates">
+              <div class="list-heading"><h3 class="serif">{{ activeStage().label }}</h3><span aria-live="polite" role="status">{{ activeStage().candidates.length }} {{ activeStage().candidates.length === 1 ? 'candidato' : 'candidatos' }} nesta etapa</span></div>
+              <table>
+                <caption class="sr-only">Candidatos fictícios na etapa {{ activeStage().label }}</caption>
+                <thead><tr><th scope="col">Candidato</th><th scope="col" class="experience-col">Experiência</th><th scope="col">Status</th></tr></thead>
+                <tbody>
+                  @for (candidate of activeStage().candidates; track candidate.name; let i = $index) {
+                    <tr><td><div class="candidate"><span class="avatar" [class.avatar--green]="i % 2 === 1">{{ candidate.initials }}</span><div><strong>{{ candidate.name }}</strong><small>{{ candidate.role }}</small></div></div></td><td class="experience-col">{{ candidate.experience }}</td><td><span class="status"><span aria-hidden="true"></span>{{ activeStage().status }}</span></td></tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            <div class="bottom"><span><span class="live-dot" aria-hidden="true"></span> Cada pessoa, no seu próximo passo.</span><span>{{ totalCandidates }} candidatos no processo</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="product-caption"><p><span aria-hidden="true">↳</span> Explore as etapas e veja o funil mudar.</p><span>Prévia com dados fictícios.</span></div>
