@@ -15,6 +15,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { AcceptInvitationComponent } from './pages/accept-invitation/accept-invitation.component';
+import { PublicApplicationComponent } from './pages/public-application/public-application.component';
 import { authGuard, guestGuard } from './core/auth.guard';
 
 export const routes: Routes = [
@@ -23,6 +24,9 @@ export const routes: Routes = [
   { path: 'esqueci-senha', component: ForgotPasswordComponent, canActivate: [guestGuard] },
   { path: 'redefinir-senha/:token', component: ResetPasswordComponent, canActivate: [guestGuard] },
   { path: 'aceitar-convite/:token', component: AcceptInvitationComponent, canActivate: [guestGuard] },
+  // Sem guard nenhum: candidato anônimo (sem login) e recrutador logado pré-visualizando o
+  // próprio link precisam ver a mesma página — guestGuard redirecionaria o segundo pro dashboard.
+  { path: 'vagas/:campaignId', component: PublicApplicationComponent },
   {
     path: '',
     canActivate: [authGuard],

@@ -1,10 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Router, RouterLink } from '@angular/router';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
-import { TalentMatch } from '../../core/models';
+import { CampaignContractType, CampaignModality, CampaignSeniority, TalentMatch } from '../../core/models';
 import { toTalentMatchViews, TalentMatchView } from '../../core/talent-view';
 
 type ModuleKey = 'fit' | 'tecnica' | 'entrevista';
@@ -38,7 +39,15 @@ export class NewCampaignComponent {
   readonly modules = MODULES;
 
   private api = inject(DataApi);
+  private router = inject(Router);
   readonly companyProfileState = toLoadable(this.api.getCompanyProfile());
+
+  readonly title = signal('');
+  readonly city = signal('');
+  readonly state = signal('');
+  readonly modality = signal<CampaignModality>('hibrido');
+  readonly contractType = signal<CampaignContractType>('clt');
+  readonly seniority = signal<CampaignSeniority>('pleno');
 
   selected: ModuleKey[] = ['fit', 'tecnica', 'entrevista'];
 
@@ -72,17 +81,18 @@ export class NewCampaignComponent {
   readonly selectedTalentIds = signal<ReadonlySet<string>>(new Set());
 
   /**
-   * Match reverso (seção 8.2): puramente visual, no mesmo nível de fidelidade do botão
-   * "Criar campanha" — não há persistência real de campanha neste protótipo ainda.
+   * Match reverso (seção 8.2): sugestão visual — o recrutador revisa e decide, mas puxar o
+   * selecionado pro funil inicial ainda não tem endpoint no backend (só a campanha em si
+   * persiste de verdade, via createCampaign()). `selectedTalentIds` não é enviado na criação.
    */
-  viewSuggestedTalents(titleInput: HTMLInputElement, modalitySelect: HTMLSelectElement, senioritySelect: HTMLSelectElement): void {
+  viewSuggestedTalents(): void {
     this.reverseMatchLoading.set(true);
     this.reverseMatchResults.set(null);
     this.api
       .getReverseMatchForNewCampaign({
-        title: titleInput.value,
-        modality: modalitySelect.value,
-        seniority: senioritySelect.value,
+        title: this.title(),
+        modality: this.modality(),
+        seniority: this.seniority(),
       })
       .subscribe((matches: TalentMatch[]) => {
         this.reverseMatchLoading.set(false);
@@ -99,5 +109,45 @@ export class NewCampaignComponent {
 
   isTalentSelected(id: string): boolean {
     return this.selectedTalentIds().has(id);
+  }
+
+  readonly creating = signal(false);
+  readonly createError = signal('');
+
+  get canCreate(): boolean {
+    return !this.creating() && this.title().trim().length > 0;
+  }
+
+  createCampaign(): void {
+    if (!this.canCreate) return;
+    this.creating.set(true);
+    this.createError.set('');
+    this.api
+      .createCampaign({
+        title: this.title().trim(),
+        city: this.city().trim(),
+        state: this.state().trim(),
+        modality: this.modality(),
+        contractType: this.contractType(),
+        seniority: this.seniority(),
+        phaseKeys: this.selected,
+      })
+      .subscribe({
+        next: (campaign) => this.router.navigate(['/campanhas', campaign.id]),
+        error: (err: unknown) => {
+          this.creating.set(false);
+          this.createError.set(this.createErrorMessage(err));
+        },
+      });
+  }
+
+  private createErrorMessage(err: unknown): string {
+    if (err instanceof HttpErrorResponse) {
+      const body = err.error as { error?: string } | null;
+      if (err.status === 400 && body?.error) return body.error;
+    } else if (err instanceof Error && err.message) {
+      return err.message;
+    }
+    return 'Não foi possível criar a campanha. Tente novamente.';
   }
 }

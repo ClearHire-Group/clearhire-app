@@ -23,6 +23,7 @@
         id="login-email"
         type="email"
         autocomplete="email"
+        maxlength="254"
         [value]="email()"
         (input)="email.set($any($event.target).value)"
       />
@@ -35,6 +36,7 @@
         id="login-password"
         type="password"
         autocomplete="current-password"
+        maxlength="72"
         [value]="password()"
         (input)="password.set($any($event.target).value)"
       />

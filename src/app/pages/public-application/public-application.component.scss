@@ -1,0 +1,120 @@
+.public-app {
+  min-height: 100%;
+  background: var(--color-page);
+  padding: 48px 24px;
+}
+
+.public-app__body {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.job-card {
+  padding: 28px;
+  margin-bottom: 20px;
+
+  h1 {
+    font-size: 26px;
+    margin: 4px 0 8px;
+  }
+}
+
+.form-card {
+  padding: 28px;
+}
+
+.confirmation {
+  padding: 48px 32px;
+  text-align: center;
+
+  h1 {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+}
+
+.mode-switch {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(21, 26, 34, 0.08);
+  padding-bottom: 16px;
+
+  &--sub {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 20px;
+  }
+}
+.mode-switch__btn {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+.mode-switch__btn--active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+.mode-hint {
+  font-size: 12.5px;
+  margin-bottom: 18px;
+}
+
+.field-block {
+  margin-bottom: 16px;
+  flex: 1;
+}
+
+.form-row {
+  display: flex;
+  gap: 12px;
+
+  > .field-block {
+    min-width: 0;
+  }
+}
+
+.file-hint {
+  display: block;
+  font-size: 11.5px;
+  margin-top: 6px;
+}
+
+.consent-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-text);
+  margin: 20px 0;
+  cursor: pointer;
+
+  input {
+    margin-top: 2px;
+  }
+}
+
+// Honeypot: fora da tela pra qualquer usuário humano, mas ainda presente no DOM/tab order pra um
+// bot que preenche formulário via script encontrar e cair na armadilha.
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 13px;
+  margin-top: 8px;
+}

@@ -10,12 +10,15 @@ import {
   CandidateProfileData,
   CompanyProfile,
   CoverageEntry,
+  CreateCampaignInput,
   DashboardMetrics,
   LoginCredentials,
   ManualTalentInput,
   Notification,
   Phase,
   PhaseKey,
+  PublicApplicationManualInput,
+  PublicCampaignInfo,
   RegisterCompanyInput,
   RegisterCompanyResult,
   RejectionReasonKey,
@@ -78,8 +81,47 @@ export abstract class DataApi {
 
   abstract getCampaigns(): Observable<Campaign[]>;
   abstract getCampaign(id: string): Observable<Campaign | undefined>;
+  /** Cria a campanha (+ fases do funil) já como 'ativa' — não existe rascunho no backend ainda.
+   * Erros de validação (título vazio, enum inválido) propagam como erro pro chamador tratar; não há
+   * fallback silencioso aqui, diferente das leituras (`getCampaign` etc.) — uma falha em criar tem
+   * que chegar até o usuário. */
+  abstract createCampaign(input: CreateCampaignInput): Observable<Campaign>;
   /** Alterna entre 'ativa' e 'pausada'; não afeta campanhas já encerradas. */
   abstract toggleCampaignPause(campaignId: string): Observable<Campaign | undefined>;
+  /** Liga/desliga o link público de candidatura desta campanha — estado desejado explícito, não
+   * um toggle cego ("gerar link" e "desativar link" são duas ações distintas na tela). */
+  abstract setCampaignPublicLink(campaignId: string, enabled: boolean): Observable<Campaign | undefined>;
+
+  // --- Candidatura pública (link de campanha, sem login) -----------------------
+  /** Dados da vaga pro candidato anônimo ver antes de se candidatar — undefined se a campanha não
+   * existe, não está ativa, ou o link está desligado (o backend nunca diferencia os três casos). */
+  abstract getPublicCampaignInfo(campaignId: string): Observable<PublicCampaignInfo | undefined>;
+  /** Modo "preencher manualmente" — o mais confiável dos dois, porque não depende do
+   * reconhecimento de padrão ter identificado tudo certo. `input.consent` precisa ser true; o
+   * backend recusa sem isso. */
+  abstract submitPublicApplicationManual(campaignId: string, input: PublicApplicationManualInput): Observable<void>;
+  /** Modo "colar currículo" — extração determinística (e-mail, telefone, LinkedIn, skills contra a
+   * taxonomia já cadastrada), sem IA nenhuma. `name` é sempre exigido mesmo aqui — não é algo que
+   * dá pra reconhecer de forma confiável só com padrão de texto. `honeypot` é o campo-armadilha
+   * invisível (ver PublicApplicationManualInput.honeypot) — sempre vazio num envio legítimo. */
+  abstract submitPublicApplicationResumeText(
+    campaignId: string,
+    name: string,
+    email: string,
+    resumeText: string,
+    consent: boolean,
+    honeypot?: string,
+  ): Observable<void>;
+  /** Modo "enviar PDF" — o texto é extraído do PDF e passa pela mesma extração determinística do
+   * modo texto colado (nunca fica salvo o arquivo em si, só o texto/dado extraído). */
+  abstract submitPublicApplicationResumeFile(
+    campaignId: string,
+    name: string,
+    email: string,
+    file: File,
+    consent: boolean,
+    honeypot?: string,
+  ): Observable<void>;
   abstract getCandidates(campaignId: string, phase?: PhaseKey): Observable<Candidate[]>;
   abstract getCandidateProfile(candidateId: string): Observable<CandidateProfileData | undefined>;
   /** Move o candidato para a próxima fase do funil; no-op se já estiver em "Selecionados". */

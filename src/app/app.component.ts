@@ -6,7 +6,7 @@ import { SidebarNavComponent } from './layout/sidebar-nav/sidebar-nav.component'
 import { TopBarComponent } from './layout/top-bar/top-bar.component';
 
 /** Rotas fora de sessão — sem sidebar/top-bar, que dependem de empresa/usuário autenticado. */
-const CHROMELESS_PREFIXES = ['/login', '/registro', '/esqueci-senha', '/redefinir-senha', '/aceitar-convite'];
+const CHROMELESS_PREFIXES = ['/login', '/registro', '/esqueci-senha', '/redefinir-senha', '/aceitar-convite', '/vagas'];
 
 function hasChrome(url: string): boolean {
   return !CHROMELESS_PREFIXES.some((prefix) => url.startsWith(prefix));

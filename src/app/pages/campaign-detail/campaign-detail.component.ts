@@ -76,6 +76,32 @@ export class CampaignDetailComponent {
     });
   }
 
+  // --- Link de candidatura pública --------------------------------------------
+  readonly publicLinkModalOpen = signal(false);
+  readonly publicLinkSaving = signal(false);
+
+  get publicApplicationUrl(): string {
+    return `${location.origin}/vagas/${this.campaignId()}`;
+  }
+
+  openPublicLinkModal(): void {
+    this.publicLinkModalOpen.set(true);
+  }
+
+  closePublicLinkModal(): void {
+    if (this.publicLinkSaving()) return;
+    this.publicLinkModalOpen.set(false);
+  }
+
+  setPublicLink(enabled: boolean): void {
+    if (this.publicLinkSaving()) return;
+    this.publicLinkSaving.set(true);
+    this.api.setCampaignPublicLink(this.campaignId(), enabled).subscribe(() => {
+      this.publicLinkSaving.set(false);
+      this.refreshTrigger.update((n) => n + 1);
+    });
+  }
+
   get activePhaseLabel(): string {
     return this.campaignState.data()?.phases.find((p) => p.key === this.selectedPhase())?.label ?? '';
   }

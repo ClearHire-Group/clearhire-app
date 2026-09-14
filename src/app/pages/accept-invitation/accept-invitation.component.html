@@ -14,6 +14,7 @@
         id="invite-name"
         type="text"
         autocomplete="name"
+        maxlength="200"
         [value]="name()"
         (input)="name.set($any($event.target).value)"
       />
@@ -26,6 +27,7 @@
         id="invite-password"
         type="password"
         autocomplete="new-password"
+        maxlength="72"
         [class.field--error]="passwordTooShort()"
         [value]="password()"
         (input)="password.set($any($event.target).value)"
@@ -40,6 +42,7 @@
         id="invite-confirm"
         type="password"
         autocomplete="new-password"
+        maxlength="72"
         [class.field--error]="passwordMismatch()"
         [value]="confirmPassword()"
         (input)="confirmPassword.set($any($event.target).value)"

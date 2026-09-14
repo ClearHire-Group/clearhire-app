@@ -1,0 +1,162 @@
+<div class="public-app">
+  <div class="public-app__body">
+    @if (campaignState.data(); as job) {
+      @if (submitted()) {
+        <div class="card confirmation">
+          <h1 class="serif">Recebemos sua candidatura!</h1>
+          <p class="muted">
+            Obrigado por se candidatar. A equipe de recrutamento vai analisar seu perfil e entrar em contato caso você avance no processo.
+          </p>
+        </div>
+      } @else {
+        <div class="card job-card">
+          <span class="dim">{{ job.companyName }}</span>
+          <h1 class="serif">{{ job.title }}</h1>
+          <p class="muted">
+            {{ job.location }}
+            @if (job.seniority) { · {{ job.seniority }} }
+          </p>
+        </div>
+
+        <div class="card form-card">
+          <div class="mode-switch">
+            <button type="button" class="mode-switch__btn" [class.mode-switch__btn--active]="mode() === 'manual'" (click)="setMode('manual')">
+              Preencher manualmente
+            </button>
+            <button type="button" class="mode-switch__btn" [class.mode-switch__btn--active]="mode() === 'resume'" (click)="setMode('resume')">
+              Enviar currículo
+            </button>
+          </div>
+
+          @if (mode() === 'manual') {
+            <p class="muted mode-hint">Caminho mais confiável — você garante que os dados estão certos, sem depender do reconhecimento automático do currículo.</p>
+
+            <div class="field-block">
+              <label class="fieldlabel" for="m-name">Nome completo</label>
+              <input class="field" id="m-name" type="text" maxlength="200" [value]="name()" (input)="name.set($any($event.target).value)" />
+            </div>
+            <div class="field-block">
+              <label class="fieldlabel" for="m-email">E-mail</label>
+              <input class="field" id="m-email" type="email" maxlength="254" [value]="email()" (input)="email.set($any($event.target).value)" />
+            </div>
+            <div class="form-row">
+              <div class="field-block">
+                <label class="fieldlabel" for="m-phone">Telefone</label>
+                <input class="field" id="m-phone" type="tel" maxlength="30" [value]="phone()" (input)="phone.set($any($event.target).value)" />
+              </div>
+              <div class="field-block">
+                <label class="fieldlabel" for="m-linkedin">LinkedIn</label>
+                <input class="field" id="m-linkedin" type="text" maxlength="500" [value]="linkedinUrl()" (input)="linkedinUrl.set($any($event.target).value)" />
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="field-block">
+                <label class="fieldlabel" for="m-city">Cidade</label>
+                <input class="field" id="m-city" type="text" maxlength="100" [value]="city()" (input)="city.set($any($event.target).value)" />
+              </div>
+              <div class="field-block">
+                <label class="fieldlabel" for="m-state">Estado</label>
+                <input class="field" id="m-state" type="text" maxlength="100" [value]="state()" (input)="state.set($any($event.target).value)" />
+              </div>
+              <div class="field-block">
+                <label class="fieldlabel" for="m-years">Anos de experiência</label>
+                <input
+                  class="field"
+                  id="m-years"
+                  type="number"
+                  min="0"
+                  max="60"
+                  [value]="yearsExperience()"
+                  (input)="yearsExperience.set($any($event.target).value ? +$any($event.target).value : null)"
+                />
+              </div>
+            </div>
+            <div class="field-block">
+              <label class="fieldlabel" for="m-summary">Resumo profissional</label>
+              <textarea class="field" id="m-summary" rows="3" maxlength="4000" [value]="summary()" (input)="summary.set($any($event.target).value)"></textarea>
+            </div>
+            <div class="form-row">
+              <div class="field-block">
+                <label class="fieldlabel" for="m-degree">Formação</label>
+                <input class="field" id="m-degree" type="text" maxlength="200" [value]="educationDegree()" (input)="educationDegree.set($any($event.target).value)" />
+              </div>
+              <div class="field-block">
+                <label class="fieldlabel" for="m-institution">Instituição</label>
+                <input class="field" id="m-institution" type="text" maxlength="200" [value]="educationInstitution()" (input)="educationInstitution.set($any($event.target).value)" />
+              </div>
+              <div class="field-block">
+                <label class="fieldlabel" for="m-period">Período</label>
+                <input class="field" id="m-period" type="text" maxlength="100" [value]="educationPeriod()" (input)="educationPeriod.set($any($event.target).value)" />
+              </div>
+            </div>
+            <div class="field-block">
+              <label class="fieldlabel" for="m-skills">Principais skills (separadas por vírgula)</label>
+              <input class="field" id="m-skills" type="text" [value]="skillsText()" (input)="skillsText.set($any($event.target).value)" placeholder="Ex.: Python, SAP FI, Inglês avançado" />
+            </div>
+          } @else {
+            <p class="muted mode-hint">Reconhecimento automático de e-mail, telefone, LinkedIn e skills já cadastradas — mais rápido, mas pode não identificar tudo. Confira os dados antes de enviar.</p>
+
+            <div class="mode-switch mode-switch--sub">
+              <button type="button" class="mode-switch__btn" [class.mode-switch__btn--active]="resumeSubMode() === 'text'" (click)="setResumeSubMode('text')">
+                Colar texto
+              </button>
+              <button type="button" class="mode-switch__btn" [class.mode-switch__btn--active]="resumeSubMode() === 'file'" (click)="setResumeSubMode('file')">
+                Enviar PDF
+              </button>
+            </div>
+
+            <div class="field-block">
+              <label class="fieldlabel" for="r-name">Nome completo</label>
+              <input class="field" id="r-name" type="text" maxlength="200" [value]="resumeName()" (input)="resumeName.set($any($event.target).value)" />
+            </div>
+            <div class="field-block">
+              <label class="fieldlabel" for="r-email">Seu e-mail</label>
+              <input class="field" id="r-email" type="email" maxlength="254" [value]="resumeEmail()" (input)="resumeEmail.set($any($event.target).value)" />
+            </div>
+
+            @if (resumeSubMode() === 'text') {
+              <div class="field-block">
+                <label class="fieldlabel" for="r-text">Cole aqui o texto do seu currículo</label>
+                <textarea class="field" id="r-text" rows="10" maxlength="20000" [value]="resumeText()" (input)="resumeText.set($any($event.target).value)"></textarea>
+              </div>
+            } @else {
+              <div class="field-block">
+                <label class="fieldlabel" for="r-file">Currículo em PDF</label>
+                <input class="field" id="r-file" type="file" accept="application/pdf" (change)="onFileSelected($event)" />
+                <span class="dim file-hint">O arquivo nunca é armazenado — a IA lê e descarta, só os dados extraídos ficam salvos.</span>
+              </div>
+            }
+          }
+
+          <label class="consent-row">
+            <input type="checkbox" [checked]="consent()" (change)="consent.set($any($event.target).checked)" />
+            Autorizo o uso dos meus dados para esta candidatura e para futuras oportunidades nesta empresa.
+          </label>
+
+          <!-- Honeypot: nunca visível a uma pessoa real, só um bot preenche automaticamente. -->
+          <input
+            type="text"
+            class="honeypot"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+            [value]="honeypot()"
+            (input)="honeypot.set($any($event.target).value)"
+          />
+
+          @if (errorMessage()) {
+            <p class="state-message state-message--error">{{ errorMessage() }}</p>
+          }
+
+          <button class="btn-primary submit-btn" type="button" [disabled]="!canSubmit" (click)="submit()">
+            {{ submitting() ? 'Enviando…' : 'Enviar candidatura' }}
+          </button>
+        </div>
+      }
+    } @else if (campaignState.loading()) {
+      <p class="state-message"><span class="state-spinner"></span> Carregando vaga…</p>
+    } @else {
+      <p class="state-message state-message--error">Esta vaga não está disponível para candidaturas no momento.</p>
+    }
+  </div>
+</div>

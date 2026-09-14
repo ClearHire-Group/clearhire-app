@@ -18,6 +18,9 @@
               {{ pauseSaving() ? 'Salvando…' : campaign.status === 'pausada' ? 'Retomar campanha' : 'Pausar campanha' }}
             </button>
           }
+          <button class="btn-ghost" type="button" (click)="openPublicLinkModal()">
+            {{ campaign.acceptsPublicApplications ? 'Gerenciar link de candidaturas' : 'Gerar link de candidaturas' }}
+          </button>
           <button class="btn-ghost" type="button" disabled title="Ainda não disponível nesta prévia">Editar campanha</button>
         </div>
       </div>
@@ -112,6 +115,41 @@
       </div>
     </div>
   </div>
+
+  @if (publicLinkModalOpen()) {
+    <div class="modal-backdrop" (click)="closePublicLinkModal()">
+      <div class="card modal-card" (click)="$event.stopPropagation()">
+        <h2 class="serif">Link de candidatura pública</h2>
+        <p class="muted modal-intro">
+          Qualquer pessoa com este link pode se candidatar a esta vaga — sem precisar de conta. Divulgue no LinkedIn ou onde quiser.
+        </p>
+
+        @if (campaign.acceptsPublicApplications) {
+          <div class="notice">
+            <p>
+              Link ativo — envie diretamente:
+              <a [href]="publicApplicationUrl" target="_blank" rel="noopener">{{ publicApplicationUrl }}</a>
+            </p>
+          </div>
+        } @else {
+          <p class="muted">O link ainda não está ativo para esta vaga.</p>
+        }
+
+        <div class="modal-actions">
+          <button type="button" class="btn-ghost" [disabled]="publicLinkSaving()" (click)="closePublicLinkModal()">Fechar</button>
+          @if (campaign.acceptsPublicApplications) {
+            <button type="button" class="btn-ghost" [disabled]="publicLinkSaving()" (click)="setPublicLink(false)">
+              {{ publicLinkSaving() ? 'Desativando…' : 'Desativar link' }}
+            </button>
+          } @else {
+            <button type="button" class="btn-primary" [disabled]="publicLinkSaving()" (click)="setPublicLink(true)">
+              {{ publicLinkSaving() ? 'Gerando…' : 'Gerar link' }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
 } @else if (campaignState.loading()) {
   <div class="page">
     <div class="page-body"><p class="state-message"><span class="state-spinner"></span> Carregando campanha…</p></div>

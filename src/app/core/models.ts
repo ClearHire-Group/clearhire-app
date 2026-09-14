@@ -16,6 +16,29 @@ export interface Phase {
 }
 
 export type CampaignStatus = 'ativa' | 'pausada' | 'encerrada';
+export type CampaignModality = 'remoto' | 'hibrido' | 'presencial';
+export type CampaignContractType = 'clt' | 'pj' | 'estagio';
+export type CampaignSeniority = 'junior' | 'pleno' | 'senior';
+
+/** Labels pt-BR pros enums acima — espelha `modalityLabels`/`contractTypeLabels`/`seniorityLabels`
+ * de `clearhire-server/internal/domain/campaign/dto.go`, mesmo texto dos dois lados. */
+export const CAMPAIGN_MODALITY_LABELS: Record<CampaignModality, string> = {
+  remoto: 'Remoto',
+  hibrido: 'Híbrido',
+  presencial: 'Presencial',
+};
+
+export const CAMPAIGN_CONTRACT_TYPE_LABELS: Record<CampaignContractType, string> = {
+  clt: 'CLT',
+  pj: 'PJ',
+  estagio: 'Estágio',
+};
+
+export const CAMPAIGN_SENIORITY_LABELS: Record<CampaignSeniority, string> = {
+  junior: 'Júnior',
+  pleno: 'Pleno',
+  senior: 'Sênior',
+};
 
 export interface Campaign {
   id: string;
@@ -28,6 +51,23 @@ export interface Campaign {
   currentPhaseKey: PhaseKey;
   funnelPercent: number;
   phases: Phase[];
+  /** Se o link público de candidatura desta campanha está ligado — independente de status: pausar/
+   * encerrar a campanha já derruba o link, mas o recrutador também pode ligar/desligar só o link
+   * sem mexer no status da campanha. */
+  acceptsPublicApplications: boolean;
+}
+
+/** Payload de `POST /campaigns` — tela Nova Campanha. `phaseKeys` são só os módulos OPCIONAIS
+ * escolhidos (fit/tecnica/entrevista), na ordem montada no step 3 — Recebidos e Selecionados são
+ * sempre implícitos, o backend quem monta a lista completa (ver `buildPhases` no service Go). */
+export interface CreateCampaignInput {
+  title: string;
+  city: string;
+  state: string;
+  modality: CampaignModality;
+  contractType: CampaignContractType;
+  seniority: CampaignSeniority;
+  phaseKeys: Array<'fit' | 'tecnica' | 'entrevista'>;
 }
 
 export interface Candidate {
@@ -221,6 +261,49 @@ export interface CandidateProfileData {
     concerns: string[];
     justification: string;
   };
+}
+
+/** Vaga vista pelo candidato anônimo, via link público de campanha — só o subconjunto seguro de
+ * exibir (ver GET /public/campaigns/:id no backend). Nunca confundir com Campaign, a visão do
+ * recrutador (autenticada, com contagens internas). */
+export interface PublicCampaignInfo {
+  id: string;
+  title: string;
+  companyName: string;
+  location: string;
+  modality: string;
+  contractType: string;
+  seniority: string;
+}
+
+export interface PublicApplicationExperienceInput {
+  role: string;
+  company: string;
+  periodLabel: string;
+  description: string;
+}
+
+/** Payload do modo "preencher manualmente" da candidatura pública — o caminho mais confiável dos
+ * dois (não depende de a IA ter lido o currículo certo). consent tem que vir true pra a chamada
+ * não ser recusada pelo backend. */
+export interface PublicApplicationManualInput {
+  name: string;
+  email: string;
+  phone: string;
+  linkedinUrl: string;
+  city: string;
+  state: string;
+  yearsExperience: number | null;
+  summary: string;
+  educationDegree: string;
+  educationInstitution: string;
+  educationPeriod: string;
+  experience: PublicApplicationExperienceInput[];
+  skills: string[];
+  consent: boolean;
+  /** Campo-armadilha invisível pro usuário real — se vier preenchido, é bot. Vazio em qualquer
+   * envio legítimo. */
+  honeypot?: string;
 }
 
 export interface CompanyProfile {

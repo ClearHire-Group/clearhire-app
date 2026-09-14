@@ -8,12 +8,15 @@ import {
   AiSuggestion,
   AiTrustMetrics,
   AuthSession,
+  CAMPAIGN_CONTRACT_TYPE_LABELS,
+  CAMPAIGN_MODALITY_LABELS,
   Campaign,
   CampaignPerformance,
   Candidate,
   CandidateProfileData,
   CompanyProfile,
   CoverageEntry,
+  CreateCampaignInput,
   DashboardMetrics,
   LoginCredentials,
   ManualTalentInput,
@@ -21,6 +24,8 @@ import {
   Phase,
   PhaseKey,
   PHASE_LABELS,
+  PublicApplicationManualInput,
+  PublicCampaignInfo,
   REJECTION_REASONS,
   RegisterCompanyInput,
   RegisterCompanyResult,
@@ -156,6 +161,51 @@ export class MockApiService extends DataApi {
     return this.simulate(MOCK_CAMPAIGNS);
   }
 
+  createCampaign(input: CreateCampaignInput): Observable<Campaign> {
+    const title = input.title.trim();
+    if (!title) {
+      return this.simulateError('Dados obrigatórios faltando ou inválidos.');
+    }
+
+    const phaseKeys: PhaseKey[] = ['recebidos', ...input.phaseKeys, 'selecionados'];
+    const phases: Phase[] = phaseKeys.map((key, i) => ({ key, num: i + 1, label: PHASE_LABELS[key], count: 0 }));
+
+    const campaign: Campaign = {
+      id: this.slugifyCampaign(title),
+      title,
+      status: 'ativa',
+      acceptsPublicApplications: false,
+      location: this.buildCampaignLocation(input),
+      meta: 'Aberta há 0 dias',
+      totalCandidates: 0,
+      currentPhaseLabel: PHASE_LABELS.recebidos,
+      currentPhaseKey: 'recebidos',
+      // Réplica de assembleView() no service Go: recém-criada, nenhuma fase tem candidato ainda,
+      // então a posição atual é sempre a 1ª (Recebidos) — % é 1/nº total de fases.
+      funnelPercent: Math.round((1 / phases.length) * 100),
+      phases,
+    };
+    MOCK_CAMPAIGNS.unshift(campaign);
+    return this.simulate(campaign);
+  }
+
+  private buildCampaignLocation(input: CreateCampaignInput): string {
+    const segments: string[] = [];
+    if (input.city) segments.push(input.state ? `${input.city}, ${input.state}` : input.city);
+    segments.push(CAMPAIGN_MODALITY_LABELS[input.modality], CAMPAIGN_CONTRACT_TYPE_LABELS[input.contractType]);
+    return segments.join(' · ');
+  }
+
+  private slugifyCampaign(title: string): string {
+    const base = title
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim()
+      .replace(/\s+/g, '-');
+    return MOCK_CAMPAIGNS.some((c) => c.id === base) ? `${base}-${MOCK_CAMPAIGNS.length}` : base;
+  }
+
   getCampaign(id: string): Observable<Campaign | undefined> {
     return this.simulate(MOCK_CAMPAIGNS.find((c) => c.id === id));
   }
@@ -166,6 +216,56 @@ export class MockApiService extends DataApi {
       campaign.status = campaign.status === 'ativa' ? 'pausada' : 'ativa';
     }
     return this.simulate(campaign);
+  }
+
+  setCampaignPublicLink(campaignId: string, enabled: boolean): Observable<Campaign | undefined> {
+    const campaign = MOCK_CAMPAIGNS.find((c) => c.id === campaignId);
+    if (campaign) {
+      campaign.acceptsPublicApplications = enabled;
+    }
+    return this.simulate(campaign);
+  }
+
+  getPublicCampaignInfo(campaignId: string): Observable<PublicCampaignInfo | undefined> {
+    const campaign = MOCK_CAMPAIGNS.find((c) => c.id === campaignId);
+    if (!campaign || campaign.status !== 'ativa' || !campaign.acceptsPublicApplications) {
+      return this.simulate(undefined);
+    }
+    return this.simulate({
+      id: campaign.id,
+      title: campaign.title,
+      companyName: MOCK_COMPANY_PROFILE.name,
+      location: campaign.location,
+      modality: '',
+      contractType: '',
+      seniority: '',
+    });
+  }
+
+  submitPublicApplicationManual(_campaignId: string, _input: PublicApplicationManualInput): Observable<void> {
+    return this.simulate(undefined);
+  }
+
+  submitPublicApplicationResumeText(
+    _campaignId: string,
+    _name: string,
+    _email: string,
+    _resumeText: string,
+    _consent: boolean,
+    _honeypot?: string,
+  ): Observable<void> {
+    return this.simulate(undefined);
+  }
+
+  submitPublicApplicationResumeFile(
+    _campaignId: string,
+    _name: string,
+    _email: string,
+    _file: File,
+    _consent: boolean,
+    _honeypot?: string,
+  ): Observable<void> {
+    return this.simulate(undefined);
   }
 
   getCandidates(campaignId: string, phase?: PhaseKey): Observable<Candidate[]> {

@@ -21,6 +21,7 @@
             class="field"
             id="my-name"
             type="text"
+            maxlength="200"
             [value]="nameDraft()"
             (input)="nameDraft.set($any($event.target).value)"
           />
@@ -131,6 +132,7 @@
                 id="confirm-password"
                 type="password"
                 autocomplete="current-password"
+                maxlength="72"
                 [value]="confirmPassword()"
                 (input)="confirmPassword.set($any($event.target).value)"
                 (keydown.enter)="$event.preventDefault(); confirmDeactivate()"
@@ -202,6 +204,7 @@
               class="field"
               type="email"
               placeholder="email@empresa.com"
+              maxlength="254"
               [value]="inviteEmail()"
               (input)="inviteEmail.set($any($event.target).value)"
               (keydown.enter)="$event.preventDefault(); sendInvite()"

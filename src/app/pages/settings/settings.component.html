@@ -49,12 +49,12 @@
 
         <div class="field-block">
           <label class="fieldlabel">Tom de comunicação</label>
-          <textarea class="field" rows="2" [value]="toneDraft()" (input)="toneDraft.set($any($event.target).value)"></textarea>
+          <textarea class="field" rows="2" maxlength="2000" [value]="toneDraft()" (input)="toneDraft.set($any($event.target).value)"></textarea>
         </div>
 
         <div class="field-block field-block--last">
           <label class="fieldlabel">O que a empresa considera importante</label>
-          <textarea class="field" rows="3" [value]="importanceDraft()" (input)="importanceDraft.set($any($event.target).value)"></textarea>
+          <textarea class="field" rows="3" maxlength="2000" [value]="importanceDraft()" (input)="importanceDraft.set($any($event.target).value)"></textarea>
         </div>
       </div>
 

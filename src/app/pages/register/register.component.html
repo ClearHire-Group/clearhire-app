@@ -14,6 +14,7 @@
         id="reg-company"
         type="text"
         autocomplete="organization"
+        maxlength="200"
         [value]="companyName()"
         (input)="companyName.set($any($event.target).value)"
       />
@@ -26,6 +27,7 @@
         id="reg-name"
         type="text"
         autocomplete="name"
+        maxlength="200"
         [value]="ownerName()"
         (input)="ownerName.set($any($event.target).value)"
       />
@@ -38,6 +40,7 @@
         id="reg-email"
         type="email"
         autocomplete="email"
+        maxlength="254"
         [value]="ownerEmail()"
         (input)="ownerEmail.set($any($event.target).value)"
       />
@@ -51,6 +54,7 @@
         id="reg-password"
         type="password"
         autocomplete="new-password"
+        maxlength="72"
         [value]="ownerPassword()"
         (input)="ownerPassword.set($any($event.target).value)"
       />
@@ -65,6 +69,7 @@
         id="reg-password-confirm"
         type="password"
         autocomplete="new-password"
+        maxlength="72"
         [value]="confirmPassword()"
         (input)="confirmPassword.set($any($event.target).value)"
       />

@@ -17,6 +17,7 @@
             <input
               type="text"
               placeholder="Ex.: consultor SAP FI, varejo, híbrido em SP, disponível em 3 meses…"
+              maxlength="500"
               [value]="searchTerm()"
               (input)="onSearchInput($event)"
               (keyup.enter)="runSearch()"
@@ -172,13 +173,13 @@
         <p class="muted modal-intro">Cadastro manual, fora de campanha — legítimo interesse até o primeiro contato real com a pessoa.</p>
 
         <label class="fieldlabel">Nome</label>
-        <input class="field" type="text" [value]="manualName()" (input)="manualName.set($any($event.target).value)" placeholder="Nome completo" />
+        <input class="field" type="text" maxlength="200" [value]="manualName()" (input)="manualName.set($any($event.target).value)" placeholder="Nome completo" />
 
         <label class="fieldlabel">Currículo ou perfil colado</label>
-        <textarea class="field" rows="4" [value]="manualRawText()" (input)="manualRawText.set($any($event.target).value)" placeholder="Cole aqui o currículo ou o perfil do LinkedIn…"></textarea>
+        <textarea class="field" rows="4" maxlength="20000" [value]="manualRawText()" (input)="manualRawText.set($any($event.target).value)" placeholder="Cole aqui o currículo ou o perfil do LinkedIn…"></textarea>
 
         <label class="fieldlabel">Nota de contexto</label>
-        <textarea class="field" rows="2" [value]="manualNote()" (input)="manualNote.set($any($event.target).value)" placeholder="Onde encontrou essa pessoa, por que chamou atenção…"></textarea>
+        <textarea class="field" rows="2" maxlength="2000" [value]="manualNote()" (input)="manualNote.set($any($event.target).value)" placeholder="Onde encontrou essa pessoa, por que chamou atenção…"></textarea>
 
         <div class="modal-actions">
           <button type="button" class="btn-ghost" (click)="closeManualForm()">Cancelar</button>
