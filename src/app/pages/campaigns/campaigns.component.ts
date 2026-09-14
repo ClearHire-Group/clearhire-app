@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
+import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { Campaign, CampaignStatus, Phase } from '../../core/models';
@@ -11,7 +12,7 @@ import { Campaign, CampaignStatus, Phase } from '../../core/models';
 @Component({
   selector: 'app-campaigns',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageTabsComponent],
+  imports: [CommonModule, RouterLink, PageTabsComponent, ErrorStateComponent],
   templateUrl: './campaigns.component.html',
   styleUrl: './campaigns.component.scss',
 })

@@ -1,0 +1,19 @@
+<div class="error-state">
+  <div class="error-state__icon" [class.error-state__icon--notfound]="kind === 'not-found'">
+    @if (kind === 'not-found') {
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="6.5" /><path d="M20 20l-4.6-4.6" /><path d="M8 10h4" /></svg>
+    } @else {
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" /><path d="M12 9v4M12 17h.01" /></svg>
+    }
+  </div>
+  <h2 class="serif">{{ resolvedTitle }}</h2>
+  <p class="muted error-state__message">{{ resolvedMessage }}</p>
+  <div class="error-state__actions">
+    @if (kind === 'error') {
+      <button type="button" class="btn-ghost" (click)="onRetry()">Tentar novamente</button>
+    }
+    @if (actionRoute && actionLabel) {
+      <a [routerLink]="actionRoute" class="btn-primary">{{ actionLabel }}</a>
+    }
+  </div>
+</div>

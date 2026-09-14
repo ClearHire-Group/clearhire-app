@@ -8,6 +8,7 @@ import { CampaignContextService } from '../../core/campaign-context';
 import { toLoadable } from '../../core/loadable';
 import { Phase, PhaseKey } from '../../core/models';
 import { toCandidateViews } from '../../core/candidate-view';
+import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 
 interface PhaseChip {
   key: PhaseKey;
@@ -25,7 +26,7 @@ interface PhaseChip {
 @Component({
   selector: 'app-campaign-candidates',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ErrorStateComponent],
   templateUrl: './campaign-candidates.component.html',
   styleUrl: './campaign-candidates.component.scss',
 })

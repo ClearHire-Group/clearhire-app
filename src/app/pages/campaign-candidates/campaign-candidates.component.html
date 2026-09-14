@@ -37,7 +37,7 @@
     @if (candidatesState.loading()) {
       <p class="state-message"><span class="state-spinner"></span> Carregando candidatos…</p>
     } @else if (candidatesState.error()) {
-      <p class="state-message state-message--error">Não foi possível carregar os candidatos desta campanha.</p>
+      <app-error-state kind="error" message="Não foi possível carregar os candidatos desta campanha."></app-error-state>
     } @else {
       <table>
         <thead>

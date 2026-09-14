@@ -13,7 +13,7 @@
     @if (campaignsState.loading()) {
       <p class="state-message"><span class="state-spinner"></span> Carregando campanhas…</p>
     } @else if (campaignsState.error()) {
-      <p class="state-message state-message--error">Não foi possível carregar as campanhas.</p>
+      <app-error-state kind="error" message="Não foi possível carregar as campanhas."></app-error-state>
     } @else if (showCampaignPrompt()) {
       <div class="card empty-state">
         <div class="empty-state__icon">

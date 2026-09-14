@@ -6,6 +6,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { PublicApplicationExperienceInput } from '../../core/models';
+import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 
 type ApplicationMode = 'manual' | 'resume';
 type ResumeSubMode = 'text' | 'file';
@@ -19,7 +20,7 @@ type ResumeSubMode = 'text' | 'file';
 @Component({
   selector: 'app-public-application',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ErrorStateComponent],
   templateUrl: './public-application.component.html',
   styleUrl: './public-application.component.scss',
 })

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router, RouterLink } from '@angular/router';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
+import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { CampaignContractType, CampaignModality, CampaignSeniority, TalentMatch } from '../../core/models';
@@ -25,7 +26,7 @@ const MODULES: ModuleInfo[] = [
 @Component({
   selector: 'app-new-campaign',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageTabsComponent],
+  imports: [CommonModule, RouterLink, PageTabsComponent, ErrorStateComponent],
   templateUrl: './new-campaign.component.html',
   styleUrl: './new-campaign.component.scss',
 })

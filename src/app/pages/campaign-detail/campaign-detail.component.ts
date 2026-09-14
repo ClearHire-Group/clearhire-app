@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
 import { CopyLinkButtonComponent } from '../../layout/copy-link-button/copy-link-button.component';
+import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 import { DataApi } from '../../core/data-api';
 import { CampaignContextService } from '../../core/campaign-context';
 
@@ -14,7 +15,7 @@ import { CampaignContextService } from '../../core/campaign-context';
 @Component({
   selector: 'app-campaign-detail',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, PageTabsComponent, CopyLinkButtonComponent],
+  imports: [CommonModule, RouterOutlet, PageTabsComponent, CopyLinkButtonComponent, ErrorStateComponent],
   providers: [CampaignContextService],
   templateUrl: './campaign-detail.component.html',
   styleUrl: './campaign-detail.component.scss',

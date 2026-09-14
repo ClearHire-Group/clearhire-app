@@ -5,6 +5,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { map, switchMap } from 'rxjs';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
 import { InfoTooltipComponent } from '../../layout/info-tooltip/info-tooltip.component';
+import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { CONSENT_STATE_LABELS, ConsentState, ManualTalentInput, TalentMatch, TalentOrigin } from '../../core/models';
@@ -23,7 +24,7 @@ interface SearchState {
 @Component({
   selector: 'app-talent-bank',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageTabsComponent, InfoTooltipComponent],
+  imports: [CommonModule, RouterLink, PageTabsComponent, InfoTooltipComponent, ErrorStateComponent],
   templateUrl: './talent-bank.component.html',
   styleUrl: './talent-bank.component.scss',
 })

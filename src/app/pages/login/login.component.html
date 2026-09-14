@@ -11,6 +11,9 @@
   @if (invitationAccepted()) {
     <div class="form-alert form-alert--success">Convite aceito. Faça login para continuar.</div>
   }
+  @if (sessionExpired()) {
+    <div class="form-alert form-alert--error">Sua sessão expirou. Faça login novamente para continuar.</div>
+  }
   @if (errorMessage()) {
     <div class="form-alert form-alert--error">{{ errorMessage() }}</div>
   }

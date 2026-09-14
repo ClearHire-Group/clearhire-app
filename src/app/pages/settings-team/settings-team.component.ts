@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { forkJoin, switchMap } from 'rxjs';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
+import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { TeamMemberStatus, UserRole } from '../../core/models';
@@ -21,7 +22,7 @@ const ROLE_LABELS: Record<UserRole, string> = {
 @Component({
   selector: 'app-settings-team',
   standalone: true,
-  imports: [CommonModule, PageTabsComponent],
+  imports: [CommonModule, PageTabsComponent, ErrorStateComponent],
   templateUrl: './settings-team.component.html',
   styleUrl: './settings-team.component.scss',
 })

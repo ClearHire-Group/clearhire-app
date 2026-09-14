@@ -35,7 +35,7 @@
     } @else if (activityState.loading()) {
       <p class="state-message"><span class="state-spinner"></span> Carregando atividade…</p>
     } @else {
-      <p class="state-message state-message--error">Não foi possível carregar o histórico de atividade.</p>
+      <app-error-state kind="error" message="Não foi possível carregar o histórico de atividade."></app-error-state>
     }
   </div>
 </div>

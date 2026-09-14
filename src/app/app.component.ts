@@ -4,6 +4,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { filter, map } from 'rxjs';
 import { SidebarNavComponent } from './layout/sidebar-nav/sidebar-nav.component';
 import { TopBarComponent } from './layout/top-bar/top-bar.component';
+import { FatalErrorComponent } from './layout/fatal-error/fatal-error.component';
+import { RuntimeErrorService } from './core/runtime-error.service';
 
 /** Rotas fora de sessão — sem sidebar/top-bar, que dependem de empresa/usuário autenticado. */
 const CHROMELESS_PREFIXES = ['/login', '/registro', '/esqueci-senha', '/redefinir-senha', '/aceitar-convite', '/vagas'];
@@ -14,12 +16,13 @@ function hasChrome(url: string): boolean {
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, SidebarNavComponent, TopBarComponent],
+  imports: [RouterOutlet, SidebarNavComponent, TopBarComponent, FatalErrorComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
 export class AppComponent {
   private router = inject(Router);
+  readonly runtimeError = inject(RuntimeErrorService);
 
   readonly showChrome = toSignal(
     this.router.events.pipe(

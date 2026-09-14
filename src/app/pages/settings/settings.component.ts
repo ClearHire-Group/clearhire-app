@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { switchMap } from 'rxjs';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
+import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 
@@ -11,7 +12,7 @@ const MAX_VALUES = 10;
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, PageTabsComponent],
+  imports: [CommonModule, PageTabsComponent, ErrorStateComponent],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss',
 })

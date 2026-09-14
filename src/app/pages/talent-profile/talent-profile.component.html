@@ -143,8 +143,10 @@
       </div>
     } @else if (talentState.loading()) {
       <p class="state-message"><span class="state-spinner"></span> Carregando talento…</p>
+    } @else if (talentState.error()) {
+      <app-error-state kind="error" message="Não foi possível carregar este talento." actionLabel="Voltar para o Banco de Talentos" actionRoute="/banco-de-talentos"></app-error-state>
     } @else {
-      <p class="state-message state-message--error">Não foi possível carregar este talento.</p>
+      <app-error-state kind="not-found" title="Talento não encontrado" message="Esse talento não existe ou foi removido." actionLabel="Voltar para o Banco de Talentos" actionRoute="/banco-de-talentos"></app-error-state>
     }
   </div>
 </div>

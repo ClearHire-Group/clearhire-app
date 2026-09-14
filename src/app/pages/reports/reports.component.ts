@@ -4,11 +4,12 @@ import { RouterLink } from '@angular/router';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { CampaignStatus } from '../../core/models';
+import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ErrorStateComponent],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.scss',
 })

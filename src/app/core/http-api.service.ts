@@ -108,6 +108,25 @@ export class HttpApiService extends DataApi {
     );
   }
 
+  /**
+   * Mesmo raciocínio de `emptyOnUnavailable`, mas pra endpoints de entidade única: só 404 vira
+   * `undefined` ("não encontrado" — o próprio backend, por design, devolve o mesmo 404 pra "não
+   * existe" e pra "existe mas não é desta empresa", ver comentário do endpoint público acima).
+   * Qualquer outro status (401/403/500, rede fora do ar) propaga como erro de verdade — sem isso,
+   * `toLoadable().error()` nunca fica `true` nesses endpoints e a UI não consegue diferenciar "não
+   * encontrado" de "falha ao carregar" (ver ErrorStateComponent).
+   */
+  private undefinedOnNotFound<T>(source$: Observable<T>): Observable<T | undefined> {
+    return source$.pipe(
+      catchError((err: unknown) => {
+        if (err instanceof HttpErrorResponse && err.status === 404) {
+          return of(undefined);
+        }
+        return throwError(() => err);
+      }),
+    );
+  }
+
   registerCompany(input: RegisterCompanyInput): Observable<RegisterCompanyResult> {
     return this.http.post<RegisterCompanyResult>(`${APP_CONFIG.apiBaseUrl}/companies`, input);
   }
@@ -145,27 +164,25 @@ export class HttpApiService extends DataApi {
   }
 
   getCampaign(id: string): Observable<Campaign | undefined> {
-    return this.http
-      .get<Campaign>(`${APP_CONFIG.apiBaseUrl}/campaigns/${id}`)
-      .pipe(catchError(() => of(undefined)));
+    return this.undefinedOnNotFound(this.http.get<Campaign>(`${APP_CONFIG.apiBaseUrl}/campaigns/${id}`));
   }
 
   toggleCampaignPause(campaignId: string): Observable<Campaign | undefined> {
-    return this.http
-      .post<Campaign>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/toggle-pause`, {})
-      .pipe(catchError(() => of(undefined)));
+    return this.undefinedOnNotFound(
+      this.http.post<Campaign>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/toggle-pause`, {}),
+    );
   }
 
   setCampaignPublicLink(campaignId: string, enabled: boolean): Observable<Campaign | undefined> {
-    return this.http
-      .post<Campaign>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/public-application-link`, { enabled })
-      .pipe(catchError(() => of(undefined)));
+    return this.undefinedOnNotFound(
+      this.http.post<Campaign>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/public-application-link`, { enabled }),
+    );
   }
 
   getPublicCampaignInfo(campaignId: string): Observable<PublicCampaignInfo | undefined> {
-    return this.http
-      .get<PublicCampaignInfo>(`${APP_CONFIG.apiBaseUrl}/public/campaigns/${campaignId}`)
-      .pipe(catchError(() => of(undefined)));
+    return this.undefinedOnNotFound(
+      this.http.get<PublicCampaignInfo>(`${APP_CONFIG.apiBaseUrl}/public/campaigns/${campaignId}`),
+    );
   }
 
   submitPublicApplicationManual(campaignId: string, input: PublicApplicationManualInput): Observable<void> {
@@ -220,9 +237,9 @@ export class HttpApiService extends DataApi {
   }
 
   getCandidateProfile(candidateId: string): Observable<CandidateProfileData | undefined> {
-    return this.http
-      .get<CandidateProfileData>(`${APP_CONFIG.apiBaseUrl}/candidates/${candidateId}`)
-      .pipe(catchError(() => of(undefined)));
+    return this.undefinedOnNotFound(
+      this.http.get<CandidateProfileData>(`${APP_CONFIG.apiBaseUrl}/candidates/${candidateId}`),
+    );
   }
 
   advanceCandidate(candidateId: string): Observable<Candidate | undefined> {
@@ -231,14 +248,13 @@ export class HttpApiService extends DataApi {
     // tabelas. A resposta só traz { phase, talentId? } (ver DecideResponse no backend); o único
     // campo que approveAndAdvance() de fato lê é candidate.phase, então o resto fica vazio de
     // propósito — nunca fabricar dado que não veio do servidor.
-    return this.http
-      .post<{ phase: PhaseKey; talentId?: string }>(`${APP_CONFIG.apiBaseUrl}/candidates/${candidateId}/decisions`, {
-        decision: 'avancar',
-      })
-      .pipe(
-        map((res) => ({ phase: res.phase }) as Candidate),
-        catchError(() => of(undefined)),
-      );
+    return this.undefinedOnNotFound(
+      this.http
+        .post<{ phase: PhaseKey; talentId?: string }>(`${APP_CONFIG.apiBaseUrl}/candidates/${candidateId}/decisions`, {
+          decision: 'avancar',
+        })
+        .pipe(map((res) => ({ phase: res.phase }) as Candidate)),
+    );
   }
 
   getCompanyProfile(): Observable<CompanyProfile> {
@@ -266,9 +282,7 @@ export class HttpApiService extends DataApi {
   }
 
   markNotificationRead(id: string): Observable<Notification | undefined> {
-    return this.http
-      .post<Notification>(`${APP_CONFIG.apiBaseUrl}/notifications/${id}/read`, {})
-      .pipe(catchError(() => of(undefined)));
+    return this.undefinedOnNotFound(this.http.post<Notification>(`${APP_CONFIG.apiBaseUrl}/notifications/${id}/read`, {}));
   }
 
   getFunnelSummary(): Observable<Phase[]> {
@@ -290,7 +304,7 @@ export class HttpApiService extends DataApi {
   }
 
   getTalent(id: string): Observable<Talent | undefined> {
-    return this.http.get<Talent>(`${APP_CONFIG.apiBaseUrl}/talents/${id}`).pipe(catchError(() => of(undefined)));
+    return this.undefinedOnNotFound(this.http.get<Talent>(`${APP_CONFIG.apiBaseUrl}/talents/${id}`));
   }
 
   searchTalents(query: string): Observable<TalentMatch[]> {
@@ -328,9 +342,7 @@ export class HttpApiService extends DataApi {
   }
 
   markTalentFirstContact(talentId: string): Observable<Talent | undefined> {
-    return this.http
-      .post<Talent>(`${APP_CONFIG.apiBaseUrl}/talents/${talentId}/first-contact`, {})
-      .pipe(catchError(() => of(undefined)));
+    return this.undefinedOnNotFound(this.http.post<Talent>(`${APP_CONFIG.apiBaseUrl}/talents/${talentId}/first-contact`, {}));
   }
 
   getReverseMatchForNewCampaign(criteria: {

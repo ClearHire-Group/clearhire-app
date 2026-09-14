@@ -7,11 +7,12 @@ import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { TalentMatch } from '../../core/models';
 import { toTalentViews } from '../../core/talent-view';
+import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 
 @Component({
   selector: 'app-talent-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ErrorStateComponent],
   templateUrl: './talent-profile.component.html',
   styleUrl: './talent-profile.component.scss',
 })

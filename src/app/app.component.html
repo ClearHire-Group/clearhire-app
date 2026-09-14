@@ -1,4 +1,6 @@
-@if (showChrome()) {
+@if (runtimeError.hasError()) {
+  <app-fatal-error></app-fatal-error>
+} @else if (showChrome()) {
   <div class="shell">
     <app-sidebar-nav></app-sidebar-nav>
     <div class="shell__main">

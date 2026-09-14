@@ -67,6 +67,12 @@
   </div>
 } @else {
   <div class="page">
-    <div class="page-body"><p class="state-message state-message--error">Não foi possível carregar esta campanha.</p></div>
+    <div class="page-body">
+      @if (campaignState.error()) {
+        <app-error-state kind="error" message="Não foi possível carregar esta campanha." actionLabel="Voltar para Campanhas" actionRoute="/campanhas"></app-error-state>
+      } @else {
+        <app-error-state kind="not-found" title="Campanha não encontrada" message="Essa campanha não existe ou foi removida." actionLabel="Voltar para Campanhas" actionRoute="/campanhas"></app-error-state>
+      }
+    </div>
   </div>
 }

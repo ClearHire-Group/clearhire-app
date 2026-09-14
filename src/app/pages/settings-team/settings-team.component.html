@@ -218,8 +218,7 @@
     } @else if (pageState.loading()) {
       <p class="state-message"><span class="state-spinner"></span> Carregando equipe…</p>
     } @else {
-      <p class="state-message state-message--error">Não foi possível carregar a equipe.</p>
-      <button class="btn-ghost" type="button" (click)="retry()">Tentar novamente</button>
+      <app-error-state kind="error" message="Não foi possível carregar a equipe." (retry)="retry()"></app-error-state>
     }
   </div>
 </div>

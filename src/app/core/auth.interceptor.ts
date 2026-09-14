@@ -50,7 +50,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
             }),
           ),
         ),
-        catchError(() => throwError(() => error)), // refresh falhou — propaga o 401 original, não o erro do refresh
+        catchError(() => {
+          auth.forceLogout(); // refresh também falhou — sessão expirada de verdade, manda pro login
+          return throwError(() => error); // propaga o 401 original (não o erro do refresh) pro chamador
+        }),
       );
     }),
   );

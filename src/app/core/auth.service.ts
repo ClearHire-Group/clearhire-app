@@ -1,4 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable, catchError, finalize, map, of, shareReplay, tap } from 'rxjs';
 import { DataApi } from './data-api';
 import { AuthSession, LoginCredentials, RegisterCompanyInput, RegisterCompanyResult } from './models';
@@ -16,6 +17,7 @@ const PROACTIVE_REFRESH_MS = 14 * 60 * 1000;
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private api = inject(DataApi);
+  private router = inject(Router);
 
   private _accessToken = signal<string | null>(null);
   readonly accessToken = this._accessToken.asReadonly();
@@ -74,6 +76,20 @@ export class AuthService {
       .subscribe();
   }
 
+  /**
+   * Chamado quando descobrimos que a sessão não é mais válida sem o usuário ter pedido — o refresh
+   * falhou de verdade (cookie expirado/revogado), seja no ciclo reativo do interceptor (401 numa
+   * chamada) ou no proativo (~1min antes do access token expirar). Diferente de `logout()`: não
+   * revoga nada no servidor (o refresh já falhou, não há sessão válida lá pra revogar) e manda o
+   * usuário pro login com um aviso — sem isso ele ficava "preso" numa app que parecia autenticada
+   * mas não era, vendo erro silencioso em cada chamada até recarregar a página por conta própria.
+   */
+  forceLogout(): void {
+    if (!this.isAuthenticated()) return; // já deslogado — evita navegação/aviso duplicados
+    this.clearSession();
+    this.router.navigate(['/login'], { queryParams: { sessionExpired: 1 } });
+  }
+
   private applySession(session: AuthSession): void {
     this._accessToken.set(session.accessToken);
     this.scheduleProactiveRefresh();
@@ -87,7 +103,7 @@ export class AuthService {
   private scheduleProactiveRefresh(): void {
     this.clearProactiveRefresh();
     this.refreshTimer = setTimeout(() => {
-      this.refresh().subscribe({ error: () => undefined }); // erro aqui só significa sessão expirada — interceptor/guard tratam a partir daí
+      this.refresh().subscribe({ error: () => this.forceLogout() }); // erro aqui só significa sessão expirada de verdade
     }, PROACTIVE_REFRESH_MS);
   }
 

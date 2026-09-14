@@ -20,6 +20,7 @@ import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password
 import { ResetPasswordComponent } from './pages/reset-password/reset-password.component';
 import { AcceptInvitationComponent } from './pages/accept-invitation/accept-invitation.component';
 import { PublicApplicationComponent } from './pages/public-application/public-application.component';
+import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { authGuard, guestGuard } from './core/auth.guard';
 
 export const routes: Routes = [
@@ -58,7 +59,15 @@ export const routes: Routes = [
       },
       { path: 'configuracoes', component: SettingsComponent },
       { path: 'configuracoes/equipe', component: SettingsTeamComponent },
+      // Coringa DENTRO do grupo autenticado (não no nível de topo): assim o authGuard do pai
+      // roda primeiro — um visitante sem sessão numa URL inválida vai pro /login como qualquer
+      // outra rota protegida, em vez de ver a tela 404 (que pressupõe nav/sidebar de usuário
+      // logado) antes de ser barrado. Pega tanto uma URL de topo inexistente quanto um sub-path
+      // inválido dentro de uma rota válida (ex.: campanhas/:id/rota-que-não-existe).
+      { path: '**', component: NotFoundComponent },
     ],
   },
-  { path: '**', redirectTo: 'dashboard' },
+  // Sem coringa de nível de topo: `{ path: '', children: [...] }` já consome 0 segmentos e delega
+  // o resto pros filhos — como o último filho é `**`, esse grupo casa com QUALQUER URL que não
+  // bata antes numa das rotas públicas acima, então um coringa aqui fora nunca seria alcançado.
 ];

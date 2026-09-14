@@ -91,7 +91,7 @@
         @if (campaignsState.loading()) {
           <p class="state-message"><span class="state-spinner"></span> Carregando campanhas…</p>
         } @else if (campaignsState.error()) {
-          <p class="state-message state-message--error">Não foi possível carregar as campanhas.</p>
+          <app-error-state kind="error" message="Não foi possível carregar as campanhas."></app-error-state>
         } @else {
           <div class="campaign-rows">
             @for (c of activeCampaigns(); track c.id) {
@@ -132,7 +132,7 @@
         @if (suggestionsState.loading()) {
           <p class="state-message"><span class="state-spinner"></span> Carregando sugestões…</p>
         } @else if (suggestionsState.error()) {
-          <p class="state-message state-message--error">Não foi possível carregar as sugestões da IA.</p>
+          <app-error-state kind="error" message="Não foi possível carregar as sugestões da IA."></app-error-state>
         } @else {
           <div class="reviews">
             @for (s of suggestionsState.data(); track s.id) {

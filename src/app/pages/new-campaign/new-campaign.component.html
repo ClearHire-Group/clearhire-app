@@ -98,7 +98,7 @@
       } @else if (companyProfileState.loading()) {
         <p class="state-message"><span class="state-spinner"></span> Carregando perfil cultural…</p>
       } @else {
-        <p class="state-message state-message--error">Não foi possível carregar o perfil cultural da empresa.</p>
+        <app-error-state kind="error" message="Não foi possível carregar o perfil cultural da empresa."></app-error-state>
       }
     </div>
 

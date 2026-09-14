@@ -4,6 +4,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map, switchMap } from 'rxjs';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
+import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { PHASE_LABELS, REJECTION_REASONS, RejectionReasonKey } from '../../core/models';
@@ -11,7 +12,7 @@ import { PHASE_LABELS, REJECTION_REASONS, RejectionReasonKey } from '../../core/
 @Component({
   selector: 'app-candidate-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageTabsComponent],
+  imports: [CommonModule, RouterLink, PageTabsComponent, ErrorStateComponent],
   templateUrl: './candidate-profile.component.html',
   styleUrl: './candidate-profile.component.scss',
 })

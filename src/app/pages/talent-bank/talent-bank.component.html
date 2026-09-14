@@ -52,7 +52,7 @@
         @if (talentsState.loading() || searchState().loading) {
           <p class="state-message"><span class="state-spinner"></span> Carregando talentos…</p>
         } @else if (talentsState.error()) {
-          <p class="state-message state-message--error">Não foi possível carregar o banco de talentos.</p>
+          <app-error-state kind="error" message="Não foi possível carregar o banco de talentos."></app-error-state>
         } @else {
           <table>
             <thead>
@@ -146,7 +146,7 @@
         @if (coverageState.loading()) {
           <p class="state-message"><span class="state-spinner"></span> Carregando cobertura…</p>
         } @else if (coverageState.error()) {
-          <p class="state-message state-message--error">Não foi possível carregar o mapa de cobertura.</p>
+          <app-error-state kind="error" message="Não foi possível carregar o mapa de cobertura."></app-error-state>
         } @else {
           <div class="coverage-bars">
             @for (c of coverageState.data(); track c.skillTerm) {

@@ -155,8 +155,10 @@
       }
     } @else if (campaignState.loading()) {
       <p class="state-message"><span class="state-spinner"></span> Carregando vaga…</p>
+    } @else if (campaignState.error()) {
+      <app-error-state kind="error" title="Não foi possível carregar a vaga" message="Verifique sua conexão e tente novamente."></app-error-state>
     } @else {
-      <p class="state-message state-message--error">Esta vaga não está disponível para candidaturas no momento.</p>
+      <app-error-state kind="not-found" title="Vaga indisponível" message="Esta vaga não existe mais, ou não está aceitando candidaturas no momento."></app-error-state>
     }
   </div>
 </div>

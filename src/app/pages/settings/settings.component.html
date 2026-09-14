@@ -77,8 +77,7 @@
     } @else if (companyProfileState.loading()) {
       <p class="state-message"><span class="state-spinner"></span> Carregando perfil da empresa…</p>
     } @else {
-      <p class="state-message state-message--error">Não foi possível carregar o perfil cultural da empresa.</p>
-      <button class="btn-ghost" type="button" (click)="retry()">Tentar novamente</button>
+      <app-error-state kind="error" message="Não foi possível carregar o perfil cultural da empresa." (retry)="retry()"></app-error-state>
     }
   </div>
 </div>

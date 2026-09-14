@@ -8,12 +8,13 @@ import { CampaignContextService } from '../../core/campaign-context';
 import { toLoadable } from '../../core/loadable';
 import { PhaseKey } from '../../core/models';
 import { CandidateView, toCandidateViews } from '../../core/candidate-view';
+import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 
 /** Sub-tela "Funil" — blocos de fase + tabela de candidatos da fase selecionada. */
 @Component({
   selector: 'app-campaign-funnel',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ErrorStateComponent],
   templateUrl: './campaign-funnel.component.html',
   styleUrl: './campaign-funnel.component.scss',
 })

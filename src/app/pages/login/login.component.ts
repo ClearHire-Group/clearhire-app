@@ -26,6 +26,7 @@ export class LoginComponent {
   readonly registered = signal(false);
   readonly passwordReset = signal(false);
   readonly invitationAccepted = signal(false);
+  readonly sessionExpired = signal(false);
 
   readonly canSubmit = computed(() => this.email().trim().length > 0 && this.password().length > 0);
 
@@ -39,6 +40,7 @@ export class LoginComponent {
       if (params.get('registrado') === '1') this.registered.set(true);
       if (params.get('redefinido') === '1') this.passwordReset.set(true);
       if (params.get('convite_aceito') === '1') this.invitationAccepted.set(true);
+      if (params.get('sessionExpired') === '1') this.sessionExpired.set(true);
       const prefillEmail = params.get('email');
       if (prefillEmail) this.email.set(prefillEmail);
     });

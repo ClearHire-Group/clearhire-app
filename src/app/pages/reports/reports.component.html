@@ -61,7 +61,7 @@
         @if (funnelState.loading()) {
           <p class="state-message"><span class="state-spinner"></span> Carregando funil…</p>
         } @else if (funnelState.error()) {
-          <p class="state-message state-message--error">Não foi possível carregar o funil agregado.</p>
+          <app-error-state kind="error" message="Não foi possível carregar o funil agregado."></app-error-state>
         } @else {
           <div class="funnel-chart">
             @for (p of funnelRows(); track p.key; let first = $first) {
@@ -119,7 +119,7 @@
       @if (performanceState.loading()) {
         <p class="state-message"><span class="state-spinner"></span> Carregando desempenho por campanha…</p>
       } @else if (performanceState.error()) {
-        <p class="state-message state-message--error">Não foi possível carregar o desempenho das campanhas.</p>
+        <app-error-state kind="error" message="Não foi possível carregar o desempenho das campanhas."></app-error-state>
       } @else {
         <table>
           <thead>

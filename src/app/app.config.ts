@@ -1,4 +1,4 @@
-import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, ErrorHandler, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withRouterConfig } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
@@ -10,6 +10,7 @@ import { APP_CONFIG } from './core/app-config';
 import { AuthService } from './core/auth.service';
 import { authInterceptor } from './core/auth.interceptor';
 import { envelopeInterceptor } from './core/envelope.interceptor';
+import { GlobalErrorHandler } from './core/global-error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,6 +21,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withRouterConfig({ paramsInheritanceStrategy: 'always' })),
     provideHttpClient(withInterceptors([envelopeInterceptor, authInterceptor])),
     { provide: DataApi, useClass: APP_CONFIG.useMockApi ? MockApiService : HttpApiService },
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
     // Tenta restaurar a sessão a partir do cookie httpOnly de refresh antes do router/guards
     // rodarem — AuthService.bootstrap() nunca dá erro (ver comentário lá), então isto nunca
     // impede a app de renderizar, mesmo pra um visitante sem sessão nenhuma.
