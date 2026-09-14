@@ -1,5 +1,5 @@
 import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withRouterConfig } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
@@ -14,7 +14,10 @@ import { envelopeInterceptor } from './core/envelope.interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    // 'always': as sub-telas de campanha (funil/candidatos/visão geral/configurações) são rotas
+    // filhas de `campanhas/:campaignId` e precisam ler `campaignId` do pai — sem isso o Router só
+    // propaga params do pai pra filhos com path vazio (estratégia default 'emptyOnly').
+    provideRouter(routes, withRouterConfig({ paramsInheritanceStrategy: 'always' })),
     provideHttpClient(withInterceptors([envelopeInterceptor, authInterceptor])),
     { provide: DataApi, useClass: APP_CONFIG.useMockApi ? MockApiService : HttpApiService },
     // Tenta restaurar a sessão a partir do cookie httpOnly de refresh antes do router/guards

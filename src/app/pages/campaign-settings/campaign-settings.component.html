@@ -1,0 +1,67 @@
+@if (campaignState.data(); as campaign) {
+  <div class="settings-stack">
+    <section class="card settings-section">
+      <div class="settings-section__header">
+        <h2 class="serif">Status da campanha</h2>
+        <span class="badge" [class.badge--accent]="campaign.status === 'ativa'" [class.badge--sand]="campaign.status === 'pausada'" [class.badge--success]="campaign.status === 'encerrada'">
+          {{ campaign.status === 'ativa' ? 'ATIVA' : campaign.status === 'pausada' ? 'PAUSADA' : 'ENCERRADA' }}
+        </span>
+      </div>
+      <p class="muted settings-section__desc">
+        @if (campaign.status === 'encerrada') {
+          Esta campanha já foi encerrada e não pode ser pausada nem retomada.
+        } @else if (campaign.status === 'pausada') {
+          Novas candidaturas e avaliações estão suspensas. Retome quando quiser voltar a receber e avaliar candidatos.
+        } @else {
+          A campanha está recebendo e avaliando candidatos normalmente. Pausar suspende novas candidaturas sem apagar nada.
+        }
+      </p>
+      @if (campaign.status !== 'encerrada') {
+        <button class="btn-ghost" type="button" [disabled]="pauseSaving()" (click)="togglePause()">
+          {{ pauseSaving() ? 'Salvando…' : campaign.status === 'pausada' ? 'Retomar campanha' : 'Pausar campanha' }}
+        </button>
+      }
+    </section>
+
+    <section class="card settings-section">
+      <div class="settings-section__header">
+        <h2 class="serif">Link de candidatura pública</h2>
+      </div>
+      <p class="muted settings-section__desc">
+        Qualquer pessoa com este link pode se candidatar a esta vaga, sem precisar de conta.
+      </p>
+      @if (campaign.acceptsPublicApplications) {
+        <div class="notice">
+          <a [href]="publicApplicationUrl" target="_blank" rel="noopener">{{ publicApplicationUrl }}</a>
+        </div>
+        <button class="btn-ghost" type="button" [disabled]="linkSaving()" (click)="setPublicLink(false)">
+          {{ linkSaving() ? 'Desativando…' : 'Desativar link' }}
+        </button>
+      } @else {
+        <button class="btn-primary" type="button" [disabled]="linkSaving()" (click)="setPublicLink(true)">
+          {{ linkSaving() ? 'Gerando…' : 'Gerar link' }}
+        </button>
+      }
+    </section>
+
+    <section class="card settings-section settings-section--disabled">
+      <div class="settings-section__header">
+        <h2 class="serif">Dados da campanha</h2>
+        <span class="soon-tag">EM BREVE</span>
+      </div>
+      <p class="muted settings-section__desc">
+        Editar título, descrição e as fases do funil ainda não está disponível nesta prévia — depende de um endpoint novo no backend.
+      </p>
+      <div class="disabled-fields">
+        <label>
+          <span class="disabled-fields__label">Título</span>
+          <input type="text" [value]="campaign.title" disabled />
+        </label>
+        <label>
+          <span class="disabled-fields__label">Localização / modalidade</span>
+          <input type="text" [value]="campaign.location + ' · ' + campaign.meta" disabled />
+        </label>
+      </div>
+    </section>
+  </div>
+}

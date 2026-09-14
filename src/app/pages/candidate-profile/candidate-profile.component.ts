@@ -50,12 +50,15 @@ export class CandidateProfileComponent {
     return profile ? Math.round(profile.ai.matchPct * 3.6) : 0;
   });
 
-  readonly subTabs: SubTab[] = [
-    { label: 'Visão Geral' },
-    { label: 'Funil' },
-    { label: 'Candidatos', active: true },
-    { label: 'Configurações da Campanha' },
-  ];
+  readonly subTabs = computed<SubTab[]>(() => {
+    const id = this.campaignId();
+    return [
+      { label: 'Visão Geral', route: ['/campanhas', id, 'visao-geral'] },
+      { label: 'Funil', route: ['/campanhas', id, 'funil'] },
+      { label: 'Candidatos', route: ['/campanhas', id, 'candidatos'] },
+      { label: 'Configurações da Campanha', route: ['/campanhas', id, 'configuracoes'] },
+    ];
+  });
 
   readonly breadcrumb = computed(() => {
     const campaign = this.campaignState.data();

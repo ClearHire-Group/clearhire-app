@@ -1,0 +1,50 @@
+@if (campaignState.data(); as campaign) {
+  <div class="stat-row">
+    <div class="card stat-tile">
+      <span class="stat-tile__label">Candidatos no total</span>
+      <span class="serif stat-tile__value">{{ campaign.totalCandidates }}</span>
+    </div>
+    <div class="card stat-tile">
+      <span class="stat-tile__label">Fase atual</span>
+      <span class="serif stat-tile__value stat-tile__value--small">{{ campaign.currentPhaseLabel }}</span>
+    </div>
+    <div class="card stat-tile">
+      <span class="stat-tile__label">Taxa de conversão</span>
+      <span class="serif stat-tile__value">{{ conversionPct() }}%</span>
+      <span class="stat-tile__hint">selecionados / total</span>
+    </div>
+    <div class="card stat-tile">
+      <span class="stat-tile__label">Link de candidaturas</span>
+      <span class="serif stat-tile__value stat-tile__value--small" [class.stat-tile__value--accent]="campaign.acceptsPublicApplications">
+        {{ campaign.acceptsPublicApplications ? 'Ativo' : 'Desativado' }}
+      </span>
+    </div>
+  </div>
+
+  <div class="card funnel-card">
+    <h2 class="serif funnel-card__title">Funil da campanha</h2>
+    <div class="funnel-bars">
+      @for (phase of phaseBars(); track phase.key) {
+        <div class="funnel-bar-row" [title]="phase.stepConversionPct !== null ? phase.count + ' candidatos · ' + phase.stepConversionPct + '% em relação à fase anterior' : phase.count + ' candidatos'">
+          <span class="funnel-bar-row__label">{{ phase.label }}</span>
+          <div class="funnel-bar-row__track">
+            <div class="funnel-bar-row__fill" [style.width.%]="phase.widthPct"></div>
+          </div>
+          <span class="funnel-bar-row__count">{{ phase.count }}</span>
+          <span class="funnel-bar-row__step">{{ phase.stepConversionPct !== null ? phase.stepConversionPct + '%' : '—' }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="shortcut-row">
+    <a [routerLink]="['/campanhas', campaignId(), 'funil']" class="card shortcut-card">
+      <span class="shortcut-card__title">Ver funil completo</span>
+      <span class="muted shortcut-card__desc">Navegue fase a fase e avalie candidatos com a análise da IA.</span>
+    </a>
+    <a [routerLink]="['/campanhas', campaignId(), 'candidatos']" class="card shortcut-card">
+      <span class="shortcut-card__title">Ver todos os candidatos</span>
+      <span class="muted shortcut-card__desc">Lista completa da campanha, com a fase de cada candidato.</span>
+    </a>
+  </div>
+}

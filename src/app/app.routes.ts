@@ -7,6 +7,10 @@ import { TalentProfileComponent } from './pages/talent-profile/talent-profile.co
 import { ReportsComponent } from './pages/reports/reports.component';
 import { NewCampaignComponent } from './pages/new-campaign/new-campaign.component';
 import { CampaignDetailComponent } from './pages/campaign-detail/campaign-detail.component';
+import { CampaignFunnelComponent } from './pages/campaign-funnel/campaign-funnel.component';
+import { CampaignCandidatesComponent } from './pages/campaign-candidates/campaign-candidates.component';
+import { CampaignOverviewComponent } from './pages/campaign-overview/campaign-overview.component';
+import { CampaignSettingsComponent } from './pages/campaign-settings/campaign-settings.component';
 import { CandidateProfileComponent } from './pages/candidate-profile/candidate-profile.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { SettingsTeamComponent } from './pages/settings-team/settings-team.component';
@@ -41,7 +45,17 @@ export const routes: Routes = [
       { path: 'relatorios', component: ReportsComponent },
       { path: 'campanhas/nova', component: NewCampaignComponent },
       { path: 'campanhas/:campaignId/candidatos/:candidateId', component: CandidateProfileComponent },
-      { path: 'campanhas/:campaignId', component: CampaignDetailComponent },
+      {
+        path: 'campanhas/:campaignId',
+        component: CampaignDetailComponent,
+        children: [
+          { path: '', redirectTo: 'funil', pathMatch: 'full' },
+          { path: 'visao-geral', component: CampaignOverviewComponent },
+          { path: 'funil', component: CampaignFunnelComponent },
+          { path: 'candidatos', component: CampaignCandidatesComponent },
+          { path: 'configuracoes', component: CampaignSettingsComponent },
+        ],
+      },
       { path: 'configuracoes', component: SettingsComponent },
       { path: 'configuracoes/equipe', component: SettingsTeamComponent },
     ],
