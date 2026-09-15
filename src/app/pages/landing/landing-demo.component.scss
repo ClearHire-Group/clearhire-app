@@ -1,8 +1,9 @@
 :host { display: block; min-width: 0; }
 .product-frame { display: flex; border-radius: 12px; border: 1px solid #d4d5ca; overflow: hidden; box-shadow: 0 18px 50px -25px #151a2233; }
 .sidebar { width: 190px; flex-shrink: 0; background: var(--color-bg); color: #c1c3c6; padding: 25px 14px 18px; display: flex; flex-direction: column; font-size: 11px; }
-.brand { display: flex; gap: 11px; align-items: center; color: var(--color-offwhite); font-size: 11px; padding: 0 10px; }
-.brand span { font-size: 21px; }
+.brand { display: flex; gap: 10px; align-items: center; color: var(--color-offwhite); padding: 0 10px; min-width: 0; }
+.brand-mark { display: block; flex: 0 0 24px; width: 24px; height: 24px; object-fit: contain; }
+.brand-wordmark { min-width: 0; font-size: 20px; line-height: 1; white-space: nowrap; }
 .workspace { font-size: 8px; letter-spacing: 1.1px; margin: 39px 10px 13px; color: #a7abb1; }
 .nav-item { display: flex; align-items: center; gap: 12px; padding: 11px; margin-bottom: 3px; }
 .nav-item svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.5; }

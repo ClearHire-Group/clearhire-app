@@ -8,7 +8,9 @@ section[id] { scroll-margin-top: 24px; }
 .skip-link:not(:focus) { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .skip-link:focus { position: absolute; z-index: 5; padding: 16px; background: white; }
 .site-header { min-height: 100px; display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--color-border-strong); }
-.brand { display: inline-flex; align-items: center; gap: 10px; font-size: 27px; font-weight: 600; line-height: 1; }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-size: 27px; font-weight: 600; line-height: 1; min-width: 0; }
+.brand-mark { display: block; flex: 0 0 32px; width: 32px; height: 32px; object-fit: contain; }
+.brand > span { white-space: nowrap; }
 .site-nav, .header-actions, .site-footer nav { display: flex; align-items: center; gap: 32px; font-size: 13px; font-weight: 600; }
 .header-actions { gap: 24px; }
 .action { display: inline-flex; justify-content: center; align-items: center; gap: 28px; min-height: 50px; padding: 12px 23px; border-radius: 8px; background: var(--action); color: white; font-size: 14px; font-weight: 700; transition: background .15s ease; }
@@ -76,7 +78,7 @@ h1 { font-size: 60px; letter-spacing: -2px; }
 .site-header { min-height: 82px; gap: 12px; }
 .site-nav { display: none; }
 .brand { font-size: 24px; gap: 8px; }
-.brand svg { width: 27px; height: 27px; }
+  .brand-mark { flex-basis: 27px; width: 27px; height: 27px; }
 .header-actions { gap: 17px; font-size: 12px; }
 .action--small { padding-inline: 13px; font-size: 12px; gap: 12px; }
 .hero { grid-template-columns: 1fr; padding-block: 54px 36px; gap: 25px; }
