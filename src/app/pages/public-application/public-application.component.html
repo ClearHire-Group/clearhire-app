@@ -18,6 +18,56 @@
           </p>
         </div>
 
+        <div class="tab-switch">
+          <button type="button" class="tab-switch__btn" [class.tab-switch__btn--active]="activeTab() === 'vaga'" (click)="setTab('vaga')">
+            Vaga
+          </button>
+          <button
+            type="button"
+            class="tab-switch__btn"
+            [class.tab-switch__btn--active]="activeTab() === 'candidatura'"
+            (click)="setTab('candidatura')"
+          >
+            Candidatar-se
+          </button>
+        </div>
+
+        @if (activeTab() === 'vaga') {
+          <div class="card job-details">
+            @if (job.description) {
+              <section class="job-section">
+                <h2 class="serif">Sobre a vaga</h2>
+                <p class="job-section__text">{{ job.description }}</p>
+              </section>
+            }
+            @if (job.responsibilities) {
+              <section class="job-section">
+                <h2 class="serif">Responsabilidades</h2>
+                <p class="job-section__text">{{ job.responsibilities }}</p>
+              </section>
+            }
+            @if (job.requirements) {
+              <section class="job-section">
+                <h2 class="serif">Requisitos</h2>
+                <p class="job-section__text">{{ job.requirements }}</p>
+              </section>
+            }
+            @if (job.benefits) {
+              <section class="job-section">
+                <h2 class="serif">Benefícios</h2>
+                <p class="job-section__text">{{ job.benefits }}</p>
+              </section>
+            }
+            @if (!job.description && !job.responsibilities && !job.requirements && !job.benefits) {
+              <p class="muted">
+                A empresa ainda não publicou os detalhes desta vaga. Você pode se candidatar mesmo assim — a equipe de recrutamento
+                entrará em contato com mais informações.
+              </p>
+            }
+
+            <button class="btn-primary job-details__cta" type="button" (click)="setTab('candidatura')">Quero me candidatar →</button>
+          </div>
+        } @else {
         <div class="card form-card">
           <div class="mode-switch">
             <button type="button" class="mode-switch__btn" [class.mode-switch__btn--active]="mode() === 'manual'" (click)="setMode('manual')">
@@ -152,6 +202,7 @@
             {{ submitting() ? 'Enviando…' : 'Enviar candidatura' }}
           </button>
         </div>
+        }
       }
     } @else if (campaignState.loading()) {
       <p class="state-message"><span class="state-spinner"></span> Carregando vaga…</p>

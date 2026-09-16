@@ -23,6 +23,58 @@
   padding: 28px;
 }
 
+/* Abas de topo — mesmo vocabulário visual do .mode-switch de dentro do formulário, mas sem a
+   borda inferior: aqui o card que vem abaixo já faz essa separação. */
+.tab-switch {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.tab-switch__btn {
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+
+.tab-switch__btn--active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+.job-details {
+  padding: 28px;
+}
+
+.job-section {
+  margin-bottom: 24px;
+
+  h2 {
+    font-size: 17px;
+    margin-bottom: 8px;
+  }
+}
+
+.job-section__text {
+  /* O RH digita as seções em linhas soltas ("uma por linha") — sem isto tudo vira um parágrafo só. */
+  white-space: pre-wrap;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.job-details__cta {
+  width: 100%;
+  margin-top: 4px;
+}
+
 .confirmation {
   padding: 48px 32px;
   text-align: center;

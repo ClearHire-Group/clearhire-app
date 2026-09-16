@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { RouterOutlet } from '@angular/router';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
 import { CopyLinkButtonComponent } from '../../layout/copy-link-button/copy-link-button.component';
@@ -51,6 +52,11 @@ export class CampaignDetailComponent {
   // --- Link de candidatura pública --------------------------------------------
   readonly publicLinkModalOpen = signal(false);
   readonly publicLinkSaving = signal(false);
+  readonly publicLinkError = signal('');
+
+  /** Mesma trava do backend e da tela de Configurações: sem descrição salva, o link abriria uma
+   * vaga sem conteúdo nenhum pro candidato. */
+  readonly canGeneratePublicLink = computed(() => (this.campaignState.data()?.description ?? '').trim().length > 0);
 
   get publicApplicationUrl(): string {
     return `${location.origin}/vagas/${this.campaignId()}`;
@@ -63,14 +69,23 @@ export class CampaignDetailComponent {
   closePublicLinkModal(): void {
     if (this.publicLinkSaving()) return;
     this.publicLinkModalOpen.set(false);
+    this.publicLinkError.set('');
   }
 
   setPublicLink(enabled: boolean): void {
     if (this.publicLinkSaving()) return;
     this.publicLinkSaving.set(true);
-    this.api.setCampaignPublicLink(this.campaignId(), enabled).subscribe(() => {
-      this.publicLinkSaving.set(false);
-      this.ctx.refresh();
+    this.publicLinkError.set('');
+    this.api.setCampaignPublicLink(this.campaignId(), enabled).subscribe({
+      next: () => {
+        this.publicLinkSaving.set(false);
+        this.ctx.refresh();
+      },
+      error: (err: unknown) => {
+        this.publicLinkSaving.set(false);
+        const body = err instanceof HttpErrorResponse ? (err.error as { error?: string } | null) : null;
+        this.publicLinkError.set(body?.error ?? 'Não foi possível atualizar o link de candidatura.');
+      },
     });
   }
 }

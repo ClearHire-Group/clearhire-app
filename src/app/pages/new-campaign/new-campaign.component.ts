@@ -8,20 +8,7 @@ import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { CampaignContractType, CampaignModality, CampaignSeniority, TalentMatch } from '../../core/models';
 import { toTalentMatchViews, TalentMatchView } from '../../core/talent-view';
-
-type ModuleKey = 'fit' | 'tecnica' | 'entrevista';
-
-interface ModuleInfo {
-  key: ModuleKey;
-  label: string;
-  desc: string;
-}
-
-const MODULES: ModuleInfo[] = [
-  { key: 'fit', label: 'Fit Cultural', desc: 'Avalia alinhamento com valores e cultura da empresa através de questionário estruturado.' },
-  { key: 'tecnica', label: 'Triagem Técnica', desc: 'Testes e desafios técnicos automatizados, analisados e ranqueados pela IA.' },
-  { key: 'entrevista', label: 'Entrevista Estruturada', desc: 'Roteiro de entrevista padronizado com apoio de IA na consolidação dos pareceres.' },
-];
+import { ModuleKey, MODULES } from '../../core/campaign-modules';
 
 @Component({
   selector: 'app-new-campaign',
@@ -33,6 +20,7 @@ const MODULES: ModuleInfo[] = [
 export class NewCampaignComponent {
   readonly subTabs: SubTab[] = [
     { label: 'Dados da Vaga', active: true },
+    { label: 'Descrição' },
     { label: 'Perfil Cultural' },
     { label: 'Funil' },
   ];
@@ -44,6 +32,10 @@ export class NewCampaignComponent {
   readonly companyProfileState = toLoadable(this.api.getCompanyProfile());
 
   readonly title = signal('');
+  readonly description = signal('');
+  readonly responsibilities = signal('');
+  readonly requirements = signal('');
+  readonly benefits = signal('');
   readonly city = signal('');
   readonly state = signal('');
   readonly modality = signal<CampaignModality>('hibrido');
@@ -126,6 +118,10 @@ export class NewCampaignComponent {
     this.api
       .createCampaign({
         title: this.title().trim(),
+        description: this.description().trim(),
+        responsibilities: this.responsibilities().trim(),
+        requirements: this.requirements().trim(),
+        benefits: this.benefits().trim(),
         city: this.city().trim(),
         state: this.state().trim(),
         modality: this.modality(),

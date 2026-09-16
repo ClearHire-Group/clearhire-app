@@ -5,7 +5,7 @@
 
     <app-page-tabs [subTabs]="subTabs"></app-page-tabs>
 
-    <p class="muted intro">Defina a vaga, confirme o perfil cultural da empresa e monte o funil de contratação.</p>
+    <p class="muted intro">Defina a vaga, descreva o que o candidato vai ler, confirme o perfil cultural da empresa e monte o funil de contratação.</p>
 
     <!-- Step 1 -->
     <div class="card step">
@@ -82,6 +82,65 @@
     <div class="card step">
       <div class="step__header">
         <span class="stepnum">2</span>
+        <h2 class="serif">Descrição da vaga</h2>
+      </div>
+      <p class="muted step__hint">
+        É o que o candidato lê ao abrir o link público desta vaga. A descrição é obrigatória para gerar esse link —
+        as outras seções são opcionais e ficam ocultas quando vazias. Você pode preencher tudo depois, em Configurações da Campanha.
+      </p>
+
+      <div class="form-grid">
+        <div>
+          <label class="fieldlabel">Descrição</label>
+          <textarea
+            class="field"
+            rows="4"
+            maxlength="5000"
+            placeholder="Resumo da vaga: o time, o produto e o desafio principal."
+            [value]="description()"
+            (input)="description.set($any($event.target).value)"
+          ></textarea>
+        </div>
+        <div>
+          <label class="fieldlabel">Responsabilidades</label>
+          <textarea
+            class="field"
+            rows="4"
+            maxlength="5000"
+            placeholder="Uma por linha. Ex.: Construir e manter pipelines de dados."
+            [value]="responsibilities()"
+            (input)="responsibilities.set($any($event.target).value)"
+          ></textarea>
+        </div>
+        <div>
+          <label class="fieldlabel">Requisitos</label>
+          <textarea
+            class="field"
+            rows="4"
+            maxlength="5000"
+            placeholder="Um por linha. Ex.: 3+ anos com Python e SQL avançado."
+            [value]="requirements()"
+            (input)="requirements.set($any($event.target).value)"
+          ></textarea>
+        </div>
+        <div>
+          <label class="fieldlabel">Benefícios</label>
+          <textarea
+            class="field"
+            rows="4"
+            maxlength="5000"
+            placeholder="Um por linha. Ex.: Vale-refeição, plano de saúde."
+            [value]="benefits()"
+            (input)="benefits.set($any($event.target).value)"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="card step">
+      <div class="step__header">
+        <span class="stepnum">3</span>
         <h2 class="serif">Perfil cultural da empresa</h2>
       </div>
       @if (companyProfileState.data(); as companyProfile) {
@@ -102,10 +161,10 @@
       }
     </div>
 
-    <!-- Step 3 -->
+    <!-- Step 4 -->
     <div class="card step step--last">
       <div class="step__header step__header--tight">
-        <span class="stepnum">3</span>
+        <span class="stepnum">4</span>
         <h2 class="serif">Monte o funil desta campanha</h2>
       </div>
       <p class="muted step__hint">Escolha os módulos de fase e clique em uma etapa selecionada para reordená-la. "Recebidos" e "Selecionados" são fases fixas em toda campanha.</p>

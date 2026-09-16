@@ -42,8 +42,16 @@
           <div class="notice">
             <app-copy-link-button [link]="publicApplicationUrl"></app-copy-link-button>
           </div>
-        } @else {
+        } @else if (canGeneratePublicLink()) {
           <p class="muted">O link ainda não está ativo para esta vaga.</p>
+        } @else {
+          <p class="muted">
+            Preencha a <strong>descrição da vaga</strong> em Configurações da Campanha antes de gerar o link — é o que o candidato lê ao abri-lo.
+          </p>
+        }
+
+        @if (publicLinkError()) {
+          <p class="state-message state-message--error">{{ publicLinkError() }}</p>
         }
 
         <div class="modal-actions">
@@ -53,7 +61,7 @@
               {{ publicLinkSaving() ? 'Desativando…' : 'Desativar link' }}
             </button>
           } @else {
-            <button type="button" class="btn-primary" [disabled]="publicLinkSaving()" (click)="setPublicLink(true)">
+            <button type="button" class="btn-primary" [disabled]="publicLinkSaving() || !canGeneratePublicLink()" (click)="setPublicLink(true)">
               {{ publicLinkSaving() ? 'Gerando…' : 'Gerar link' }}
             </button>
           }

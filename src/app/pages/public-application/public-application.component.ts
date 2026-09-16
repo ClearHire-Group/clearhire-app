@@ -10,6 +10,7 @@ import { ErrorStateComponent } from '../../layout/error-state/error-state.compon
 
 type ApplicationMode = 'manual' | 'resume';
 type ResumeSubMode = 'text' | 'file';
+type PageTab = 'vaga' | 'candidatura';
 
 /**
  * Página pública (sem login) de candidatura a uma campanha — acessada via link gerado na tela de
@@ -32,6 +33,10 @@ export class PublicApplicationComponent {
   readonly campaignId = toSignal(this.campaignId$, { initialValue: '' });
 
   readonly campaignState = toLoadable(this.campaignId$.pipe(switchMap((id) => this.api.getPublicCampaignInfo(id))));
+
+  /** Abre na descrição da vaga: quem chega pelo link precisa saber do que se trata antes de decidir
+   * se preenche o formulário. */
+  readonly activeTab = signal<PageTab>('vaga');
 
   readonly mode = signal<ApplicationMode>('manual');
   readonly resumeSubMode = signal<ResumeSubMode>('text');
@@ -65,6 +70,10 @@ export class PublicApplicationComponent {
   readonly submitting = signal(false);
   readonly submitted = signal(false);
   readonly errorMessage = signal('');
+
+  setTab(tab: PageTab): void {
+    this.activeTab.set(tab);
+  }
 
   setMode(mode: ApplicationMode): void {
     this.mode.set(mode);

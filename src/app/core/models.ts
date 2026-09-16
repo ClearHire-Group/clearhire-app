@@ -43,6 +43,21 @@ export const CAMPAIGN_SENIORITY_LABELS: Record<CampaignSeniority, string> = {
 export interface Campaign {
   id: string;
   title: string;
+  /** Resumo/abertura da vaga. Preenchível já na criação e em Configurações da Campanha. É o único
+   * dos quatro campos de descrição que é obrigatório para gerar o link público de candidatura. */
+  description: string;
+  /** Seções estruturadas da vaga, exibidas ao candidato na aba "Vaga" do link público. Sempre
+   * opcionais — vazias significam seção escondida, nunca bloqueiam o link. */
+  responsibilities: string;
+  requirements: string;
+  benefits: string;
+  /** Campos crus por trás de `location`/`meta` (abaixo) — usados pra pré-preencher o form de edição
+   * em Configurações da Campanha. `location`/`meta` continuam existindo pras telas só de leitura. */
+  city: string;
+  state: string;
+  modality: CampaignModality;
+  contractType: CampaignContractType;
+  seniority: CampaignSeniority;
   status: CampaignStatus;
   location: string;
   meta: string;
@@ -62,12 +77,32 @@ export interface Campaign {
  * sempre implícitos, o backend quem monta a lista completa (ver `buildPhases` no service Go). */
 export interface CreateCampaignInput {
   title: string;
+  description: string;
+  responsibilities: string;
+  requirements: string;
+  benefits: string;
   city: string;
   state: string;
   modality: CampaignModality;
   contractType: CampaignContractType;
   seniority: CampaignSeniority;
   phaseKeys: Array<'fit' | 'tecnica' | 'entrevista'>;
+}
+
+/** Payload de `PATCH /campaigns/:id` — seção "Dados da campanha" em Configurações da Campanha.
+ * Sem `phaseKeys`: fases têm seu próprio endpoint (`PATCH /campaigns/:id/phases`), porque remover
+ * uma fase ocupada é rejeitado com uma regra de negócio diferente de validação de campo simples. */
+export interface UpdateCampaignInput {
+  title: string;
+  description: string;
+  responsibilities: string;
+  requirements: string;
+  benefits: string;
+  city: string;
+  state: string;
+  modality: CampaignModality;
+  contractType: CampaignContractType;
+  seniority: CampaignSeniority;
 }
 
 export interface Candidate {
@@ -270,6 +305,11 @@ export interface PublicCampaignInfo {
   id: string;
   title: string;
   companyName: string;
+  /** Conteúdo da aba "Vaga". Cada seção vazia simplesmente não é renderizada. */
+  description: string;
+  responsibilities: string;
+  requirements: string;
+  benefits: string;
   location: string;
   modality: string;
   contractType: string;

@@ -25,6 +25,7 @@ import {
   Talent,
   TalentMatch,
   TeamMember,
+  UpdateCampaignInput,
   UserProfile,
 } from './models';
 
@@ -86,6 +87,16 @@ export abstract class DataApi {
    * fallback silencioso aqui, diferente das leituras (`getCampaign` etc.) — uma falha em criar tem
    * que chegar até o usuário. */
   abstract createCampaign(input: CreateCampaignInput): Observable<Campaign>;
+  /** Atualiza título/descrição/local/modalidade/contrato/senioridade — seção "Dados da campanha" em
+   * Configurações da Campanha. Erros de validação (título vazio etc.) propagam pro chamador tratar. */
+  abstract updateCampaign(campaignId: string, input: UpdateCampaignInput): Observable<Campaign | undefined>;
+  /** Substitui os módulos OPCIONAIS do funil (fit/tecnica/entrevista) — seção "Fases do funil" em
+   * Configurações da Campanha. Recusa (erro 400, propaga pro chamador) remover uma fase que ainda
+   * tem candidato nela. */
+  abstract updateCampaignPhases(
+    campaignId: string,
+    phaseKeys: Array<'fit' | 'tecnica' | 'entrevista'>,
+  ): Observable<Campaign | undefined>;
   /** Alterna entre 'ativa' e 'pausada'; não afeta campanhas já encerradas. */
   abstract toggleCampaignPause(campaignId: string): Observable<Campaign | undefined>;
   /** Liga/desliga o link público de candidatura desta campanha — estado desejado explícito, não

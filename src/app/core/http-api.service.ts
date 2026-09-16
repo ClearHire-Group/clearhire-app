@@ -30,6 +30,7 @@ import {
   Talent,
   TalentMatch,
   TeamMember,
+  UpdateCampaignInput,
   UserProfile,
 } from './models';
 
@@ -55,6 +56,8 @@ import {
  *   GET  /campaigns                                 -> Campaign[]
  *   POST /campaigns                                 -> Campaign  (body: CreateCampaignInput; 400 em payload inválido)
  *   GET  /campaigns/:id                              -> Campaign (404 -> undefined)
+ *   PATCH /campaigns/:id                              -> Campaign (404 -> undefined; body: UpdateCampaignInput; 400 em payload inválido)
+ *   PATCH /campaigns/:id/phases                       -> Campaign (404 -> undefined; body: { phaseKeys }; 400 se remover fase com candidato)
  *   POST /campaigns/:id/toggle-pause                   -> Campaign (404 -> undefined)
  *   GET  /campaigns/:id/candidates?phase=:phaseKey    -> Candidate[]  (phase optional)
  *   GET  /candidates/:id                              -> CandidateProfileData (404 -> undefined)
@@ -165,6 +168,19 @@ export class HttpApiService extends DataApi {
 
   getCampaign(id: string): Observable<Campaign | undefined> {
     return this.undefinedOnNotFound(this.http.get<Campaign>(`${APP_CONFIG.apiBaseUrl}/campaigns/${id}`));
+  }
+
+  updateCampaign(campaignId: string, input: UpdateCampaignInput): Observable<Campaign | undefined> {
+    return this.undefinedOnNotFound(this.http.patch<Campaign>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}`, input));
+  }
+
+  updateCampaignPhases(
+    campaignId: string,
+    phaseKeys: Array<'fit' | 'tecnica' | 'entrevista'>,
+  ): Observable<Campaign | undefined> {
+    return this.undefinedOnNotFound(
+      this.http.patch<Campaign>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/phases`, { phaseKeys }),
+    );
   }
 
   toggleCampaignPause(campaignId: string): Observable<Campaign | undefined> {

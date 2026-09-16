@@ -33,6 +33,7 @@ import {
   Talent,
   TalentMatch,
   TeamMember,
+  UpdateCampaignInput,
   UserProfile,
 } from './models';
 import {
@@ -173,6 +174,15 @@ export class MockApiService extends DataApi {
     const campaign: Campaign = {
       id: this.slugifyCampaign(title),
       title,
+      description: input.description,
+      responsibilities: input.responsibilities,
+      requirements: input.requirements,
+      benefits: input.benefits,
+      city: input.city,
+      state: input.state,
+      modality: input.modality,
+      contractType: input.contractType,
+      seniority: input.seniority,
       status: 'ativa',
       acceptsPublicApplications: false,
       location: this.buildCampaignLocation(input),
@@ -189,7 +199,12 @@ export class MockApiService extends DataApi {
     return this.simulate(campaign);
   }
 
-  private buildCampaignLocation(input: CreateCampaignInput): string {
+  private buildCampaignLocation(input: {
+    city: string;
+    state: string;
+    modality: Campaign['modality'];
+    contractType: Campaign['contractType'];
+  }): string {
     const segments: string[] = [];
     if (input.city) segments.push(input.state ? `${input.city}, ${input.state}` : input.city);
     segments.push(CAMPAIGN_MODALITY_LABELS[input.modality], CAMPAIGN_CONTRACT_TYPE_LABELS[input.contractType]);
@@ -208,6 +223,47 @@ export class MockApiService extends DataApi {
 
   getCampaign(id: string): Observable<Campaign | undefined> {
     return this.simulate(MOCK_CAMPAIGNS.find((c) => c.id === id));
+  }
+
+  updateCampaign(campaignId: string, input: UpdateCampaignInput): Observable<Campaign | undefined> {
+    const campaign = MOCK_CAMPAIGNS.find((c) => c.id === campaignId);
+    if (!campaign) return this.simulate(undefined);
+    if (!input.title.trim()) {
+      return this.simulateError('Dados obrigatórios faltando ou inválidos.');
+    }
+
+    campaign.title = input.title.trim();
+    campaign.description = input.description.trim();
+    campaign.responsibilities = input.responsibilities.trim();
+    campaign.requirements = input.requirements.trim();
+    campaign.benefits = input.benefits.trim();
+    campaign.city = input.city.trim();
+    campaign.state = input.state.trim();
+    campaign.modality = input.modality;
+    campaign.contractType = input.contractType;
+    campaign.seniority = input.seniority;
+    campaign.location = this.buildCampaignLocation(input);
+    return this.simulate(campaign);
+  }
+
+  updateCampaignPhases(campaignId: string, phaseKeys: Array<'fit' | 'tecnica' | 'entrevista'>): Observable<Campaign | undefined> {
+    const campaign = MOCK_CAMPAIGNS.find((c) => c.id === campaignId);
+    if (!campaign) return this.simulate(undefined);
+
+    const newKeys = new Set<PhaseKey>(['recebidos', ...phaseKeys, 'selecionados']);
+    const removed = campaign.phases.filter((p) => !newKeys.has(p.key) && p.count > 0);
+    if (removed.length > 0) {
+      return this.simulateError(`Não é possível remover a fase '${removed[0].label}': ainda há candidato nela.`);
+    }
+
+    const keys: PhaseKey[] = ['recebidos', ...phaseKeys, 'selecionados'];
+    campaign.phases = keys.map((key, i) => ({
+      key,
+      num: i + 1,
+      label: PHASE_LABELS[key],
+      count: campaign.phases.find((p) => p.key === key)?.count ?? 0,
+    }));
+    return this.simulate(campaign);
   }
 
   toggleCampaignPause(campaignId: string): Observable<Campaign | undefined> {
@@ -235,6 +291,10 @@ export class MockApiService extends DataApi {
       id: campaign.id,
       title: campaign.title,
       companyName: MOCK_COMPANY_PROFILE.name,
+      description: campaign.description,
+      responsibilities: campaign.responsibilities,
+      requirements: campaign.requirements,
+      benefits: campaign.benefits,
       location: campaign.location,
       modality: '',
       contractType: '',
