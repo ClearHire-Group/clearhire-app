@@ -54,25 +54,9 @@
   padding: 28px;
 }
 
-.job-section {
-  margin-bottom: 24px;
-
-  h2 {
-    font-size: 17px;
-    margin-bottom: 8px;
-  }
-}
-
-.job-section__text {
-  /* O RH digita as seções em linhas soltas ("uma por linha") — sem isto tudo vira um parágrafo só. */
-  white-space: pre-wrap;
-  font-size: 14px;
-  line-height: 1.65;
-}
-
 .job-details__cta {
   width: 100%;
-  margin-top: 4px;
+  margin-top: 28px;
 }
 
 .confirmation {
@@ -169,4 +153,10 @@
   width: 100%;
   padding: 13px;
   margin-top: 8px;
+}
+
+@media (max-width: 600px) {
+  .public-app { padding: 24px 16px; }
+  .job-card, .job-details, .form-card { padding: 20px; }
+  .job-card h1 { overflow-wrap: anywhere; }
 }

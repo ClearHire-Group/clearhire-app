@@ -6,6 +6,8 @@ import { CampaignContextService } from '../../core/campaign-context';
 import { CopyLinkButtonComponent } from '../../layout/copy-link-button/copy-link-button.component';
 import { CampaignContractType, CampaignModality, CampaignSeniority, Phase } from '../../core/models';
 import { ModuleKey, MODULES } from '../../core/campaign-modules';
+import { jobListsWithinLimit, parseJobItems, serializeJobItems } from '../../core/job-description';
+import { JobDescriptionEditorComponent } from '../../shared/job-description-editor/job-description-editor.component';
 
 /**
  * Sub-tela "Configurações da Campanha". Duas seções com dirty-check independente (mesmo padrão de
@@ -16,7 +18,7 @@ import { ModuleKey, MODULES } from '../../core/campaign-modules';
 @Component({
   selector: 'app-campaign-settings',
   standalone: true,
-  imports: [CommonModule, CopyLinkButtonComponent],
+  imports: [CommonModule, CopyLinkButtonComponent, JobDescriptionEditorComponent],
   templateUrl: './campaign-settings.component.html',
   styleUrl: './campaign-settings.component.scss',
 })
@@ -39,9 +41,9 @@ export class CampaignSettingsComponent {
   // --- Dados da campanha ---
   readonly titleDraft = signal('');
   readonly descriptionDraft = signal('');
-  readonly responsibilitiesDraft = signal('');
-  readonly requirementsDraft = signal('');
-  readonly benefitsDraft = signal('');
+  readonly responsibilitiesDraft = signal<string[]>([]);
+  readonly requirementsDraft = signal<string[]>([]);
+  readonly benefitsDraft = signal<string[]>([]);
   readonly cityDraft = signal('');
   readonly stateDraft = signal('');
   readonly modalityDraft = signal<CampaignModality>('hibrido');
@@ -58,9 +60,9 @@ export class CampaignSettingsComponent {
     return (
       this.titleDraft() !== c.title ||
       this.descriptionDraft() !== c.description ||
-      this.responsibilitiesDraft() !== c.responsibilities ||
-      this.requirementsDraft() !== c.requirements ||
-      this.benefitsDraft() !== c.benefits ||
+      serializeJobItems(this.responsibilitiesDraft()) !== serializeJobItems(parseJobItems(c.responsibilities)) ||
+      serializeJobItems(this.requirementsDraft()) !== serializeJobItems(parseJobItems(c.requirements)) ||
+      serializeJobItems(this.benefitsDraft()) !== serializeJobItems(parseJobItems(c.benefits)) ||
       this.cityDraft() !== c.city ||
       this.stateDraft() !== c.state ||
       this.modalityDraft() !== c.modality ||
@@ -69,7 +71,8 @@ export class CampaignSettingsComponent {
     );
   });
   readonly canSaveDetails = computed(
-    () => this.isDetailsDirty() && !this.detailsSaving() && this.titleDraft().trim().length > 0,
+    () => this.isDetailsDirty() && !this.detailsSaving() && this.titleDraft().trim().length > 0 &&
+      jobListsWithinLimit(this.responsibilitiesDraft(), this.requirementsDraft(), this.benefitsDraft()),
   );
 
   // --- Fases do funil ---
@@ -91,9 +94,9 @@ export class CampaignSettingsComponent {
       if (!c) return;
       this.titleDraft.set(c.title);
       this.descriptionDraft.set(c.description);
-      this.responsibilitiesDraft.set(c.responsibilities);
-      this.requirementsDraft.set(c.requirements);
-      this.benefitsDraft.set(c.benefits);
+      this.responsibilitiesDraft.set(parseJobItems(c.responsibilities));
+      this.requirementsDraft.set(parseJobItems(c.requirements));
+      this.benefitsDraft.set(parseJobItems(c.benefits));
       this.cityDraft.set(c.city);
       this.stateDraft.set(c.state);
       this.modalityDraft.set(c.modality);
@@ -134,9 +137,9 @@ export class CampaignSettingsComponent {
     if (!c) return;
     this.titleDraft.set(c.title);
     this.descriptionDraft.set(c.description);
-    this.responsibilitiesDraft.set(c.responsibilities);
-    this.requirementsDraft.set(c.requirements);
-    this.benefitsDraft.set(c.benefits);
+    this.responsibilitiesDraft.set(parseJobItems(c.responsibilities));
+    this.requirementsDraft.set(parseJobItems(c.requirements));
+    this.benefitsDraft.set(parseJobItems(c.benefits));
     this.cityDraft.set(c.city);
     this.stateDraft.set(c.state);
     this.modalityDraft.set(c.modality);
@@ -155,9 +158,9 @@ export class CampaignSettingsComponent {
       .updateCampaign(this.campaignId(), {
         title: this.titleDraft().trim(),
         description: this.descriptionDraft().trim(),
-        responsibilities: this.responsibilitiesDraft().trim(),
-        requirements: this.requirementsDraft().trim(),
-        benefits: this.benefitsDraft().trim(),
+        responsibilities: serializeJobItems(this.responsibilitiesDraft()),
+        requirements: serializeJobItems(this.requirementsDraft()),
+        benefits: serializeJobItems(this.benefitsDraft()),
         city: this.cityDraft().trim(),
         state: this.stateDraft().trim(),
         modality: this.modalityDraft(),

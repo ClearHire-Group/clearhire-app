@@ -9,11 +9,13 @@ import { toLoadable } from '../../core/loadable';
 import { CampaignContractType, CampaignModality, CampaignSeniority, TalentMatch } from '../../core/models';
 import { toTalentMatchViews, TalentMatchView } from '../../core/talent-view';
 import { ModuleKey, MODULES } from '../../core/campaign-modules';
+import { jobListsWithinLimit, serializeJobItems } from '../../core/job-description';
+import { JobDescriptionEditorComponent } from '../../shared/job-description-editor/job-description-editor.component';
 
 @Component({
   selector: 'app-new-campaign',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageTabsComponent, ErrorStateComponent],
+  imports: [CommonModule, RouterLink, PageTabsComponent, ErrorStateComponent, JobDescriptionEditorComponent],
   templateUrl: './new-campaign.component.html',
   styleUrl: './new-campaign.component.scss',
 })
@@ -33,9 +35,9 @@ export class NewCampaignComponent {
 
   readonly title = signal('');
   readonly description = signal('');
-  readonly responsibilities = signal('');
-  readonly requirements = signal('');
-  readonly benefits = signal('');
+  readonly responsibilities = signal<string[]>([]);
+  readonly requirements = signal<string[]>([]);
+  readonly benefits = signal<string[]>([]);
   readonly city = signal('');
   readonly state = signal('');
   readonly modality = signal<CampaignModality>('hibrido');
@@ -108,7 +110,8 @@ export class NewCampaignComponent {
   readonly createError = signal('');
 
   get canCreate(): boolean {
-    return !this.creating() && this.title().trim().length > 0;
+    return !this.creating() && this.title().trim().length > 0 &&
+      jobListsWithinLimit(this.responsibilities(), this.requirements(), this.benefits());
   }
 
   createCampaign(): void {
@@ -119,9 +122,9 @@ export class NewCampaignComponent {
       .createCampaign({
         title: this.title().trim(),
         description: this.description().trim(),
-        responsibilities: this.responsibilities().trim(),
-        requirements: this.requirements().trim(),
-        benefits: this.benefits().trim(),
+        responsibilities: serializeJobItems(this.responsibilities()),
+        requirements: serializeJobItems(this.requirements()),
+        benefits: serializeJobItems(this.benefits()),
         city: this.city().trim(),
         state: this.state().trim(),
         modality: this.modality(),

@@ -1,0 +1,19 @@
+@if (description().trim()) {
+  <section class="job-section">
+    <h2 class="serif">Sobre a vaga</h2>
+    <p class="job-section__text">{{ description().trim() }}</p>
+  </section>
+}
+@for (section of sections(); track section.title) {
+  <section class="job-section">
+    <h2 class="serif">{{ section.title }}</h2>
+    <ul class="job-section__list">
+      @for (item of section.items; track $index) {
+        <li>{{ item.trim() }}</li>
+      }
+    </ul>
+  </section>
+}
+@if (!description().trim() && !sections().length) {
+  <p class="job-empty muted">{{ emptyMessage() }}</p>
+}

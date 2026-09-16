@@ -1,0 +1,69 @@
+<div class="description-header">
+  <div>
+    <h3>Conteúdo da página pública</h3>
+    <p class="muted">Apresente a vaga e organize os detalhes que o candidato vai ler.</p>
+  </div>
+  <button class="btn-ghost preview-toggle" type="button" [attr.aria-expanded]="preview()" aria-controls="job-description-preview" (click)="preview.set(!preview())">
+    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" /><circle cx="12" cy="12" r="3" /></svg>
+    {{ preview() ? 'Voltar à edição' : 'Ver prévia' }}
+  </button>
+</div>
+
+<div id="job-description-preview" class="description-preview" [hidden]="!preview()">
+  <p class="description-preview__label">Prévia da descrição <span class="muted">· inclui alterações ainda não salvas</span></p>
+  <app-job-description
+    [description]="description()"
+    [responsibilities]="responsibilities()"
+    [requirements]="requirements()"
+    [benefits]="benefits()"
+    emptyMessage="Preencha a apresentação ou adicione itens para visualizar o conteúdo da vaga."
+  ></app-job-description>
+</div>
+
+<div class="description-fields" [hidden]="preview()">
+  <div>
+    <label class="fieldlabel" for="job-description-summary">Sobre a vaga</label>
+    <textarea
+      id="job-description-summary"
+      class="field"
+      rows="4"
+      maxlength="5000"
+      placeholder="Conte sobre o time, o contexto da vaga e o principal desafio."
+      aria-describedby="job-description-summary-hint"
+      [disabled]="disabled()"
+      [value]="description()"
+      (input)="description.set($any($event.target).value)"
+    ></textarea>
+    <p id="job-description-summary-hint" class="description-hint muted">Uma breve apresentação em texto livre. Necessária para ativar o link público.</p>
+  </div>
+
+  <p class="description-hint muted">As listas abaixo são opcionais. Adicione e organize os itens; seções vazias ficam ocultas na vaga. Use Enter para adicionar o próximo item.</p>
+
+  <app-job-list-editor
+    sectionId="job-responsibilities"
+    label="Responsabilidades"
+    hint="O que a pessoa vai fazer no dia a dia."
+    placeholder="Ex.: Acompanhar os indicadores de desempenho do time"
+    addLabel="Adicionar responsabilidade"
+    [(items)]="responsibilities"
+    [disabled]="disabled()"
+  ></app-job-list-editor>
+  <app-job-list-editor
+    sectionId="job-requirements"
+    label="Requisitos"
+    hint="Conhecimentos e experiências necessários para a vaga."
+    placeholder="Ex.: Experiência com análise de dados"
+    addLabel="Adicionar requisito"
+    [(items)]="requirements"
+    [disabled]="disabled()"
+  ></app-job-list-editor>
+  <app-job-list-editor
+    sectionId="job-benefits"
+    label="Benefícios"
+    hint="O que a empresa oferece para quem faz parte do time."
+    placeholder="Ex.: Plano de saúde e odontológico"
+    addLabel="Adicionar benefício"
+    [(items)]="benefits"
+    [disabled]="disabled()"
+  ></app-job-list-editor>
+</div>

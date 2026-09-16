@@ -40,7 +40,7 @@
       } @else {
         @if (!canGeneratePublicLink()) {
           <p class="muted settings-section__desc">
-            Preencha a <strong>descrição da vaga</strong> em "Dados da campanha", abaixo, e salve — é o que o candidato lê ao abrir o link.
+            Preencha a <strong>apresentação em “Sobre a vaga”</strong> em "Dados da campanha", abaixo, e salve — é o que o candidato lê ao abrir o link.
           </p>
         }
         <button class="btn-primary" type="button" [disabled]="linkSaving() || !canGeneratePublicLink()" (click)="setPublicLink(true)">
@@ -53,12 +53,12 @@
       <div class="settings-section__header">
         <h2 class="serif">Dados da campanha</h2>
       </div>
-      <p class="muted settings-section__desc">Título, descrição e características da vaga.</p>
+      <p class="muted settings-section__desc">Defina as características da vaga e prepare o conteúdo para os candidatos.</p>
 
-      <div class="form-grid">
+      <fieldset class="form-grid details-fields" [disabled]="detailsSaving()">
         <div>
-          <label class="fieldlabel">Título</label>
-          <input
+          <label class="fieldlabel" for="campaign-title">Título</label>
+          <input id="campaign-title"
             class="field"
             type="text"
             maxlength="200"
@@ -66,72 +66,28 @@
             (input)="titleDraft.set($any($event.target).value)"
           />
         </div>
-        <div>
-          <label class="fieldlabel">Descrição da vaga</label>
-          <textarea
-            class="field"
-            rows="4"
-            maxlength="5000"
-            placeholder="Resumo da vaga: o time, o produto e o desafio principal."
-            [value]="descriptionDraft()"
-            (input)="descriptionDraft.set($any($event.target).value)"
-          ></textarea>
-        </div>
-        <div>
-          <label class="fieldlabel">Responsabilidades</label>
-          <textarea
-            class="field"
-            rows="4"
-            maxlength="5000"
-            placeholder="Uma por linha. Fica oculta na vaga se vazia."
-            [value]="responsibilitiesDraft()"
-            (input)="responsibilitiesDraft.set($any($event.target).value)"
-          ></textarea>
-        </div>
-        <div>
-          <label class="fieldlabel">Requisitos</label>
-          <textarea
-            class="field"
-            rows="4"
-            maxlength="5000"
-            placeholder="Um por linha. Fica oculta na vaga se vazia."
-            [value]="requirementsDraft()"
-            (input)="requirementsDraft.set($any($event.target).value)"
-          ></textarea>
-        </div>
-        <div>
-          <label class="fieldlabel">Benefícios</label>
-          <textarea
-            class="field"
-            rows="4"
-            maxlength="5000"
-            placeholder="Um por linha. Fica oculta na vaga se vazia."
-            [value]="benefitsDraft()"
-            (input)="benefitsDraft.set($any($event.target).value)"
-          ></textarea>
-        </div>
         <div class="form-row">
           <div>
-            <label class="fieldlabel">Cidade</label>
-            <input class="field" type="text" maxlength="100" [value]="cityDraft()" (input)="cityDraft.set($any($event.target).value)" />
+            <label class="fieldlabel" for="campaign-city">Cidade</label>
+            <input id="campaign-city" class="field" type="text" maxlength="100" [value]="cityDraft()" (input)="cityDraft.set($any($event.target).value)" />
           </div>
           <div>
-            <label class="fieldlabel">Estado</label>
-            <input class="field" type="text" maxlength="100" [value]="stateDraft()" (input)="stateDraft.set($any($event.target).value)" />
+            <label class="fieldlabel" for="campaign-state">Estado</label>
+            <input id="campaign-state" class="field" type="text" maxlength="100" [value]="stateDraft()" (input)="stateDraft.set($any($event.target).value)" />
           </div>
         </div>
         <div class="form-row">
           <div>
-            <label class="fieldlabel">Modelo de trabalho</label>
-            <select class="field" [value]="modalityDraft()" (change)="modalityDraft.set($any($event.target).value)">
+            <label class="fieldlabel" for="campaign-modality">Modelo de trabalho</label>
+            <select id="campaign-modality" class="field" [value]="modalityDraft()" (change)="modalityDraft.set($any($event.target).value)">
               <option value="hibrido">Híbrido</option>
               <option value="remoto">Remoto</option>
               <option value="presencial">Presencial</option>
             </select>
           </div>
           <div>
-            <label class="fieldlabel">Tipo de contratação</label>
-            <select class="field" [value]="contractTypeDraft()" (change)="contractTypeDraft.set($any($event.target).value)">
+            <label class="fieldlabel" for="campaign-contract">Tipo de contratação</label>
+            <select id="campaign-contract" class="field" [value]="contractTypeDraft()" (change)="contractTypeDraft.set($any($event.target).value)">
               <option value="clt">CLT</option>
               <option value="pj">PJ</option>
               <option value="estagio">Estágio</option>
@@ -139,23 +95,32 @@
           </div>
         </div>
         <div>
-          <label class="fieldlabel">Senioridade</label>
-          <select class="field" [value]="seniorityDraft()" (change)="seniorityDraft.set($any($event.target).value)">
+          <label class="fieldlabel" for="campaign-seniority">Senioridade</label>
+          <select id="campaign-seniority" class="field" [value]="seniorityDraft()" (change)="seniorityDraft.set($any($event.target).value)">
             <option value="pleno">Pleno</option>
             <option value="junior">Júnior</option>
             <option value="senior">Sênior</option>
           </select>
         </div>
-      </div>
+      </fieldset>
+
+      <app-job-description-editor
+        class="campaign-description"
+        [(description)]="descriptionDraft"
+        [(responsibilities)]="responsibilitiesDraft"
+        [(requirements)]="requirementsDraft"
+        [(benefits)]="benefitsDraft"
+        [disabled]="detailsSaving()"
+      ></app-job-description-editor>
 
       @if (detailsError()) {
         <p class="state-message state-message--error save-error">{{ detailsError() }}</p>
       }
       <div class="submit-row">
-        @if (detailsSaved()) {
+        @if (detailsSaved() && !isDetailsDirty()) {
           <span class="save-confirmation">Dados salvos.</span>
         }
-        <button class="btn-ghost" type="button" [disabled]="!isDetailsDirty()" (click)="discardDetails()">Descartar alterações</button>
+        <button class="btn-ghost" type="button" [disabled]="!isDetailsDirty() || detailsSaving()" (click)="discardDetails()">Descartar alterações</button>
         <button class="btn-primary" type="button" [disabled]="!canSaveDetails()" (click)="saveDetails()">
           {{ detailsSaving() ? 'Salvando…' : 'Salvar dados' }}
         </button>

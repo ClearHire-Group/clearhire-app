@@ -1,0 +1,54 @@
+<fieldset class="list-editor" [disabled]="disabled()" [attr.aria-labelledby]="sectionId() + '-label'" [attr.aria-describedby]="sectionId() + '-hint'">
+  <div class="list-editor__header">
+    <h4 [id]="sectionId() + '-label'">{{ label() }}</h4>
+    <span class="list-editor__count">{{ count() }} {{ count() === 1 ? 'item' : 'itens' }}</span>
+  </div>
+  <p class="list-editor__hint muted" [id]="sectionId() + '-hint'">{{ hint() }}</p>
+
+  <div class="list-editor__items">
+    @for (item of items(); track $index; let i = $index) {
+      <div class="list-item">
+        <span class="list-item__number" aria-hidden="true">{{ i + 1 }}</span>
+        <textarea
+          #itemField
+          class="field list-item__field"
+          rows="2"
+          [attr.aria-label]="label() + ': item ' + (i + 1)"
+          [attr.aria-invalid]="overLimit() ? 'true' : null"
+          [attr.aria-describedby]="overLimit() ? sectionId() + '-error' : null"
+          [placeholder]="placeholder()"
+          [value]="item"
+          (input)="updateItem(i, $any($event.target).value)"
+          (keydown.enter)="onEnter($event, i)"
+          (paste)="onPaste($event, i)"
+        ></textarea>
+        <div class="list-item__actions">
+          <button type="button" [disabled]="i === 0" (click)="moveItem(i, -1)" [attr.aria-label]="'Mover item ' + (i + 1) + ' para cima em ' + label()" title="Mover para cima">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m18 15-6-6-6 6" /></svg>
+          </button>
+          <button type="button" [disabled]="i === items().length - 1" (click)="moveItem(i, 1)" [attr.aria-label]="'Mover item ' + (i + 1) + ' para baixo em ' + label()" title="Mover para baixo">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6" /></svg>
+          </button>
+          <button class="list-item__remove" type="button" (click)="removeItem(i)" [attr.aria-label]="'Remover item ' + (i + 1) + ' de ' + label()" title="Remover item">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M9 6V4h6v2M5 6l1 14h12l1-14M10 10v6M14 10v6" /></svg>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="list-editor__footer">
+    <button #addButton class="btn-ghost list-editor__add" type="button" (click)="addItem()">
+      <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" /></svg>
+      {{ addLabel() }}
+    </button>
+    @if (length() >= 4000) {
+      <span class="list-editor__limit muted">{{ length() }} / {{ maxLength }} caracteres</span>
+    }
+  </div>
+  @if (overLimit()) {
+    <p class="list-editor__error" [id]="sectionId() + '-error'" role="alert">
+      Esta seção ultrapassou {{ maxLength }} caracteres. Reduza o texto dos itens para salvar.
+    </p>
+  }
+</fieldset>

@@ -34,36 +34,12 @@
 
         @if (activeTab() === 'vaga') {
           <div class="card job-details">
-            @if (job.description) {
-              <section class="job-section">
-                <h2 class="serif">Sobre a vaga</h2>
-                <p class="job-section__text">{{ job.description }}</p>
-              </section>
-            }
-            @if (job.responsibilities) {
-              <section class="job-section">
-                <h2 class="serif">Responsabilidades</h2>
-                <p class="job-section__text">{{ job.responsibilities }}</p>
-              </section>
-            }
-            @if (job.requirements) {
-              <section class="job-section">
-                <h2 class="serif">Requisitos</h2>
-                <p class="job-section__text">{{ job.requirements }}</p>
-              </section>
-            }
-            @if (job.benefits) {
-              <section class="job-section">
-                <h2 class="serif">Benefícios</h2>
-                <p class="job-section__text">{{ job.benefits }}</p>
-              </section>
-            }
-            @if (!job.description && !job.responsibilities && !job.requirements && !job.benefits) {
-              <p class="muted">
-                A empresa ainda não publicou os detalhes desta vaga. Você pode se candidatar mesmo assim — a equipe de recrutamento
-                entrará em contato com mais informações.
-              </p>
-            }
+            <app-job-description
+              [description]="job.description"
+              [responsibilities]="jobItems().responsibilities"
+              [requirements]="jobItems().requirements"
+              [benefits]="jobItems().benefits"
+            ></app-job-description>
 
             <button class="btn-primary job-details__cta" type="button" (click)="setTab('candidatura')">Quero me candidatar →</button>
           </div>

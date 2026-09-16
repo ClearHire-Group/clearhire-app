@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { map, switchMap } from 'rxjs';
@@ -7,6 +7,9 @@ import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { PublicApplicationExperienceInput } from '../../core/models';
 import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
+
+import { parseJobItems } from '../../core/job-description';
+import { JobDescriptionComponent } from '../../shared/job-description/job-description.component';
 
 type ApplicationMode = 'manual' | 'resume';
 type ResumeSubMode = 'text' | 'file';
@@ -21,7 +24,7 @@ type PageTab = 'vaga' | 'candidatura';
 @Component({
   selector: 'app-public-application',
   standalone: true,
-  imports: [CommonModule, ErrorStateComponent],
+  imports: [CommonModule, ErrorStateComponent, JobDescriptionComponent],
   templateUrl: './public-application.component.html',
   styleUrl: './public-application.component.scss',
 })
@@ -33,6 +36,15 @@ export class PublicApplicationComponent {
   readonly campaignId = toSignal(this.campaignId$, { initialValue: '' });
 
   readonly campaignState = toLoadable(this.campaignId$.pipe(switchMap((id) => this.api.getPublicCampaignInfo(id))));
+
+  readonly jobItems = computed(() => {
+    const job = this.campaignState.data();
+    return {
+      responsibilities: parseJobItems(job?.responsibilities ?? ''),
+      requirements: parseJobItems(job?.requirements ?? ''),
+      benefits: parseJobItems(job?.benefits ?? ''),
+    };
+  });
 
   /** Abre na descrição da vaga: quem chega pelo link precisa saber do que se trata antes de decidir
    * se preenche o formulário. */

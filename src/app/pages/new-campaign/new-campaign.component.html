@@ -84,57 +84,13 @@
         <span class="stepnum">2</span>
         <h2 class="serif">Descrição da vaga</h2>
       </div>
-      <p class="muted step__hint">
-        É o que o candidato lê ao abrir o link público desta vaga. A descrição é obrigatória para gerar esse link —
-        as outras seções são opcionais e ficam ocultas quando vazias. Você pode preencher tudo depois, em Configurações da Campanha.
-      </p>
-
-      <div class="form-grid">
-        <div>
-          <label class="fieldlabel">Descrição</label>
-          <textarea
-            class="field"
-            rows="4"
-            maxlength="5000"
-            placeholder="Resumo da vaga: o time, o produto e o desafio principal."
-            [value]="description()"
-            (input)="description.set($any($event.target).value)"
-          ></textarea>
-        </div>
-        <div>
-          <label class="fieldlabel">Responsabilidades</label>
-          <textarea
-            class="field"
-            rows="4"
-            maxlength="5000"
-            placeholder="Uma por linha. Ex.: Construir e manter pipelines de dados."
-            [value]="responsibilities()"
-            (input)="responsibilities.set($any($event.target).value)"
-          ></textarea>
-        </div>
-        <div>
-          <label class="fieldlabel">Requisitos</label>
-          <textarea
-            class="field"
-            rows="4"
-            maxlength="5000"
-            placeholder="Um por linha. Ex.: 3+ anos com Python e SQL avançado."
-            [value]="requirements()"
-            (input)="requirements.set($any($event.target).value)"
-          ></textarea>
-        </div>
-        <div>
-          <label class="fieldlabel">Benefícios</label>
-          <textarea
-            class="field"
-            rows="4"
-            maxlength="5000"
-            placeholder="Um por linha. Ex.: Vale-refeição, plano de saúde."
-            [value]="benefits()"
-            (input)="benefits.set($any($event.target).value)"
-          ></textarea>
-        </div>
-      </div>
+      <app-job-description-editor
+        [(description)]="description"
+        [(responsibilities)]="responsibilities"
+        [(requirements)]="requirements"
+        [(benefits)]="benefits"
+        [disabled]="creating()"
+      ></app-job-description-editor>
     </div>
 
     <!-- Step 3 -->
