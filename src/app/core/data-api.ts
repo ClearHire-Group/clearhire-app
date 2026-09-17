@@ -143,6 +143,8 @@ export abstract class DataApi {
   abstract updateCompanyProfile(update: Pick<CompanyProfile, 'tone' | 'importance' | 'values'>): Observable<CompanyProfile>;
   abstract getDashboardMetrics(): Observable<DashboardMetrics>;
   abstract getAiSuggestions(): Observable<AiSuggestion[]>;
+  /** Feed da empresa inteira, mais recente primeiro. O servidor limita a janela (ver
+   *  `activity.DefaultLimit` no backend) — é histórico recente, não paginação completa. */
   abstract getActivityFeed(): Observable<ActivityItem[]>;
 
   /** Sino de notificações da top-bar, visível em toda a aplicação. */

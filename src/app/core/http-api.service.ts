@@ -70,7 +70,7 @@ import {
  *   POST /company-profile                              -> CompanyProfile  (body: { tone, importance, values })
  *   GET  /dashboard/metrics                           -> DashboardMetrics
  *   GET  /dashboard/ai-suggestions                    -> AiSuggestion[]
- *   GET  /dashboard/activity                          -> ActivityItem[]
+ *   GET  /dashboard/activity?limit=:n                 -> ActivityItem[]  (limit opcional, default 50, teto 200)
  *   GET  /notifications                               -> Notification[]
  *   POST /notifications/:id/read                       -> Notification (404 -> undefined)
  *   GET  /reports/funnel-summary                      -> Phase[] (aggregate across campaigns)

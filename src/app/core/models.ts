@@ -430,9 +430,19 @@ export interface ActivityItem {
   id: string;
   actor: ActivityActor;
   message: string;
-  campaignId: string;
-  campaignTitle: string;
-  timestampLabel: string;
+  /**
+   * Ausentes quando a ação não pertence a campanha nenhuma (`activity_feed.campaign_id` é nulável —
+   * ação de nível empresa, ex. convidar um RH) ou quando a campanha foi arquivada. Nos dois casos a
+   * linha do feed aparece sem link, nunca com um link que abre em 404.
+   */
+  campaignId?: string;
+  campaignTitle?: string;
+  /**
+   * ISO 8601, não rótulo pronto: o texto relativo ("há 12 minutos") é derivado a cada render em
+   * `core/relative-time.ts`. Rótulo vindo do servidor congelaria — aba aberta por uma hora
+   * continuaria dizendo "há 12 minutos".
+   */
+  createdAt: string;
 }
 
 export interface Notification {

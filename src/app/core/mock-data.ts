@@ -575,18 +575,28 @@ export const MOCK_NOTIFICATIONS: Notification[] = [
   },
 ];
 
+/**
+ * Datas do feed são relativas a "agora" (o módulo é avaliado no load do app), não literais fixas:
+ * o contrato passou a ser `createdAt` ISO e o rótulo é derivado no render, então data fixa faria o
+ * mock envelhecer e mostrar "15/03/2026" onde a intenção era "há 12 minutos".
+ */
+function minutesAgo(n: number): string {
+  return new Date(Date.now() - n * 60 * 1000).toISOString();
+}
+
 export const MOCK_ACTIVITY_FEED: ActivityItem[] = [
-  { id: 'act-1', actor: 'ia', message: 'IA concluiu a análise de Marina Albuquerque em Entrevista Estruturada — 94% de match, maior nota da fase.', campaignId: 'eng-software-senior-backend', campaignTitle: 'Eng. Software Sênior — Backend', timestampLabel: 'há 12 minutos' },
-  { id: 'act-2', actor: 'recrutador', message: 'Você aprovou 3 candidatos em Recebidos para avançar à Fit Cultural.', campaignId: 'customer-success-pleno', campaignTitle: 'Analista de Customer Success Pleno', timestampLabel: 'há 40 minutos' },
-  { id: 'act-3', actor: 'ia', message: 'IA analisou Rafael Tanaka em Entrevista Estruturada — 91% de match.', campaignId: 'eng-software-senior-backend', campaignTitle: 'Eng. Software Sênior — Backend', timestampLabel: 'há 1 hora' },
-  { id: 'act-4', actor: 'ia', message: 'IA sinalizou divergência entre pareceres de 2 entrevistadores em Fit Cultural — revisão manual recomendada.', campaignId: 'designer-produto-senior', campaignTitle: 'Designer de Produto Sênior', timestampLabel: 'há 2 horas' },
-  { id: 'act-5', actor: 'recrutador', message: 'Você aprovou Diego Salgado e moveu para Selecionados — proposta em elaboração.', campaignId: 'eng-software-senior-backend', campaignTitle: 'Eng. Software Sênior — Backend', timestampLabel: 'há 3 horas' },
-  { id: 'act-6', actor: 'ia', message: 'IA concluiu a triagem técnica de 7 candidatos — resultados disponíveis para revisão.', campaignId: 'customer-success-pleno', campaignTitle: 'Analista de Customer Success Pleno', timestampLabel: 'ontem às 17:20' },
-  { id: 'act-7', actor: 'recrutador', message: 'Você pausou a campanha após revisão do funil de Fit Cultural.', campaignId: 'designer-produto-senior', campaignTitle: 'Designer de Produto Sênior', timestampLabel: 'ontem às 15:05' },
-  { id: 'act-8', actor: 'ia', message: 'IA analisou Camila Duarte em Fit Cultural — 79% de match.', campaignId: 'eng-software-senior-backend', campaignTitle: 'Eng. Software Sênior — Backend', timestampLabel: 'ontem às 11:48' },
-  { id: 'act-9', actor: 'recrutador', message: 'Você aprovou a contratação de 1 candidato e encerrou a campanha.', campaignId: 'gerente-operacoes', campaignTitle: 'Gerente de Operações', timestampLabel: 'há 2 dias' },
-  { id: 'act-10', actor: 'ia', message: 'IA recebeu e organizou 18 novas candidaturas em Recebidos.', campaignId: 'eng-software-senior-backend', campaignTitle: 'Eng. Software Sênior — Backend', timestampLabel: 'há 2 dias' },
-  { id: 'act-11', actor: 'recrutador', message: 'Você criou a campanha e ativou o funil: Fit Cultural → Triagem Técnica.', campaignId: 'customer-success-pleno', campaignTitle: 'Analista de Customer Success Pleno', timestampLabel: 'há 3 dias' },
+  { id: 'act-1', actor: 'ia', message: 'IA concluiu a análise de Marina Albuquerque em Entrevista Estruturada — 94% de match, maior nota da fase.', campaignId: 'eng-software-senior-backend', campaignTitle: 'Eng. Software Sênior — Backend', createdAt: minutesAgo(12) },
+  { id: 'act-2', actor: 'recrutador', message: '3 candidatos avançaram de Recebidos para Fit Cultural.', campaignId: 'customer-success-pleno', campaignTitle: 'Analista de Customer Success Pleno', createdAt: minutesAgo(40) },
+  { id: 'act-3', actor: 'ia', message: 'IA analisou Rafael Tanaka em Entrevista Estruturada — 91% de match.', campaignId: 'eng-software-senior-backend', campaignTitle: 'Eng. Software Sênior — Backend', createdAt: minutesAgo(60) },
+  { id: 'act-4', actor: 'ia', message: 'IA sinalizou divergência entre pareceres de 2 entrevistadores em Fit Cultural — revisão manual recomendada.', campaignId: 'designer-produto-senior', campaignTitle: 'Designer de Produto Sênior', createdAt: minutesAgo(2 * 60) },
+  { id: 'act-5', actor: 'recrutador', message: 'Diego Salgado avançou para Selecionados.', campaignId: 'eng-software-senior-backend', campaignTitle: 'Eng. Software Sênior — Backend', createdAt: minutesAgo(3 * 60) },
+  { id: 'act-6', actor: 'ia', message: 'IA concluiu a triagem técnica de 7 candidatos — resultados disponíveis para revisão.', campaignId: 'customer-success-pleno', campaignTitle: 'Analista de Customer Success Pleno', createdAt: minutesAgo(26 * 60) },
+  { id: 'act-7', actor: 'recrutador', message: 'Campanha pausada.', campaignId: 'designer-produto-senior', campaignTitle: 'Designer de Produto Sênior', createdAt: minutesAgo(28 * 60) },
+  { id: 'act-8', actor: 'ia', message: 'IA analisou Camila Duarte em Fit Cultural — 79% de match.', campaignId: 'eng-software-senior-backend', campaignTitle: 'Eng. Software Sênior — Backend', createdAt: minutesAgo(32 * 60) },
+  // Sem campanha: ação de nível empresa, o caso que exercita a linha sem link no template.
+  { id: 'act-9', actor: 'recrutador', message: 'Perfil cultural da empresa atualizado.', createdAt: minutesAgo(2 * 24 * 60) },
+  { id: 'act-10', actor: 'ia', message: 'IA recebeu e organizou 18 novas candidaturas em Recebidos.', campaignId: 'eng-software-senior-backend', campaignTitle: 'Eng. Software Sênior — Backend', createdAt: minutesAgo(2 * 24 * 60 + 90) },
+  { id: 'act-11', actor: 'recrutador', message: 'Campanha criada com 4 fases no funil.', campaignId: 'customer-success-pleno', campaignTitle: 'Analista de Customer Success Pleno', createdAt: minutesAgo(3 * 24 * 60) },
 ];
 
 export const MOCK_AI_TRUST: AiTrustMetrics = {
