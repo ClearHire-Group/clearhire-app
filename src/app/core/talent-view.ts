@@ -74,7 +74,7 @@ function freshnessLabelText(talent: Talent, daysAgo: number): string {
  * recrutador complementar; um perfil vindo de reprovação qualificada pode continuar "básico" se
  * skills/pretensão salarial nunca foram preenchidos, mesmo com histórico de entrevista.
  */
-function completenessTier(talent: Talent): CompletenessTier {
+export function completenessTier(talent: Talent): CompletenessTier {
   const filledChecks = [
     talent.skills.length > 0,
     talent.languages.length > 0,

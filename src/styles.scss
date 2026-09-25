@@ -252,3 +252,40 @@ textarea.field {
   gap: 10px;
   margin-top: 22px;
 }
+
+/* Cabeçalho de coluna ordenável (core/table-sort.ts). O botão herda a tipografia do <th>; a seta só
+   aparece forte na coluna ativa, e aria-sort no <th> é o que diz a direção a leitores de tela. */
+.th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { color: var(--color-text); }
+  &:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 3px; }
+}
+.th-sort__icon {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0.25;
+}
+th[aria-sort='descending'] .th-sort,
+th[aria-sort='ascending'] .th-sort { color: var(--color-accent); }
+th[aria-sort='descending'] .th-sort__icon { opacity: 1; }
+th[aria-sort='ascending'] .th-sort__icon { opacity: 1; transform: rotate(180deg); }
+
+/* Linha "Mostrar mais" da renderização progressiva (ROWS_PAGE em core/table-sort.ts). */
+.load-more-row td { text-align: center; padding: 14px 0; border-bottom: none; }
+.load-more-btn { font-size: 12.5px; }

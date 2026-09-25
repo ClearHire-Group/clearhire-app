@@ -32,6 +32,19 @@ function normalize(text: string): string {
     .replace(/[áàâãéêíóôõúç]/g, (ch) => ACCENT_MAP[ch] ?? ch);
 }
 
+/**
+ * O texto contém o termo como PALAVRA, não como pedaço de outra: "Skill 1" não casa com "Skill 12",
+ * "Go" não casa com "Google", "C" não casa com "C++". Mesma regra do casamento de skills do backend
+ * (candidate/skillmatch.go). Os dois lados chegam já normalizados (minúsculo, sem acento).
+ */
+function containsTerm(normText: string, normTerm: string): boolean {
+  if (!normTerm) return false;
+  const escaped = normTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  // Termo que começa com símbolo (".net") não exige fronteira antes: "asp.net" contém ".net".
+  const before = /^[\p{L}\p{N}]/u.test(normTerm) ? '(^|[^\\p{L}\\p{N}])' : '';
+  return new RegExp(`${before}${escaped}(?![\\p{L}\\p{N}+#])`, 'u').test(normText);
+}
+
 function allKnownSkillTerms(pool: Talent[]): string[] {
   const set = new Set<string>();
   for (const t of pool) for (const s of t.skills) set.add(s.term);
@@ -40,7 +53,7 @@ function allKnownSkillTerms(pool: Talent[]): string[] {
 
 function parseQuery(query: string, pool: Talent[]): ParsedQuery {
   const norm = normalize(query);
-  const skills = allKnownSkillTerms(pool).filter((term) => norm.includes(normalize(term)));
+  const skills = allKnownSkillTerms(pool).filter((term) => containsTerm(norm, normalize(term)));
   const sector = KNOWN_SECTORS.find((s) => norm.includes(normalize(s)));
   const modality = norm.includes('remoto')
     ? 'Remoto'

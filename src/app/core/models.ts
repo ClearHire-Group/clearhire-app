@@ -114,6 +114,10 @@ export interface Candidate {
   experience: string;
   location: string;
   matchPct: number | null;
+  /** Anos de experiência como número — o `experience` acima é rótulo de texto e não ordena. */
+  yearsExperience?: number | null;
+  /** Quando a candidatura chegou (ISO). */
+  appliedAt?: string;
   status: string;
   initials: string;
   avatarColorIndex: 0 | 1 | 2;

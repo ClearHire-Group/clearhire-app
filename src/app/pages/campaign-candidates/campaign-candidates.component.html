@@ -26,11 +26,18 @@
     <div class="table-card__header">
       <div class="table-card__title">
         <h2 class="serif">{{ activeFilterLabel() }}</h2>
-        <span class="dim">mostrando {{ filteredViews().length }} candidatos</span>
+        <span class="dim">{{ sortedViews().length }} de {{ candidateViews().length }} candidatos</span>
       </div>
-      <div class="table-card__sort">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#B85A3E" stroke-width="2.2"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z" /></svg>
-        <span>ORDENADO POR MATCH DA IA</span>
+      <div class="table-card__tools">
+        <label class="table-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+          <input type="search" maxlength="100" placeholder="Buscar nome, e-mail, cidade…" aria-label="Buscar candidatos"
+            [value]="query()" (input)="onQuery($any($event.target).value)" />
+        </label>
+        <div class="table-card__sort" aria-live="polite">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#B85A3E" stroke-width="2.2" aria-hidden="true"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
+          <span>ORDENADO POR {{ sortLabel() | uppercase }}</span>
+        </div>
       </div>
     </div>
 
@@ -42,17 +49,18 @@
       <table>
         <thead>
           <tr>
-            <th class="col-candidate">Candidato</th>
-            <th>Fase</th>
-            <th>Experiência</th>
-            <th>Localização</th>
-            <th>Match IA</th>
-            <th>Status</th>
+            <th class="col-candidate" [attr.aria-sort]="ariaSort('nome')"><button type="button" class="th-sort" (click)="sortBy('nome')">Candidato<span class="th-sort__icon" aria-hidden="true"></span></button></th>
+            <th [attr.aria-sort]="ariaSort('fase')"><button type="button" class="th-sort" (click)="sortBy('fase')">Fase<span class="th-sort__icon" aria-hidden="true"></span></button></th>
+            <th [attr.aria-sort]="ariaSort('experiencia')"><button type="button" class="th-sort" (click)="sortBy('experiencia')">Experiência<span class="th-sort__icon" aria-hidden="true"></span></button></th>
+            <th [attr.aria-sort]="ariaSort('local')"><button type="button" class="th-sort" (click)="sortBy('local')">Localização<span class="th-sort__icon" aria-hidden="true"></span></button></th>
+            <th [attr.aria-sort]="ariaSort('match')"><button type="button" class="th-sort" (click)="sortBy('match')">Match IA<span class="th-sort__icon" aria-hidden="true"></span></button></th>
+            <th [attr.aria-sort]="ariaSort('status')"><button type="button" class="th-sort" (click)="sortBy('status')">Status<span class="th-sort__icon" aria-hidden="true"></span></button></th>
+            <th [attr.aria-sort]="ariaSort('candidatura')"><button type="button" class="th-sort" (click)="sortBy('candidatura')">Candidatura<span class="th-sort__icon" aria-hidden="true"></span></button></th>
             <th class="col-action">Ação</th>
           </tr>
         </thead>
         <tbody>
-          @for (c of filteredViews(); track c.id) {
+          @for (c of visibleViews(); track c.id) {
             <tr>
               <td>
                 <div class="candidate-cell">
@@ -74,13 +82,25 @@
                 </div>
               </td>
               <td><span class="status-pill" [style.color]="c.statusColor" [style.background]="c.statusBg">{{ c.status }}</span></td>
+              <td><span class="cell-text" [attr.title]="c.appliedAt | date: 'dd/MM/yyyy HH:mm'">{{ c.appliedLabel }}</span></td>
               <td class="col-action">
                 <a [routerLink]="['/campanhas', campaignId(), 'candidatos', c.id]" class="btn-ghost view-btn">Ver perfil</a>
               </td>
             </tr>
           } @empty {
             <tr>
-              <td colspan="7"><p class="empty-row">Nenhum candidato nesta fase ainda.</p></td>
+              <td colspan="8">
+                <p class="empty-row">{{ query() ? 'Nenhum candidato encontrado para “' + query() + '”.' : 'Nenhum candidato nesta fase ainda.' }}</p>
+              </td>
+            </tr>
+          }
+          @if (remaining() > 0) {
+            <tr class="load-more-row" appInView (inView)="showMore()">
+              <td colspan="8">
+                <button type="button" class="btn-ghost load-more-btn" (click)="showMore()">
+                  Mostrar mais ({{ remaining() }} restantes)
+                </button>
+              </td>
             </tr>
           }
         </tbody>
