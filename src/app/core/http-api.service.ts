@@ -275,7 +275,9 @@ export class HttpApiService extends DataApi {
         .post<{ phase: PhaseKey; talentId?: string }>(`${APP_CONFIG.apiBaseUrl}/candidates/${candidateId}/decisions`, {
           decision: 'avancar',
         })
-        .pipe(map((res) => ({ phase: res.phase }) as Candidate)),
+        // talentId vem quando a aprovação levou a pessoa ao Banco de Talentos (chegou a Selecionados
+        // com consentimento) — a tela mostra o link para o perfil.
+        .pipe(map((res) => ({ phase: res.phase, talentId: res.talentId }) as Candidate)),
     );
   }
 

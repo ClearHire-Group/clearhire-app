@@ -34,10 +34,12 @@ export class CandidateProfileComponent {
   readonly selectedReasonKey = signal<RejectionReasonKey | null>(null);
   readonly sendBankInvite = signal(true);
   readonly rejectSaving = signal(false);
-  readonly rejectResult = signal<{ talentId?: string } | null>(null);
+  readonly rejectResult = signal<{ talentId?: string; reasonQualifies: boolean; sentToBank: boolean } | null>(null);
 
   readonly advanceSaving = signal(false);
-  readonly advanceResult = signal<{ nextPhaseLabel: string } | null>(null);
+  readonly advanceResult = signal<{ nextPhaseLabel: string; talentId?: string } | null>(null);
+  /** Falha de avançar/reprovar. Antes não havia tratamento: o botão ficava em "Confirmando…" sem aviso. */
+  readonly decisionError = signal('');
 
   readonly selectedReason = computed(() => this.rejectionReasons.find((r) => r.key === this.selectedReasonKey()) ?? null);
 
@@ -128,19 +130,44 @@ export class CandidateProfileComponent {
     const reason = this.selectedReason();
     if (!reason || this.rejectSaving()) return;
     this.rejectSaving.set(true);
-    this.api.submitCandidateRejection(this.candidateId(), reason.key, reason.goesToBank && this.sendBankInvite()).subscribe(({ talent }) => {
-      this.rejectSaving.set(false);
-      this.rejectModalOpen.set(false);
-      this.rejectResult.set({ talentId: talent?.id });
+    const sentToBank = reason.goesToBank && this.sendBankInvite();
+    this.decisionError.set('');
+    this.api.submitCandidateRejection(this.candidateId(), reason.key, sentToBank).subscribe({
+      next: ({ talent }) => {
+        this.rejectSaving.set(false);
+        this.rejectModalOpen.set(false);
+        this.rejectResult.set({ talentId: talent?.id, reasonQualifies: reason.goesToBank, sentToBank });
+      },
+      error: (err: unknown) => {
+        this.rejectSaving.set(false);
+        this.rejectModalOpen.set(false);
+        this.decisionError.set(this.decisionErrorMessage(err, 'Não foi possível registrar a reprovação.'));
+      },
     });
   }
 
   approveAndAdvance(): void {
     if (this.advanceSaving() || this.advanceResult() || this.rejectResult()) return;
     this.advanceSaving.set(true);
-    this.api.advanceCandidate(this.candidateId()).subscribe((candidate) => {
-      this.advanceSaving.set(false);
-      this.advanceResult.set({ nextPhaseLabel: candidate ? PHASE_LABELS[candidate.phase] : '' });
+    this.decisionError.set('');
+    this.api.advanceCandidate(this.candidateId()).subscribe({
+      next: (candidate) => {
+        this.advanceSaving.set(false);
+        this.advanceResult.set({ nextPhaseLabel: candidate ? PHASE_LABELS[candidate.phase] : '', talentId: candidate?.talentId });
+      },
+      error: (err: unknown) => {
+        this.advanceSaving.set(false);
+        this.decisionError.set(this.decisionErrorMessage(err, 'Não foi possível avançar o candidato.'));
+      },
     });
+  }
+
+  private decisionErrorMessage(err: unknown, fallback: string): string {
+    if (err instanceof HttpErrorResponse) {
+      if (err.status === 0) return 'Sem conexão com o servidor. Tente novamente.';
+      const message = (err.error as { error?: string } | null)?.error;
+      if (message && err.status < 500) return message.charAt(0).toUpperCase() + message.slice(1) + (message.endsWith('.') ? '' : '.');
+    }
+    return `${fallback} Tente novamente.`;
   }
 }

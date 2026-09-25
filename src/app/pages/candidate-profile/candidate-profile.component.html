@@ -57,6 +57,10 @@
           <div class="card confirmation-banner">
             @if (result.talentId) {
               <span>Reprovação registrada — <a [routerLink]="['/banco-de-talentos', result.talentId]">talento adicionado ao Banco de Talentos</a>.</span>
+            } @else if (result.sentToBank) {
+              <span>Reprovação registrada. A pessoa não foi adicionada ao Banco de Talentos (ela pediu a exclusão dos dados).</span>
+            } @else if (result.reasonQualifies) {
+              <span>Reprovação registrada. A pessoa não foi enviada ao Banco de Talentos.</span>
             } @else {
               <span>Reprovação registrada. Este motivo não envia o perfil ao Banco de Talentos.</span>
             }
@@ -67,11 +71,23 @@
         @if (advanceResult(); as result) {
           <div class="card confirmation-banner">
             @if (result.nextPhaseLabel) {
-              <span>Candidato aprovado — fase atual: <strong>{{ result.nextPhaseLabel }}</strong>.</span>
+              <span>
+                Candidato aprovado — fase atual: <strong>{{ result.nextPhaseLabel }}</strong>.
+                @if (result.talentId) {
+                  <a [routerLink]="['/banco-de-talentos', result.talentId]">Perfil adicionado ao Banco de Talentos</a> como referência de aprovado.
+                }
+              </span>
             } @else {
               <span>Não foi possível atualizar a fase deste candidato.</span>
             }
             <button type="button" class="dismiss-btn" (click)="advanceResult.set(null)">Fechar</button>
+          </div>
+        }
+
+        @if (decisionError()) {
+          <div class="card confirmation-banner confirmation-banner--error" role="alert">
+            <span>{{ decisionError() }}</span>
+            <button type="button" class="dismiss-btn" (click)="decisionError.set('')">Fechar</button>
           </div>
         }
 
@@ -238,8 +254,15 @@
               <p class="modal-invite-copy">"Você não seguiu para a próxima etapa desta vaga, mas o seu perfil chamou nossa atenção. Você autoriza que mantenhamos seus dados para futuras oportunidades?"</p>
               <label class="toggle-row">
                 <input type="checkbox" [checked]="sendBankInvite()" (change)="sendBankInvite.set($any($event.target).checked)" />
-                Enviar convite ao Banco de Talentos
+                Adicionar ao Banco de Talentos e enviar o convite
               </label>
+              <p class="muted toggle-hint">
+                @if (sendBankInvite()) {
+                  A pessoa entra no banco com o histórico desta vaga. Se já autorizou o uso dos dados ao se candidatar, entra como <strong>Consentido</strong>; senão, como <strong>Notificado</strong>.
+                } @else {
+                  A pessoa <strong>não</strong> entra no Banco de Talentos.
+                }
+              </p>
               <div class="modal-actions">
                 <button type="button" class="btn-ghost" (click)="rejectStep.set('motivo')">Voltar</button>
                 <button type="button" class="btn-primary" [disabled]="rejectSaving()" (click)="confirmReject()">{{ rejectSaving() ? 'Confirmando…' : 'Confirmar reprovação' }}</button>

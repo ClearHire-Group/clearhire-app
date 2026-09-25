@@ -138,7 +138,16 @@ export interface ExperienceEntry {
  */
 export type ConsentState = 'consentido' | 'nao_notificado' | 'notificado' | 'oposicao_exclusao';
 export type LegalBasis = 'consentimento' | 'legitimo_interesse' | 'a_avaliar';
-export type TalentOrigin = 'reprovacao_qualificada' | 'cadastro_manual' | 'importacao';
+/** Por onde a pessoa ENTROU no banco: reprovação com motivo que qualifica, aprovação (chegou a
+ * Selecionados, com consentimento), cadastro manual ou importação. */
+export type TalentOrigin = 'reprovacao_qualificada' | 'aprovacao' | 'cadastro_manual' | 'importacao';
+
+export const TALENT_ORIGIN_LABELS: Record<TalentOrigin, string> = {
+  reprovacao_qualificada: 'Reprovação qualificada',
+  aprovacao: 'Aprovado em vaga',
+  cadastro_manual: 'Cadastro manual',
+  importacao: 'Importação',
+};
 
 export const CONSENT_STATE_LABELS: Record<ConsentState, string> = {
   consentido: 'Consentido',

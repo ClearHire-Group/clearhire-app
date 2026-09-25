@@ -109,7 +109,7 @@
           <div class="consent-box">
             <div class="fact-grid">
               <div><span class="fact-label">Base legal</span><span class="fact-value">{{ t.legalBasis === 'consentimento' ? 'Consentimento' : t.legalBasis === 'legitimo_interesse' ? 'Legítimo interesse' : 'A avaliar' }}</span></div>
-              <div><span class="fact-label">Origem</span><span class="fact-value">{{ t.origin === 'reprovacao_qualificada' ? 'Reprovação qualificada' : t.origin === 'cadastro_manual' ? 'Cadastro manual' : 'Importação' }}</span></div>
+              <div><span class="fact-label">Origem</span><span class="fact-value">{{ originLabels[t.origin] }}</span></div>
               @if (t.consentDateLabel) {
                 <div><span class="fact-label">Consentimento</span><span class="fact-value">{{ t.consentDateLabel }}</span></div>
               }

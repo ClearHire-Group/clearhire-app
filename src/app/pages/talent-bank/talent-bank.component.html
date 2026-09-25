@@ -40,6 +40,7 @@
           <span class="chip-group-label chip-group-label--gap">Origem</span>
           <button type="button" class="chip-filter" [class.active]="originFilter() === 'todos'" (click)="setOriginFilter('todos')">Todas</button>
           <button type="button" class="chip-filter" [class.active]="originFilter() === 'reprovacao_qualificada'" (click)="setOriginFilter('reprovacao_qualificada')">Reprovação qualificada</button>
+          <button type="button" class="chip-filter" [class.active]="originFilter() === 'aprovacao'" (click)="setOriginFilter('aprovacao')">Aprovados</button>
           <button type="button" class="chip-filter" [class.active]="originFilter() === 'cadastro_manual'" (click)="setOriginFilter('cadastro_manual')">Cadastro manual</button>
         </div>
 
@@ -172,18 +173,43 @@
         <h2 class="serif">Novo talento</h2>
         <p class="muted modal-intro">Cadastro manual, fora de campanha — legítimo interesse até o primeiro contato real com a pessoa.</p>
 
-        <label class="fieldlabel">Nome</label>
-        <input class="field" type="text" maxlength="200" [value]="manualName()" (input)="manualName.set($any($event.target).value)" placeholder="Nome completo" />
+        <label class="fieldlabel" for="mt-name">Nome completo <span class="req" aria-hidden="true">*</span></label>
+        <input
+          class="field" id="mt-name" type="text" maxlength="200" placeholder="Nome e sobrenome"
+          [class.field--invalid]="manualErr('name')" [attr.aria-invalid]="manualErr('name') ? true : null"
+          [value]="manualName()" (input)="setManual('name', manualName, $any($event.target).value)" (blur)="touchManual('name')"
+        />
+        @if (manualErr('name'); as e) { <span class="field-error">{{ e }}</span> }
 
-        <label class="fieldlabel">Currículo ou perfil colado</label>
-        <textarea class="field" rows="4" maxlength="20000" [value]="manualRawText()" (input)="manualRawText.set($any($event.target).value)" placeholder="Cole aqui o currículo ou o perfil do LinkedIn…"></textarea>
+        <label class="fieldlabel" for="mt-raw">Currículo ou perfil colado</label>
+        <textarea
+          class="field" id="mt-raw" rows="4" placeholder="Cole aqui o currículo ou o perfil do LinkedIn — a IA extrai os dados estruturados."
+          [class.field--invalid]="manualErr('rawProfileText')" [attr.aria-invalid]="manualErr('rawProfileText') ? true : null"
+          [value]="manualRawText()" (input)="setManual('rawProfileText', manualRawText, $any($event.target).value)" (blur)="touchManual('rawProfileText')"
+        ></textarea>
+        <div class="field-meta">
+          @if (manualErr('rawProfileText'); as e) { <span class="field-error">{{ e }}</span> }
+          <span class="field-counter" [class.field-counter--over]="manualRawCount() > limits.rawText">{{ manualRawCount() }}/{{ limits.rawText }}</span>
+        </div>
 
-        <label class="fieldlabel">Nota de contexto</label>
-        <textarea class="field" rows="2" maxlength="2000" [value]="manualNote()" (input)="manualNote.set($any($event.target).value)" placeholder="Onde encontrou essa pessoa, por que chamou atenção…"></textarea>
+        <label class="fieldlabel" for="mt-note">Nota de contexto</label>
+        <textarea
+          class="field" id="mt-note" rows="2" placeholder="Onde encontrou essa pessoa, por que chamou atenção…"
+          [class.field--invalid]="manualErr('contextNote')" [attr.aria-invalid]="manualErr('contextNote') ? true : null"
+          [value]="manualNote()" (input)="setManual('contextNote', manualNote, $any($event.target).value)" (blur)="touchManual('contextNote')"
+        ></textarea>
+        <div class="field-meta">
+          @if (manualErr('contextNote'); as e) { <span class="field-error">{{ e }}</span> }
+          <span class="field-counter" [class.field-counter--over]="manualNoteCount() > limits.note">{{ manualNoteCount() }}/{{ limits.note }}</span>
+        </div>
+
+        <div aria-live="polite">
+          @if (manualFormError()) { <p class="form-error">{{ manualFormError() }}</p> }
+        </div>
 
         <div class="modal-actions">
           <button type="button" class="btn-ghost" (click)="closeManualForm()">Cancelar</button>
-          <button type="button" class="btn-primary" [disabled]="manualSaving() || !manualName().trim()" (click)="submitManualTalent()">
+          <button type="button" class="btn-primary" [disabled]="manualSaving()" (click)="submitManualTalent()">
             {{ manualSaving() ? 'Cadastrando…' : 'Cadastrar talento' }}
           </button>
         </div>
