@@ -7,7 +7,8 @@ import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.comp
 import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
-import { PHASE_LABELS, REJECTION_REASONS, RejectionReasonKey } from '../../core/models';
+import { HttpErrorResponse } from '@angular/common/http';
+import { CandidateAssessment, PHASE_LABELS, REJECTION_REASONS, RejectionReasonKey } from '../../core/models';
 
 @Component({
   selector: 'app-candidate-profile',
@@ -46,10 +47,20 @@ export class CandidateProfileComponent {
   readonly loading = computed(() => this.campaignState.loading() || this.profileState.loading());
   readonly hasError = computed(() => this.campaignState.error() || this.profileState.error());
 
-  readonly ringDeg = computed(() => {
-    const profile = this.profileState.data();
-    return profile ? Math.round(profile.ai.matchPct * 3.6) : 0;
+  /** Análise pedida nesta tela. Guarda o id junto: o Angular reaproveita esta instância ao navegar
+   * entre candidatos, e a análise de um não pode aparecer no perfil do outro. */
+  private readonly requested = signal<{ candidateId: string; assessment: CandidateAssessment } | null>(null);
+  readonly assessing = signal(false);
+  readonly assessError = signal('');
+
+  /** A análise a exibir: a que acabou de ser pedida, ou a que o servidor já tinha. `null` = ainda não avaliado. */
+  readonly ai = computed<CandidateAssessment | null>(() => {
+    const requested = this.requested();
+    if (requested && requested.candidateId === this.candidateId()) return requested.assessment;
+    return this.profileState.data()?.ai ?? null;
   });
+
+  readonly ringDeg = computed(() => Math.round((this.ai()?.matchPct ?? 0) * 3.6));
 
   readonly subTabs = computed<SubTab[]>(() => {
     const id = this.campaignId();
@@ -66,6 +77,27 @@ export class CandidateProfileComponent {
     const name = this.profileState.data()?.name ?? '';
     return campaign ? `Campanhas / ${campaign.title} / Candidatos / ${name}` : '';
   });
+
+  /** Pede a análise da IA. Sugestão apenas: não move o candidato de fase nem decide nada. */
+  requestAssessment(): void {
+    if (this.assessing()) return;
+    const candidateId = this.candidateId();
+    this.assessing.set(true);
+    this.assessError.set('');
+    this.api.assessCandidate(candidateId).subscribe({
+      next: (assessment) => {
+        this.assessing.set(false);
+        this.requested.set({ candidateId, assessment });
+      },
+      error: (err: unknown) => {
+        this.assessing.set(false);
+        // A mensagem do servidor já é a certa para o recrutador (IA desligada, teto de gasto, provedor
+        // fora); só cai no texto genérico se ela não vier.
+        const serverMessage = err instanceof HttpErrorResponse ? (err.error?.error as string | undefined) : undefined;
+        this.assessError.set(serverMessage ?? 'Não foi possível gerar a análise agora. Tente novamente em instantes.');
+      },
+    });
+  }
 
   openRejectModal(): void {
     this.rejectModalOpen.set(true);

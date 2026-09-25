@@ -405,3 +405,18 @@ section {
     color: rgba(21, 26, 34, 0.65);
   }
 }
+
+.ai-empty__text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: rgba(21, 26, 34, 0.7);
+  margin: 0 0 18px;
+}
+.ai-empty__button {
+  margin-bottom: 14px;
+}
+.ai-empty__error {
+  font-size: 13px;
+  color: #a8674f;
+  margin: 0 0 14px;
+}

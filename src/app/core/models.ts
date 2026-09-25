@@ -288,14 +288,19 @@ export interface CandidateProfileData {
   experience: ExperienceEntry[];
   education: { degree: string; institution: string; period: string };
   skills: string[];
-  ai: {
-    matchPct: number;
-    matchLabel: string;
-    matchNote: string;
-    strengths: string[];
-    concerns: string[];
-    justification: string;
-  };
+  /** `null` enquanto o candidato não foi avaliado — antes era um objeto zerado, que a tela mostrava
+   * como "0%", indistinguível de uma avaliação real com nota baixa. */
+  ai: CandidateAssessment | null;
+}
+
+/** Sugestão da IA para um candidato numa fase. Sempre sugestão: a decisão é do recrutador. */
+export interface CandidateAssessment {
+  matchPct: number;
+  matchLabel: string;
+  matchNote: string;
+  strengths: string[];
+  concerns: string[];
+  justification: string;
 }
 
 /** Vaga vista pelo candidato anônimo, via link público de campanha — só o subconjunto seguro de

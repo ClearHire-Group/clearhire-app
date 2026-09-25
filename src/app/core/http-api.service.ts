@@ -12,6 +12,7 @@ import {
   Campaign,
   CampaignPerformance,
   Candidate,
+  CandidateAssessment,
   CandidateProfileData,
   CompanyProfile,
   CoverageEntry,
@@ -61,6 +62,7 @@ import {
  *   POST /campaigns/:id/toggle-pause                   -> Campaign (404 -> undefined)
  *   GET  /campaigns/:id/candidates?phase=:phaseKey    -> Candidate[]  (phase optional)
  *   GET  /candidates/:id                              -> CandidateProfileData (404 -> undefined)
+ *   POST /candidates/:id/assessment                   -> CandidateAssessment  (análise da IA; 503 se a IA não está habilitada)
  *   POST /candidates/:id/decisions                    -> { phase?, talentId? }  (endpoint único; body: { decision: 'avancar'|'reprovar', rejectionReasonKey?, sendBankInvite? })
  *   POST /campaigns/:id/public-application-link       -> Campaign  (liga/desliga o link público; body: { enabled })
  *   GET  /public/campaigns/:id                        -> PublicCampaignInfo  (sem auth; 404 idêntico pra não existe/pausada/link desligado)
@@ -256,6 +258,10 @@ export class HttpApiService extends DataApi {
     return this.undefinedOnNotFound(
       this.http.get<CandidateProfileData>(`${APP_CONFIG.apiBaseUrl}/candidates/${candidateId}`),
     );
+  }
+
+  assessCandidate(candidateId: string): Observable<CandidateAssessment> {
+    return this.http.post<CandidateAssessment>(`${APP_CONFIG.apiBaseUrl}/candidates/${candidateId}/assessment`, {});
   }
 
   advanceCandidate(candidateId: string): Observable<Candidate | undefined> {

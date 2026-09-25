@@ -7,6 +7,7 @@ import {
   Campaign,
   CampaignPerformance,
   Candidate,
+  CandidateAssessment,
   CandidateProfileData,
   CompanyProfile,
   CoverageEntry,
@@ -135,6 +136,10 @@ export abstract class DataApi {
   ): Observable<void>;
   abstract getCandidates(campaignId: string, phase?: PhaseKey): Observable<Candidate[]>;
   abstract getCandidateProfile(candidateId: string): Observable<CandidateProfileData | undefined>;
+  /** Pede a análise da IA para o candidato na fase atual. Idempotente no servidor: se já existe
+   * uma para esta fase, devolve a existente sem gerar custo. Erra (HttpErrorResponse) quando a IA
+   * não está habilitada, o teto de gasto foi atingido ou o provedor está indisponível. */
+  abstract assessCandidate(candidateId: string): Observable<CandidateAssessment>;
   /** Move o candidato para a próxima fase do funil; no-op se já estiver em "Selecionados". */
   abstract advanceCandidate(candidateId: string): Observable<Candidate | undefined>;
   abstract getCompanyProfile(): Observable<CompanyProfile>;

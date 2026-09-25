@@ -13,6 +13,7 @@ import {
   Campaign,
   CampaignPerformance,
   Candidate,
+  CandidateAssessment,
   CandidateProfileData,
   CompanyProfile,
   CoverageEntry,
@@ -335,6 +336,20 @@ export class MockApiService extends DataApi {
 
   getCandidateProfile(candidateId: string): Observable<CandidateProfileData | undefined> {
     return this.simulate(MOCK_CANDIDATE_PROFILES[candidateId]);
+  }
+
+  assessCandidate(candidateId: string): Observable<CandidateAssessment> {
+    const existing = MOCK_CANDIDATE_PROFILES[candidateId]?.ai;
+    return this.simulate(
+      existing ?? {
+        matchPct: 72,
+        matchLabel: 'Bom match',
+        matchNote: 'Análise simulada (modo mock)',
+        strengths: ['Perfil alinhado à vaga'],
+        concerns: ['Dados simulados — sem análise real'],
+        justification: 'Resposta de exemplo do modo mock; a análise real vem do backend.',
+      },
+    );
   }
 
   advanceCandidate(candidateId: string): Observable<Candidate | undefined> {
