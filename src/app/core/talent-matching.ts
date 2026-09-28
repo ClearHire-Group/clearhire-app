@@ -75,58 +75,95 @@ function clampScore(value: number): number {
   return Math.max(0, Math.min(100, Math.round(value)));
 }
 
-function scoreAgainstQuery(talent: Talent, parsed: ParsedQuery): TalentMatch {
-  const breakdown: ScoreBreakdownLine[] = [];
-  let total = 50;
+/**
+ * Um critério de match: quanto o talento atende esse requisito, de 0 (não atende) a 1 (atende
+ * plenamente). 0.5 é reservado para "não informado" — nem soma nem penaliza, e por isso rende
+ * `delta` 0 no breakdown (sem cor), visualmente distinto de "atende" (verde) e "não atende" (vermelho).
+ */
+interface Criterion {
+  label: string;
+  detail: string;
+  achieved: number;
+}
 
-  for (const term of parsed.skills) {
+const NEUTRAL = 0.5;
+
+/**
+ * Ter a skill já vale a maior parte do critério (piso 0.6) — o nível (básico a especialista) só
+ * nuança dentro disso. Sem isso, alguém júnior com a skill apareceria com `delta` negativo, como se
+ * não tivesse. Não ter a skill é 0: não existe "meio-termo" de posse de skill.
+ */
+function skillAchievement(level: string | undefined): number {
+  return 0.6 + 0.4 * (levelWeight(level) / 35);
+}
+
+/**
+ * "Indisponível" contém "disponível" como substring — por isso a checagem de indisponibilidade
+ * vem primeiro. Qualquer rótulo que não seja claramente disponível nem indisponível ("A confirmar",
+ * "A combinar", ...) é tratado como não informado, não como positivo.
+ */
+function availabilityAchievement(label: string): number {
+  const norm = normalize(label);
+  if (norm.includes('indisponivel')) return 0;
+  if (norm.includes('disponivel')) return 1;
+  return NEUTRAL;
+}
+
+/**
+ * Pontuação = média ponderada dos critérios pedidos, cada um valendo o mesmo tanto (1 unidade em
+ * `criteria.length`) — só quem atende TODOS os critérios chega a 100%; quem atende só parte nunca
+ * empata com quem atende tudo, não importa o nível de cada skill isolada. `delta` no breakdown é a
+ * contribuição de cada critério relativa ao neutro (0), pra manter o sinal +/− que a UI já colore.
+ */
+function finalizeScore(talent: Talent, criteria: Criterion[]): TalentMatch {
+  if (criteria.length === 0) return { talent, matchPct: 0, breakdown: [] };
+  const unit = 100 / criteria.length;
+  let sum = 0;
+  const breakdown: ScoreBreakdownLine[] = criteria.map((c) => {
+    sum += c.achieved;
+    return { label: c.label, detail: c.detail, delta: Math.round((c.achieved - NEUTRAL) * unit) };
+  });
+  return { talent, matchPct: clampScore((sum / criteria.length) * 100), breakdown };
+}
+
+function scoreAgainstQuery(talent: Talent, parsed: ParsedQuery, extra: Criterion[] = []): TalentMatch {
+  const criteria: Criterion[] = parsed.skills.map((term) => {
     const skill = talent.skills.find((s) => normalize(s.term) === normalize(term));
-    const delta = skill ? levelWeight(skill.level) : -15;
-    total += delta;
-    breakdown.push({
+    return {
       label: skill?.level ? `${term} (${skill.level})` : term,
       detail: skill ? `possui${skill.yearsExperience ? `, ${skill.yearsExperience} anos` : ''}` : 'não possui',
-      delta,
-    });
-  }
+      achieved: skill ? skillAchievement(skill.level) : 0,
+    };
+  });
 
   if (parsed.sector) {
     const has = talent.sectors.some((s) => normalize(s).includes(normalize(parsed.sector!)));
-    const delta = has ? 18 : -12;
-    total += delta;
-    breakdown.push({ label: `Setor ${parsed.sector}`, detail: has ? 'possui' : 'não possui', delta });
+    criteria.push({ label: `Setor ${parsed.sector}`, detail: has ? 'possui' : 'não possui', achieved: has ? 1 : 0 });
   }
 
   if (parsed.modality) {
     const match = normalize(talent.modality) === normalize(parsed.modality);
-    const delta = match ? 10 : -15;
-    total += delta;
-    breakdown.push({
+    criteria.push({
       label: `Modalidade ${parsed.modality}`,
       detail: match ? 'compatível' : `não compatível (${talent.modality})`,
-      delta,
+      achieved: match ? 1 : 0,
     });
   }
 
   if (parsed.uf) {
     const match = normalize(talent.location).includes(normalize(parsed.uf));
-    const delta = match ? 12 : -20;
-    total += delta;
-    breakdown.push({
+    criteria.push({
       label: `Localização ${parsed.uf.toUpperCase()}`,
       detail: match ? 'compatível' : 'fora da localização desejada',
-      delta,
+      achieved: match ? 1 : 0,
     });
   }
 
   if (parsed.mentionsAvailability) {
-    const unavailable = normalize(talent.availabilityLabel).includes('indisponivel');
-    const delta = unavailable ? -25 : 8;
-    total += delta;
-    breakdown.push({ label: 'Disponibilidade', detail: talent.availabilityLabel, delta });
+    criteria.push({ label: 'Disponibilidade', detail: talent.availabilityLabel, achieved: availabilityAchievement(talent.availabilityLabel) });
   }
 
-  return { talent, matchPct: clampScore(total), breakdown };
+  return finalizeScore(talent, [...criteria, ...extra]);
 }
 
 function fallbackTextScore(talent: Talent, query: string): TalentMatch {
@@ -215,21 +252,33 @@ export function reverseMatchForCriteria(
   const parsed = parseQuery(criteria.title, eligible);
   if (criteria.modality) parsed.modality = criteria.modality;
   const hasSignal = parsed.skills.length > 0 || !!parsed.sector || !!parsed.modality || !!parsed.uf;
-  let results = hasSignal
-    ? eligible.map((talent) => scoreAgainstQuery(talent, parsed))
-    : eligible.map((talent) => fallbackTextScore(talent, criteria.title));
 
-  if (criteria.seniority) {
-    results = results.map((m) => {
-      const match = normalize(m.talent.seniority).includes(normalize(criteria.seniority!));
-      const delta = match ? 10 : -10;
-      return {
-        ...m,
-        matchPct: clampScore(m.matchPct + delta),
-        breakdown: [...m.breakdown, { label: `Senioridade ${criteria.seniority}`, detail: match ? 'compatível' : `perfil é ${m.talent.seniority}`, delta }],
-      };
-    });
-  }
+  const seniorityCriterion = (talent: Talent): Criterion | null => {
+    if (!criteria.seniority) return null;
+    const match = normalize(talent.seniority).includes(normalize(criteria.seniority));
+    return { label: `Senioridade ${criteria.seniority}`, detail: match ? 'compatível' : `perfil é ${talent.seniority}`, achieved: match ? 1 : 0 };
+  };
+
+  // Caminho com sinal (skill/setor/modalidade/UF): senioridade entra como mais um critério na MESMA
+  // média ponderada — assim "atende tudo" continua sendo a única forma de chegar a 100%, mesmo com
+  // senioridade no meio. Sem isso, um bônus fixo somado depois do clamp reabriria o mesmo bug do
+  // relatório (empate/estouro de 100% por quem não atende todos os critérios).
+  const results = hasSignal
+    ? eligible.map((talent) => {
+        const sr = seniorityCriterion(talent);
+        return scoreAgainstQuery(talent, parsed, sr ? [sr] : []);
+      })
+    : eligible.map((talent) => {
+        const base = fallbackTextScore(talent, criteria.title);
+        const sr = seniorityCriterion(talent);
+        if (!sr) return base;
+        const delta = sr.achieved ? 10 : -10;
+        return {
+          ...base,
+          matchPct: clampScore(base.matchPct + delta),
+          breakdown: [...base.breakdown, { label: sr.label, detail: sr.detail, delta }],
+        };
+      });
 
   return results.filter((m) => m.matchPct > 0).sort((a, b) => b.matchPct - a.matchPct);
 }

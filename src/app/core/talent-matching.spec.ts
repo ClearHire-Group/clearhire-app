@@ -42,4 +42,30 @@ describe('talent-matching (busca do Banco de Talentos)', () => {
     expect(pcts).toEqual([...pcts].sort((x, y) => y - x));
     expect(searchTalentPool('Python SQL', pool)[0].talent.id).toBe('b');
   });
+
+  it('quem atende só 2 de 3 skills pedidas nunca chega a 100% nem empata com quem atende as 3, mesmo em nível máximo', () => {
+    const pool = [
+      talent('completo', [], { skills: [{ term: 'Python', level: 'especialista' }, { term: 'SQL', level: 'especialista' }, { term: 'Java', level: 'especialista' }] }),
+      talent('parcial', [], { skills: [{ term: 'Python', level: 'especialista' }, { term: 'SQL', level: 'especialista' }] }),
+    ];
+    const results = searchTalentPool('vaga exige Python, SQL e Java', pool);
+    const completo = results.find((m) => m.talent.id === 'completo')!;
+    const parcial = results.find((m) => m.talent.id === 'parcial')!;
+    expect(completo.matchPct).toBe(100);
+    expect(parcial.matchPct).toBeLessThan(100);
+    expect(parcial.matchPct).toBeLessThan(completo.matchPct);
+  });
+
+  it('disponibilidade "a confirmar"/"a combinar" é neutra (delta 0), distinta de disponível (+) e indisponível (-)', () => {
+    const pool = [
+      talent('disponivel', ['Python'], { availabilityLabel: 'Disponível imediatamente' }),
+      talent('aconfirmar', ['Python'], { availabilityLabel: 'A confirmar' }),
+      talent('indisponivel', ['Python'], { availabilityLabel: 'Indisponível — dados excluídos a pedido' }),
+    ];
+    const results = searchTalentPool('Python disponibilidade', pool);
+    const deltaOf = (id: string) => results.find((m) => m.talent.id === id)!.breakdown.find((b) => b.label === 'Disponibilidade')!.delta;
+    expect(deltaOf('disponivel')).toBeGreaterThan(0);
+    expect(deltaOf('aconfirmar')).toBe(0);
+    expect(deltaOf('indisponivel')).toBeLessThan(0);
+  });
 });
