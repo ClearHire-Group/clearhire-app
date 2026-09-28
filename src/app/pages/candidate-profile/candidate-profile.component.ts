@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -92,6 +92,29 @@ export class CandidateProfileComponent {
     if (requested && requested.candidateId === this.candidateId()) return requested.assessment;
     return this.profileState.data()?.ai ?? null;
   });
+
+  /** Candidato pra quem já disparamos a tentativa automática (sucesso ou erro, tanto faz) — trava
+   * o auto-disparo a UMA tentativa por candidato/fase, pra um erro (teto de gasto, provedor fora)
+   * não virar loop de retry sozinho. O botão "Analisar com IA" continua na tela pra retry manual
+   * quando `assessError()` estiver preenchido. */
+  private readonly autoAssessTriedFor = signal<string | null>(null);
+
+  constructor() {
+    // Dispara a análise sozinho ao abrir um perfil sem avaliação nesta fase — em vez de esperar o
+    // clique em "Analisar com IA". O gatilho continua sendo "alguém está olhando pra este
+    // candidato agora" (mesmo princípio do botão manual: nunca gasta com quem ninguém abriu), só
+    // sem o clique extra. Ver discussão de por que NÃO disparar no avanço de fase em background.
+    effect(() => {
+      const profile = this.profileState.data();
+      const id = this.candidateId();
+      if (!profile || !id) return;
+      if (this.ai() !== null) return;
+      if (this.assessing() || this.autoAssessTriedFor() === id) return;
+
+      this.autoAssessTriedFor.set(id);
+      this.requestAssessment();
+    });
+  }
 
   readonly ringDeg = computed(() => Math.round((this.ai()?.matchPct ?? 0) * 3.6));
 
