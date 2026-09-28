@@ -289,3 +289,56 @@ th[aria-sort='ascending'] .th-sort__icon { opacity: 1; transform: rotate(180deg)
 /* Linha "Mostrar mais" da renderização progressiva (ROWS_PAGE em core/table-sort.ts). */
 .load-more-row td { text-align: center; padding: 14px 0; border-bottom: none; }
 .load-more-btn { font-size: 12.5px; }
+
+/* ===== Impressão / exportar em PDF =====
+   Vale pra qualquer tela, não só Relatórios: quem aperta Ctrl+P não quer a navegação no papel.
+   Os `!important` são necessários — as regras de `.shell` moram em app.component.scss, e a
+   encapsulação do Angular dá a elas um seletor de atributo, mais específico que um `.classe`
+   global. Use `.screen-only` pra elementos que existem só na tela (botões, dicas de interação). */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+  }
+
+  /* Sem isto, o navegador remove TODO preenchimento de fundo na impressão e os gráficos de barra
+     (funil, conversão) saem invisíveis — é a diferença entre um relatório e uma folha de números. */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  app-sidebar-nav,
+  app-top-bar,
+  .screen-only {
+    display: none !important;
+  }
+
+  /* O shell é 100vh com rolagem interna: sem neutralizar, o PDF sai cortado na primeira página. */
+  .shell,
+  .shell__main {
+    display: block !important;
+    height: auto !important;
+  }
+  .shell__content {
+    overflow: visible !important;
+  }
+
+  /* Sem isto o bege da interface (--color-page) vira uma faixa impressa sob o conteúdo — o
+     `print-color-adjust: exact` acima, que existe pras barras dos gráficos, também faz o fundo
+     da tela sobreviver. Papel é branco. */
+  html,
+  body,
+  .page {
+    background: #FFFFFF;
+    min-height: 0;
+  }
+  .page-body {
+    max-width: none;
+    padding: 0;
+  }
+  .card {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+}

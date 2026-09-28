@@ -7,7 +7,6 @@ import { APP_CONFIG } from './app-config';
 import {
   ActivityItem,
   AiSuggestion,
-  AiTrustMetrics,
   AuthSession,
   Campaign,
   CampaignPerformance,
@@ -34,6 +33,7 @@ import {
   UpdateCampaignInput,
   UserProfile,
 } from './models';
+import { ReportRange } from './report-period';
 
 /**
  * Real backend implementation. Endpoints below are the contract the API needs to satisfy —
@@ -75,9 +75,9 @@ import {
  *   GET  /dashboard/activity?limit=:n                 -> ActivityItem[]  (limit opcional, default 50, teto 200)
  *   GET  /notifications                               -> Notification[]
  *   POST /notifications/:id/read                       -> Notification (404 -> undefined)
- *   GET  /reports/funnel-summary                      -> Phase[] (aggregate across campaigns)
- *   GET  /reports/campaign-performance                -> CampaignPerformance[]
- *   GET  /reports/ai-trust                            -> AiTrustMetrics
+ *   GET  /reports/funnel-summary?from=&to=            -> Phase[] (aggregate across campaigns)
+ *   GET  /reports/campaign-performance?from=&to=      -> CampaignPerformance[]
+ *        (from/to são instantes RFC3339, from inclusivo e to exclusivo; ausentes = todo o período)
  *
  *   -- Banco de Talentos: LLM na escrita (ingestão/tradução de busca), determinismo na leitura --
  *   GET  /talents                                     -> Talent[]  (full roster, no score)
@@ -309,18 +309,27 @@ export class HttpApiService extends DataApi {
     return this.undefinedOnNotFound(this.http.post<Notification>(`${APP_CONFIG.apiBaseUrl}/notifications/${id}/read`, {}));
   }
 
-  getFunnelSummary(): Observable<Phase[]> {
-    return this.emptyOnUnavailable(this.http.get<Phase[]>(`${APP_CONFIG.apiBaseUrl}/reports/funnel-summary`));
+  /** Monta `?from=&to=`; período "todo" não manda parâmetro nenhum, e o backend trata a ausência
+   * como sem limite (ver parseReportPeriod no campaign/handler.go). */
+  private reportParams(range?: ReportRange): HttpParams {
+    let params = new HttpParams();
+    if (range?.from) params = params.set('from', range.from);
+    if (range?.to) params = params.set('to', range.to);
+    return params;
   }
 
-  getCampaignPerformance(): Observable<CampaignPerformance[]> {
+  getFunnelSummary(range?: ReportRange): Observable<Phase[]> {
     return this.emptyOnUnavailable(
-      this.http.get<CampaignPerformance[]>(`${APP_CONFIG.apiBaseUrl}/reports/campaign-performance`),
+      this.http.get<Phase[]>(`${APP_CONFIG.apiBaseUrl}/reports/funnel-summary`, { params: this.reportParams(range) }),
     );
   }
 
-  getAiTrustMetrics(): Observable<AiTrustMetrics> {
-    return this.http.get<AiTrustMetrics>(`${APP_CONFIG.apiBaseUrl}/reports/ai-trust`);
+  getCampaignPerformance(range?: ReportRange): Observable<CampaignPerformance[]> {
+    return this.emptyOnUnavailable(
+      this.http.get<CampaignPerformance[]>(`${APP_CONFIG.apiBaseUrl}/reports/campaign-performance`, {
+        params: this.reportParams(range),
+      }),
+    );
   }
 
   getTalents(): Observable<Talent[]> {

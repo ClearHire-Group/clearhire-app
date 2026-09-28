@@ -6,7 +6,6 @@ import { APP_CONFIG } from './app-config';
 import {
   ActivityItem,
   AiSuggestion,
-  AiTrustMetrics,
   AuthSession,
   CAMPAIGN_CONTRACT_TYPE_LABELS,
   CAMPAIGN_MODALITY_LABELS,
@@ -37,10 +36,10 @@ import {
   UpdateCampaignInput,
   UserProfile,
 } from './models';
+import { ReportRange } from './report-period';
 import {
   MOCK_ACTIVITY_FEED,
   MOCK_AI_SUGGESTIONS,
-  MOCK_AI_TRUST,
   MOCK_AUTH_USERS,
   MOCK_CAMPAIGNS,
   MOCK_CANDIDATES_BY_CAMPAIGN,
@@ -399,7 +398,10 @@ export class MockApiService extends DataApi {
     return this.simulate(notification);
   }
 
-  getFunnelSummary(): Observable<Phase[]> {
+  /** O mock IGNORA o período: MOCK_CAMPAIGNS guarda contagem por fase, não candidatos com data,
+   * então não há como recortar sem inventar dado. Trocar o período aqui devolve sempre o mesmo
+   * número — o recorte de verdade só existe contra o backend. */
+  getFunnelSummary(_range?: ReportRange): Observable<Phase[]> {
     const keys: PhaseKey[] = ['recebidos', 'fit', 'tecnica', 'entrevista', 'selecionados'];
     const summary: Phase[] = keys.map((key, i) => ({
       key,
@@ -410,7 +412,7 @@ export class MockApiService extends DataApi {
     return this.simulate(summary);
   }
 
-  getCampaignPerformance(): Observable<CampaignPerformance[]> {
+  getCampaignPerformance(_range?: ReportRange): Observable<CampaignPerformance[]> {
     const rows: CampaignPerformance[] = MOCK_CAMPAIGNS.map((c) => {
       const selected = c.phases.find((p) => p.key === 'selecionados')?.count ?? 0;
       return {
@@ -424,10 +426,6 @@ export class MockApiService extends DataApi {
       };
     });
     return this.simulate(rows);
-  }
-
-  getAiTrustMetrics(): Observable<AiTrustMetrics> {
-    return this.simulate(MOCK_AI_TRUST);
   }
 
   getTalents(): Observable<Talent[]> {

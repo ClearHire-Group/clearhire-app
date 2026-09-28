@@ -514,9 +514,3 @@ export interface CampaignPerformance {
   currentPhaseLabel: string;
 }
 
-export interface AiTrustMetrics {
-  agreementRatePct: number;
-  decisionsAnalyzed: number;
-  overriddenApprovals: number;
-  overriddenRejections: number;
-}

@@ -2,7 +2,6 @@ import { Observable } from 'rxjs';
 import {
   ActivityItem,
   AiSuggestion,
-  AiTrustMetrics,
   AuthSession,
   Campaign,
   CampaignPerformance,
@@ -29,6 +28,7 @@ import {
   UpdateCampaignInput,
   UserProfile,
 } from './models';
+import { ReportRange } from './report-period';
 
 /**
  * Contract every page depends on. Two implementations exist today:
@@ -156,11 +156,11 @@ export abstract class DataApi {
   abstract getNotifications(): Observable<Notification[]>;
   abstract markNotificationRead(id: string): Observable<Notification | undefined>;
 
-  /** Aggregate candidate count per funnel phase, across every campaign. */
-  abstract getFunnelSummary(): Observable<Phase[]>;
+  /** Aggregate candidate count per funnel phase, across every campaign.
+   * `range` recorta por data da candidatura; ausente/vazio = todo o período (ver report-period.ts). */
+  abstract getFunnelSummary(range?: ReportRange): Observable<Phase[]>;
   /** One row per campaign: totals, conversion rate, current phase — powers the Relatórios comparison table. */
-  abstract getCampaignPerformance(): Observable<CampaignPerformance[]>;
-  abstract getAiTrustMetrics(): Observable<AiTrustMetrics>;
+  abstract getCampaignPerformance(range?: ReportRange): Observable<CampaignPerformance[]>;
 
   // --- Banco de Talentos ---------------------------------------------------
   /** Full talent roster, no score attached — default view of the bank with no search active. */

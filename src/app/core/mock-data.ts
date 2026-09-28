@@ -1,7 +1,6 @@
 import {
   ActivityItem,
   AiSuggestion,
-  AiTrustMetrics,
   Campaign,
   Candidate,
   CandidateProfileData,
@@ -598,13 +597,6 @@ export const MOCK_ACTIVITY_FEED: ActivityItem[] = [
   { id: 'act-10', actor: 'ia', message: 'IA recebeu e organizou 18 novas candidaturas em Recebidos.', campaignId: 'eng-software-senior-backend', campaignTitle: 'Eng. Software Sênior — Backend', createdAt: minutesAgo(2 * 24 * 60 + 90) },
   { id: 'act-11', actor: 'recrutador', message: 'Campanha criada com 4 fases no funil.', campaignId: 'customer-success-pleno', campaignTitle: 'Analista de Customer Success Pleno', createdAt: minutesAgo(3 * 24 * 60) },
 ];
-
-export const MOCK_AI_TRUST: AiTrustMetrics = {
-  agreementRatePct: 87,
-  decisionsAnalyzed: 23,
-  overriddenApprovals: 2,
-  overriddenRejections: 1,
-};
 
 export const MOCK_CANDIDATE_PROFILES: Record<string, CandidateProfileData> = {
   'marina-albuquerque': {
