@@ -8,7 +8,38 @@ import { ErrorStateComponent } from '../../layout/error-state/error-state.compon
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CandidateAssessment, PHASE_LABELS, REJECTION_REASONS, RejectionReasonKey } from '../../core/models';
+import { CandidateAssessment, CandidateAssessmentHistoryEntry, PHASE_LABELS, REJECTION_REASONS, RejectionReasonKey } from '../../core/models';
+
+/** Rótulo do badge de confiança no card de IA — 'insuficiente' não usa isto, tem card próprio. */
+const CONFIDENCE_LABELS: Record<Exclude<CandidateAssessment['confidence'], 'insuficiente'>, string> = {
+  alta: 'Conclusão',
+  media: 'Hipótese',
+  baixa: 'Conclusão (confiança baixa)',
+};
+
+const COMPARISON_LABELS: Record<Exclude<CandidateAssessment['comparisonFlag'], ''>, string> = {
+  reforca_anterior: 'Reforça avaliação anterior',
+  diverge_anterior: 'Diverge da avaliação anterior',
+  novo: 'Ponto novo',
+};
+
+/** Estado resumido de uma avaliação pra linha "Avaliação Global" — puramente uma leitura de
+ * matchPct/confidence já existentes, nunca uma nova chamada de IA (ver análise da tela de Funil). */
+type GlobalState = 'forte' | 'moderado' | 'atencao' | 'sem-dado';
+
+function globalStateFor(a: CandidateAssessment): GlobalState {
+  if (a.confidence === 'insuficiente') return 'sem-dado';
+  if (a.matchPct >= 85) return 'forte';
+  if (a.matchPct >= 65) return 'moderado';
+  return 'atencao';
+}
+
+const GLOBAL_STATE_LABELS: Record<GlobalState, string> = {
+  forte: 'forte',
+  moderado: 'moderado',
+  atencao: 'atenção',
+  'sem-dado': 'sem dado',
+};
 
 @Component({
   selector: 'app-candidate-profile',
@@ -63,6 +94,49 @@ export class CandidateProfileComponent {
   });
 
   readonly ringDeg = computed(() => Math.round((this.ai()?.matchPct ?? 0) * 3.6));
+
+  /** Fases ANTERIORES já avaliadas (a atual já vem em `ai`, nunca duplicada aqui — ver comentário
+   * de CandidateProfileData.aiHistory). `[]` até o perfil carregar ou se esta é a primeira fase
+   * avaliada. */
+  readonly aiHistory = computed<CandidateAssessmentHistoryEntry[]>(() => this.profileState.data()?.aiHistory ?? []);
+
+  /** O chip de comparação só aparece quando HÁ de verdade uma fase anterior no histórico — não só
+   * porque o campo veio preenchido. A IA às vezes devolve um valor mesmo sem <fase_anterior> ter
+   * sido enviada (observado em teste real contra o Groq); a tela não confia cegamente nisso. */
+  showComparisonChip(a: CandidateAssessment): boolean {
+    return a.comparisonFlag !== '' && this.aiHistory().length > 0;
+  }
+
+  confidenceLabel(confidence: Exclude<CandidateAssessment['confidence'], 'insuficiente'>): string {
+    return CONFIDENCE_LABELS[confidence];
+  }
+
+  // Aceita o tipo completo (não só o Exclude<'', ...>): o template não consegue provar pro
+  // compilador que showComparisonChip() já garantiu que não é '' antes de chamar isto.
+  comparisonLabel(flag: CandidateAssessment['comparisonFlag']): string {
+    return flag === '' ? '' : COMPARISON_LABELS[flag];
+  }
+
+  /**
+   * Avaliação Global: leitura determinística sobre `ai` + `aiHistory`, NUNCA uma nova chamada de
+   * IA — a IA já fez o trabalho caro em cada fase; isto só resume o que já foi dito. `matchPct` é
+   * o da avaliação CONCLUSIVA mais recente (confidence ≠ 'insuficiente'), não uma média — a fase
+   * mais recente é a mais informada sobre o candidato agora.
+   */
+  readonly globalSummary = computed(() => {
+    const profile = this.profileState.data();
+    const current = this.ai();
+    const history = this.aiHistory();
+
+    const entries = [
+      ...history.map((h) => ({ phaseLabel: h.phaseLabel, state: globalStateFor(h), stateLabel: GLOBAL_STATE_LABELS[globalStateFor(h)] })),
+      ...(current && profile ? [{ phaseLabel: profile.phaseLabel, state: globalStateFor(current), stateLabel: GLOBAL_STATE_LABELS[globalStateFor(current)] }] : []),
+    ];
+
+    const latestConclusive = current && current.confidence !== 'insuficiente' ? current : [...history].reverse().find((h) => h.confidence !== 'insuficiente');
+
+    return { entries, matchPct: latestConclusive?.matchPct ?? null };
+  });
 
   readonly subTabs = computed<SubTab[]>(() => {
     const id = this.campaignId();

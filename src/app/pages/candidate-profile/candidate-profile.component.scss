@@ -198,6 +198,108 @@ section {
 .ai-card--sand .ai-card__title {
   color: #a8674f;
 }
+.ai-card--insufficient {
+  background: rgba(21, 26, 34, 0.03);
+  border-color: rgba(21, 26, 34, 0.15) !important;
+}
+
+/* Badge de confiança — 'alta'/'media'/'baixa' são graus de uma conclusão real (cores neutras,
+   discretas: a cor de estado é o ring de match/status-pill que já existe, isto é só contexto).
+   'insuficiente' não usa este badge no card principal (tem card próprio), só no histórico. */
+.confidence-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  padding: 2px 9px;
+  border-radius: 100px;
+  background: rgba(21, 26, 34, 0.07);
+  color: rgba(21, 26, 34, 0.6);
+  text-transform: none;
+
+  &--alta {
+    background: rgba(58, 74, 46, 0.12);
+    color: #3A4A2E;
+  }
+  &--insuficiente {
+    background: rgba(21, 26, 34, 0.07);
+    color: rgba(21, 26, 34, 0.5);
+  }
+}
+
+.insufficient-box {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 18px;
+  background: #FFFFFF;
+  border: 1px dashed rgba(21, 26, 34, 0.2);
+  border-radius: 12px;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+}
+.insufficient-box__text {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: rgba(21, 26, 34, 0.75);
+  line-height: 1.5;
+  margin: 0 0 8px;
+}
+.insufficient-box .point-list {
+  margin-top: 4px;
+}
+
+.stage-insight {
+  padding: 14px 16px;
+  background: #FFFFFF;
+  border-radius: 10px;
+  border: 1px solid rgba(184, 90, 62, 0.25);
+  margin-bottom: 22px;
+}
+.ai-card--sand .stage-insight {
+  border-color: rgba(192, 146, 129, 0.3);
+}
+.stage-insight__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #B85A3E;
+  margin-bottom: 6px;
+}
+.ai-card--sand .stage-insight__label {
+  color: #a8674f;
+}
+.stage-insight p {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: rgba(21, 26, 34, 0.85);
+}
+
+.comparison-chip {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+  text-transform: none;
+  letter-spacing: 0;
+  background: rgba(21, 26, 34, 0.06);
+  color: rgba(21, 26, 34, 0.55);
+
+  &--reforca_anterior {
+    background: rgba(58, 74, 46, 0.12);
+    color: #3A4A2E;
+  }
+  &--diverge_anterior {
+    background: rgba(192, 146, 129, 0.2);
+    color: #a8674f;
+  }
+}
 
 .match-box {
   display: flex;
@@ -273,6 +375,9 @@ section {
 }
 .point-marker {
   flex-shrink: 0;
+  // Sem modificador: cinza neutro — usado em "Ainda falta"/"insuficiente", que não são nem
+  // positivos nem negativos, são lacuna de dado.
+  color: rgba(21, 26, 34, 0.4);
 
   &--success { color: #3A4A2E; }
   &--sand { color: #a8674f; }
@@ -429,4 +534,116 @@ section {
 .confirmation-banner--error {
   border-color: var(--color-accent);
   color: var(--color-accent);
+}
+
+// --- Avaliação Global + Histórico (leitura determinística sobre candidate_ai_assessments, sem
+// nova chamada de IA — ver globalSummary/aiHistory em candidate-profile.component.ts) ---
+
+.global-summary {
+  margin-top: 22px;
+  padding: 18px 22px;
+}
+.global-summary__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.global-summary__label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: rgba(21, 26, 34, 0.5);
+}
+.global-summary__pct {
+  font-size: 15px;
+  font-weight: 700;
+  color: #151A22;
+}
+.global-summary__phases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.global-summary__phase {
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 100px;
+  background: rgba(21, 26, 34, 0.06);
+  color: rgba(21, 26, 34, 0.7);
+
+  &--forte {
+    background: rgba(58, 74, 46, 0.12);
+    color: #3A4A2E;
+  }
+  &--atencao {
+    background: rgba(192, 146, 129, 0.2);
+    color: #a8674f;
+  }
+  &--sem-dado {
+    background: rgba(21, 26, 34, 0.04);
+    color: rgba(21, 26, 34, 0.4);
+    font-style: italic;
+  }
+}
+
+.history-card {
+  margin-top: 16px;
+  padding: 0;
+  overflow: hidden;
+}
+.history-card__summary {
+  padding: 16px 22px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #151A22;
+  cursor: pointer;
+  list-style: none;
+
+  &::-webkit-details-marker {
+    display: none;
+  }
+  &::before {
+    content: '▸';
+    display: inline-block;
+    margin-right: 8px;
+    color: rgba(21, 26, 34, 0.4);
+  }
+}
+.history-card[open] .history-card__summary::before {
+  content: '▾';
+}
+.history-card__list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid rgba(21, 26, 34, 0.08);
+}
+.history-entry {
+  padding: 16px 22px;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid rgba(21, 26, 34, 0.06);
+  }
+}
+.history-entry__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.history-entry__phase {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #151A22;
+}
+.history-entry__pct {
+  font-size: 12px;
+  color: rgba(21, 26, 34, 0.5);
+}
+.history-entry__text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: rgba(21, 26, 34, 0.75);
 }

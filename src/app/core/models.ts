@@ -301,12 +301,24 @@ export interface CandidateProfileData {
   experience: ExperienceEntry[];
   education: { degree: string; institution: string; period: string };
   skills: string[];
-  /** `null` enquanto o candidato não foi avaliado — antes era um objeto zerado, que a tela mostrava
-   * como "0%", indistinguível de uma avaliação real com nota baixa. */
+  /** `null` enquanto o candidato não foi avaliado NESTA FASE — antes era um objeto zerado, que a
+   * tela mostrava como "0%", indistinguível de uma avaliação real com nota baixa. */
   ai: CandidateAssessment | null;
+  /** Avaliação de cada fase ANTERIOR já avaliada (a atual não repete — está em `ai`), mais antiga
+   * primeiro, na ordem do funil desta campanha. `[]` quando esta é a primeira fase avaliada. */
+  aiHistory: CandidateAssessmentHistoryEntry[];
 }
 
-/** Sugestão da IA para um candidato numa fase. Sempre sugestão: a decisão é do recrutador. */
+/**
+ * Sugestão da IA para um candidato numa fase. Sempre sugestão: a decisão é do recrutador.
+ *
+ * `confidence` é o único discriminador de quanto confiar nesta avaliação — `'insuficiente'` não é
+ * um erro nem um valor baixo de match: é a IA dizendo explicitamente que não tem evidência pra
+ * concluir nada de novo nesta fase (ver ai-card no candidate-profile.component.html). Nesse caso
+ * `matchPct`/`strengths`/`concerns`/`justification` ainda vêm preenchidos pelo backend (o schema
+ * do modelo exige), mas a tela NÃO os trata como conclusão — mostra `stageInsight`/
+ * `missingInformation` em vez disso.
+ */
 export interface CandidateAssessment {
   matchPct: number;
   matchLabel: string;
@@ -314,6 +326,26 @@ export interface CandidateAssessment {
   strengths: string[];
   concerns: string[];
   justification: string;
+  confidence: 'alta' | 'media' | 'baixa' | 'insuficiente';
+  /** Insight curto, específico do foco desta fase (fit cultural / aderência técnica / o que a
+   * entrevista revelou) — distinto de `justification`, que é a justificativa geral de sempre.
+   * Vazio nas fases sem foco definido (Recebidos, Selecionados). */
+  stageInsight: string;
+  /** O que faltou para concluir com mais confiança nesta fase — pode vir preenchido mesmo com
+   * `confidence` alta (lacuna menor), não só quando `confidence` é 'insuficiente'. */
+  missingInformation: string[];
+  /** Compara com a fase ANTERIOR avaliada deste candidato (não com a campanha inteira). Vazio
+   * quando não há fase anterior avaliada, ou quando o backend não teve base pra comparar — a tela
+   * só deve renderizar isto quando `aiHistory` também tiver uma fase anterior de verdade. */
+  comparisonFlag: 'reforca_anterior' | 'diverge_anterior' | 'novo' | '';
+}
+
+/** Uma linha do histórico de avaliações do candidato — a mesma forma de `CandidateAssessment`,
+ * com a fase a que pertence. */
+export interface CandidateAssessmentHistoryEntry extends CandidateAssessment {
+  phase: PhaseKey;
+  phaseLabel: string;
+  createdAt: string;
 }
 
 /** Vaga vista pelo candidato anônimo, via link público de campanha — só o subconjunto seguro de

@@ -348,6 +348,10 @@ export class MockApiService extends DataApi {
         strengths: ['Perfil alinhado à vaga'],
         concerns: ['Dados simulados — sem análise real'],
         justification: 'Resposta de exemplo do modo mock; a análise real vem do backend.',
+        confidence: 'media',
+        stageInsight: '',
+        missingInformation: [],
+        comparisonFlag: '',
       },
     );
   }
