@@ -5,6 +5,7 @@ import { DataApi } from './data-api';
 import { APP_CONFIG } from './app-config';
 import {
   ActivityItem,
+  AddTalentsResult,
   AiSuggestion,
   AuthSession,
   CAMPAIGN_CONTRACT_TYPE_LABELS,
@@ -32,6 +33,7 @@ import {
   RejectionReasonKey,
   Talent,
   TalentMatch,
+  TalentRecommendation,
   TeamMember,
   UpdateCampaignInput,
   UserProfile,
@@ -549,8 +551,80 @@ export class MockApiService extends DataApi {
     return this.simulate(talent);
   }
 
-  getReverseMatchForNewCampaign(criteria: { title: string; modality?: string; seniority?: string }): Observable<TalentMatch[]> {
+  // Mesma regra de LGPD do backend real (ver eligibleConsentStatesSQL em campaign/repository.go):
+  // só consentido/notificado viram candidato ativo — nao_notificado precisa de primeiro contato
+  // antes, oposicao_exclusao nunca entra.
+  addTalentsToCampaign(campaignId: string, talentIds: string[]): Observable<AddTalentsResult> {
+    const added: string[] = [];
+    const skipped: AddTalentsResult['skipped'] = [];
+    const list = (MOCK_CANDIDATES_BY_CAMPAIGN[campaignId] ??= []);
+
+    for (const id of talentIds) {
+      const talent = this.talents.find((t) => t.id === id);
+      if (!talent) {
+        skipped.push({ talentId: id, name: '', reason: 'não encontrado no banco desta empresa' });
+        continue;
+      }
+      if (talent.consentState === 'oposicao_exclusao') {
+        skipped.push({ talentId: id, name: talent.name, reason: 'esta pessoa pediu exclusão dos dados — nunca pode virar candidata' });
+        continue;
+      }
+      if (talent.consentState === 'nao_notificado') {
+        skipped.push({
+          talentId: id,
+          name: talent.name,
+          reason: 'ainda não foi notificado(a) sobre o tratamento dos dados — marque "primeiro contato" antes de adicionar',
+        });
+        continue;
+      }
+      list.push({
+        id: `mock-candidate-${talent.id}`,
+        campaignId,
+        phase: 'recebidos',
+        name: talent.name,
+        email: '',
+        experience: talent.seniority,
+        location: talent.location,
+        matchPct: null,
+        yearsExperience: talent.yearsExperience,
+        status: 'Triagem IA',
+        initials: talent.initials,
+        avatarColorIndex: talent.avatarColorIndex,
+        talentId: talent.id,
+      });
+      added.push(id);
+    }
+    return this.simulate({ added, skipped });
+  }
+
+  getReverseMatchForNewCampaign(criteria: { title: string; modality?: string; seniority?: string; requirements?: string }): Observable<TalentMatch[]> {
+    // O motor client-side (talent-matching.ts) ainda só lê título/modalidade/senioridade — ler
+    // requisitos também é uma melhoria só do backend real por ora (ver reversematch.go).
     return this.simulate(reverseMatchForCriteria(criteria, this.talents));
+  }
+
+  // Etapa 2 do match reverso: no backend real chama a IA (Groq), com orçamento/cache; aqui é só
+  // uma resposta canônica "modo mock", mesmo espírito de assessCandidate() acima — o matchPct
+  // reaproveita o score determinístico já calculado, o resto é texto de exemplo.
+  assessTalentsForCampaign(campaignId: string, talentIds: string[]): Observable<TalentRecommendation[]> {
+    const byId = new Map(this.talents.map((t) => [t.id, t]));
+    const recommendations: TalentRecommendation[] = talentIds
+      .map((id) => byId.get(id))
+      .filter((t): t is Talent => !!t)
+      .map((talent) => ({
+        talent,
+        assessment: {
+          matchPct: 72,
+          matchLabel: 'Bom match',
+          matchNote: 'Análise simulada (modo mock)',
+          strengths: ['Perfil alinhado à vaga'],
+          concerns: ['Dados simulados — sem análise real'],
+          justification: 'Resposta de exemplo do modo mock; a leitura real vem do backend.',
+          confidence: 'media',
+          missingInformation: [],
+        },
+      }));
+    return this.simulate(recommendations);
   }
 
   private currentUser(): MockAuthUser | undefined {

@@ -1,6 +1,7 @@
 import { Observable } from 'rxjs';
 import {
   ActivityItem,
+  AddTalentsResult,
   AiSuggestion,
   AuthSession,
   Campaign,
@@ -24,6 +25,7 @@ import {
   RejectionReasonKey,
   Talent,
   TalentMatch,
+  TalentRecommendation,
   TeamMember,
   UpdateCampaignInput,
   UserProfile,
@@ -184,10 +186,30 @@ export abstract class DataApi {
   ): Observable<{ talent?: Talent }>;
   /** Primeiro contato real com um talento de origem manual: dispara o aviso de tratamento e promove nao_notificado -> notificado (seção 5.2). */
   abstract markTalentFirstContact(talentId: string): Observable<Talent | undefined>;
-  /** "Match reverso": talents from the bank that fit a campaign still being drafted (título/modalidade/senioridade do step 1). */
+  /**
+   * Puxa talentos do banco pro funil (fase Recebidos) de uma campanha JÁ CRIADA — a ação que
+   * faltava depois de "ver talentos sugeridos"/"pedir leitura da IA" na Visão Geral da campanha.
+   * Talento com exclusão solicitada, ou ainda não notificado sobre o tratamento dos dados, não é
+   * adicionado — volta em `skipped`, nunca falha silenciosamente (ver AddTalentsResult).
+   */
+  abstract addTalentsToCampaign(campaignId: string, talentIds: string[]): Observable<AddTalentsResult>;
+  /**
+   * "Match reverso": talents from the bank that fit a campaign still being drafted
+   * (título/modalidade/senioridade do step 1). `requirements` é opcional mas importante: título
+   * sozinho raramente nomeia skill ("Engenheiro de dados" não menciona nem "Python" nem "SQL"),
+   * requisitos costuma nomear — ver MatchCriteria no backend (talent/reversematch.go).
+   */
   abstract getReverseMatchForNewCampaign(criteria: {
     title: string;
     modality?: string;
     seniority?: string;
+    requirements?: string;
   }): Observable<TalentMatch[]>;
+  /**
+   * Etapa 2 do match reverso: pede à IA uma leitura qualitativa de até 5 talentos já ranqueados
+   * pelo match determinístico, contra a vaga de uma campanha JÁ CRIADA (nunca um rascunho — ver
+   * documentos/banco-de-talentos-recomendacao-plano.md). Sempre uma ação explícita do recrutador
+   * sobre um recorte que ele já escolheu, nunca disparada automaticamente.
+   */
+  abstract assessTalentsForCampaign(campaignId: string, talentIds: string[]): Observable<TalentRecommendation[]>;
 }

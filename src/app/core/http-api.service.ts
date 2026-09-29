@@ -6,6 +6,7 @@ import { DataApi } from './data-api';
 import { APP_CONFIG } from './app-config';
 import {
   ActivityItem,
+  AddTalentsResult,
   AiSuggestion,
   AuthSession,
   Campaign,
@@ -29,6 +30,7 @@ import {
   RejectionReasonKey,
   Talent,
   TalentMatch,
+  TalentRecommendation,
   TeamMember,
   UpdateCampaignInput,
   UserProfile,
@@ -88,6 +90,10 @@ import { ReportRange } from './report-period';
  *   POST /talents                                       -> Talent  (manual entry, body: ManualTalentInput)
  *   POST /talents/:id/first-contact                     -> Talent (404 -> undefined)
  *   POST /campaigns/reverse-match                        -> TalentMatch[]  (body: { title, modality?, seniority? })
+ *   POST /campaigns/:id/talent-recommendations/assess    -> TalentRecommendation[]  (etapa 2: leitura de IA sob demanda,
+ *        até 5 talentos por chamada, body: { talentIds }; campanha JÁ CRIADA, nunca um rascunho)
+ *   POST /campaigns/:id/talents                          -> AddTalentsResult  (puxa talentos pro funil, fase Recebidos;
+ *        body: { talentIds }; quem não entra — exclusão solicitada ou ainda não notificado — volta em `skipped` com o motivo)
  */
 @Injectable()
 export class HttpApiService extends DataApi {
@@ -378,12 +384,24 @@ export class HttpApiService extends DataApi {
     return this.undefinedOnNotFound(this.http.post<Talent>(`${APP_CONFIG.apiBaseUrl}/talents/${talentId}/first-contact`, {}));
   }
 
+  addTalentsToCampaign(campaignId: string, talentIds: string[]): Observable<AddTalentsResult> {
+    return this.http.post<AddTalentsResult>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/talents`, { talentIds });
+  }
+
   getReverseMatchForNewCampaign(criteria: {
     title: string;
     modality?: string;
     seniority?: string;
+    requirements?: string;
   }): Observable<TalentMatch[]> {
     return this.emptyOnUnavailable(this.http.post<TalentMatch[]>(`${APP_CONFIG.apiBaseUrl}/campaigns/reverse-match`, criteria));
+  }
+
+  assessTalentsForCampaign(campaignId: string, talentIds: string[]): Observable<TalentRecommendation[]> {
+    return this.http.post<TalentRecommendation[]>(
+      `${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/talent-recommendations/assess`,
+      { talentIds },
+    );
   }
 
   getMyProfile(): Observable<UserProfile> {

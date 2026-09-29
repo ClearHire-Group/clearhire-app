@@ -37,6 +37,98 @@
     </div>
   </div>
 
+  <div class="card reverse-match-card">
+    <h2 class="serif funnel-card__title">Sugestões do Banco de Talentos</h2>
+    <p class="muted step__hint">A IA sugere; você revisa e decide quem contatar.</p>
+
+    @if (reverseMatchResults(); as results) {
+      <p class="reverse-match__count">{{ results.length }} talento(s) do banco combinam com esta vaga.</p>
+      <div class="reverse-match__list">
+        @for (r of results; track r.id) {
+          <div class="reverse-match__row" [class.reverse-match__row--selected]="isTalentSelected(r.id)">
+            <label class="reverse-match__row-main">
+              <input
+                type="checkbox"
+                [checked]="isTalentSelected(r.id)"
+                [disabled]="isTalentAdded(r.id) || (!isTalentSelected(r.id) && selectedTalentIds().size >= 5)"
+                (change)="toggleTalentSelection(r.id)"
+              />
+              <div class="ring" [style]="r.ringStyle">
+                <div class="ring__hole"><span>{{ r.pctLabel }}</span></div>
+              </div>
+              <div class="reverse-match__info">
+                <span class="reverse-match__name">{{ r.name }}</span>
+                <span class="reverse-match__meta">{{ r.seniority }} · {{ r.location }}</span>
+              </div>
+              @if (isTalentAdded(r.id)) {
+                <span class="reverse-match__added-badge">Adicionado(a) ao funil ✓</span>
+              }
+            </label>
+
+            @if (assessedById().get(r.id); as rec) {
+              <div class="reverse-match__ai">
+                <span class="reverse-match__ai-label">Leitura da IA — {{ rec.assessment.confidence }} confiança</span>
+                <p class="muted">{{ rec.assessment.justification }}</p>
+                @if (rec.assessment.strengths.length) {
+                  <p class="reverse-match__ai-strengths">
+                    <strong>Pontos fortes:</strong> {{ rec.assessment.strengths.join('; ') }}
+                  </p>
+                }
+                @if (rec.assessment.concerns.length) {
+                  <p class="reverse-match__ai-concerns">
+                    <strong>Pontos de atenção:</strong> {{ rec.assessment.concerns.join('; ') }}
+                  </p>
+                }
+              </div>
+            }
+
+            @if (skipReasonFor(r.id); as reason) {
+              <p class="reverse-match__skip-reason">Não adicionado(a): {{ reason }}</p>
+            }
+          </div>
+        } @empty {
+          <p class="muted">Nenhum talento do banco combina com esses critérios ainda.</p>
+        }
+      </div>
+
+      @if (reverseMatchResults()!.length > 0) {
+        <div class="reverse-match__actions">
+          <span class="muted">{{ selectedTalentIds().size }} de 5 selecionado(s).</span>
+          <div class="reverse-match__action-buttons">
+            <button type="button" class="btn-ghost" [disabled]="!canRequestAiReading()" (click)="requestAiReading()">
+              {{ assessLoading() ? 'Lendo com IA…' : 'Pedir leitura da IA' }}
+            </button>
+            <button
+              type="button"
+              class="btn-primary"
+              [disabled]="selectedTalentIds().size === 0 || addTalentsLoading()"
+              (click)="addSelectedTalentsToCampaign()"
+            >
+              {{ addTalentsLoading() ? 'Adicionando…' : 'Adicionar ao funil' }}
+            </button>
+          </div>
+        </div>
+        @if (assessError()) {
+          <p class="state-message state-message--error">{{ assessError() }}</p>
+        }
+        @if (addTalentsError()) {
+          <p class="state-message state-message--error">{{ addTalentsError() }}</p>
+        }
+        @if (addTalentsResult(); as result) {
+          @if (result.added.length > 0) {
+            <p class="reverse-match__added-summary">
+              {{ result.added.length }} talento(s) adicionado(s) ao funil, fase Recebidos.
+            </p>
+          }
+        }
+      }
+    } @else if (reverseMatchLoading()) {
+      <p class="state-message"><span class="state-spinner"></span> Buscando talentos compatíveis…</p>
+    } @else {
+      <button type="button" class="btn-ghost" (click)="viewSuggestedTalents()">Ver talentos sugeridos</button>
+    }
+  </div>
+
   <div class="shortcut-row">
     <a [routerLink]="['/campanhas', campaignId(), 'funil']" class="card shortcut-card">
       <span class="shortcut-card__title">Ver funil completo</span>

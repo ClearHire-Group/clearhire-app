@@ -87,6 +87,9 @@ export interface CreateCampaignInput {
   contractType: CampaignContractType;
   seniority: CampaignSeniority;
   phaseKeys: Array<'fit' | 'tecnica' | 'entrevista'>;
+  /** Talentos do Banco de Talentos selecionados na tela de match reverso (seção 8.2 da
+   * especificação) — entram como candidatos desta campanha, fase Recebidos, na mesma criação. */
+  talentIds?: string[];
 }
 
 /** Payload de `PATCH /campaigns/:id` — seção "Dados da campanha" em Configurações da Campanha.
@@ -275,6 +278,40 @@ export interface TalentMatch {
   talent: Talent;
   matchPct: number;
   breakdown: ScoreBreakdownLine[];
+}
+
+/**
+ * Leitura qualitativa da IA sobre um talento do banco pra uma vaga específica — etapa 2 do match
+ * reverso (documentos/banco-de-talentos-recomendacao-plano.md), sempre pedida explicitamente pelo
+ * recrutador sobre um recorte pequeno da lista de `TalentMatch`, nunca automática. Mesma forma de
+ * `CandidateAssessment`, sem `stageInsight`/`comparisonFlag`: recomendação de banco não tem fase
+ * nem avaliação anterior a comparar.
+ */
+export interface TalentAssessment {
+  matchPct: number;
+  matchLabel: string;
+  matchNote: string;
+  strengths: string[];
+  concerns: string[];
+  justification: string;
+  confidence: 'alta' | 'media' | 'baixa' | 'insuficiente';
+  missingInformation: string[];
+}
+
+export interface TalentRecommendation {
+  talent: Talent;
+  assessment: TalentAssessment;
+}
+
+/**
+ * Resultado de "puxar talentos pro funil" (match reverso pós-criação — documentos/banco-de-
+ * talentos-recomendacao-plano.md). Nunca um sucesso silencioso genérico: todo id pedido volta em
+ * `added` ou em `skipped`, com o motivo — inclusive quando o motivo é LGPD (a pessoa ainda não foi
+ * notificada de que está no banco, ou pediu exclusão).
+ */
+export interface AddTalentsResult {
+  added: string[];
+  skipped: { talentId: string; name: string; reason: string }[];
 }
 
 export interface CoverageEntry {
