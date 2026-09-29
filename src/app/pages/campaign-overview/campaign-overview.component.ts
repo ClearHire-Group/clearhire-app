@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CampaignContextService } from '../../core/campaign-context';
 import { Phase } from '../../core/models';
+import { CountUpDirective } from '../../shared/count-up.directive';
 
 interface PhaseBar extends Phase {
   /** Largura da barra em % relativa à primeira fase do funil (Recebidos) — mede o drop-off acumulado. */
@@ -15,7 +16,7 @@ interface PhaseBar extends Phase {
 @Component({
   selector: 'app-campaign-overview',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, CountUpDirective],
   templateUrl: './campaign-overview.component.html',
   styleUrl: './campaign-overview.component.scss',
 })

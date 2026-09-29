@@ -190,9 +190,11 @@
               }
 
               <div class="match-box">
-                <div class="ring-lg" [style.background]="'conic-gradient(#B85A3E 0deg ' + ringDeg() + 'deg, rgba(21,26,34,0.1) ' + ringDeg() + 'deg 360deg)'">
+                <!-- O ângulo final vai numa custom property (--ring-target) em vez de o gradiente
+                     inteiro vir no style: assim o CSS consegue varrer de 0 até ele. Ver .ring-lg. -->
+                <div class="ring-lg" [style.--ring-target]="ringTarget()">
                   <div class="ring-lg__hole">
-                    <span class="serif">{{ analysis.matchPct }}%</span>
+                    <span class="serif" [appCountUp]="analysis.matchPct" countUpSuffix="%"></span>
                   </div>
                 </div>
                 <div>
@@ -278,7 +280,7 @@
             <div class="global-summary__header">
               <span class="global-summary__label">Avaliação global</span>
               @if (globalSummary().matchPct !== null) {
-                <span class="global-summary__pct">{{ globalSummary().matchPct }}% match</span>
+                <span class="global-summary__pct"><span [appCountUp]="globalSummary().matchPct" countUpSuffix="%"></span> match</span>
               }
             </div>
             <div class="global-summary__phases">
@@ -299,7 +301,7 @@
                     <span class="history-entry__phase">{{ entry.phaseLabel }}</span>
                     @if (entry.confidence !== 'insuficiente') {
                       <span class="confidence-badge" [class]="'confidence-badge--' + entry.confidence">{{ confidenceLabel(entry.confidence) }}</span>
-                      <span class="history-entry__pct">{{ entry.matchPct }}%</span>
+                      <span class="history-entry__pct" [appCountUp]="entry.matchPct" countUpSuffix="%"></span>
                     } @else {
                       <span class="confidence-badge confidence-badge--insuficiente">Sem conclusão</span>
                     }

@@ -13,6 +13,11 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  animation: fade-rise 520ms var(--ease-out-expo) both;
+
+  &:nth-child(2) { animation-delay: 70ms; }
+  &:nth-child(3) { animation-delay: 140ms; }
+  &:nth-child(4) { animation-delay: 210ms; }
 }
 .stat-tile__label {
   font-size: 11px;
@@ -75,7 +80,10 @@
   border-radius: 4px;
   background: #B85A3E;
   min-width: 4px;
-  transition: width 0.2s ease;
+  transform-origin: left center;
+  /* Keyframes e curva vêm de src/styles.scss. O atraso por linha vem inline do template. */
+  animation: bar-grow 880ms var(--ease-out-expo) both;
+  transition: width 620ms var(--ease-out-expo);
 }
 .funnel-bar-row__count {
   font-size: 13px;

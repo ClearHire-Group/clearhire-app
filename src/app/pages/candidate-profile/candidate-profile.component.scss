@@ -324,6 +324,14 @@ section {
   font-size: 12.5px;
 }
 
+/* O anel varre de 0° até --ring-target (posto inline pelo template) em vez de aparecer pronto.
+   Só funciona porque --ring-deg é registrado com @property em src/styles.scss: sem o registro, o
+   navegador trata custom property como texto e não sabe interpolar um ângulo. */
+@keyframes ring-sweep {
+  from { --ring-deg: 0deg; }
+  to { --ring-deg: var(--ring-target, 0deg); }
+}
+
 .ring-lg {
   width: 76px;
   height: 76px;
@@ -332,6 +340,8 @@ section {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: conic-gradient(#B85A3E 0deg var(--ring-deg, 0deg), rgba(21, 26, 34, 0.1) var(--ring-deg, 0deg) 360deg);
+  animation: ring-sweep 1000ms var(--ease-out-expo) both;
 }
 .ring-lg__hole {
   width: 60px;

@@ -13,6 +13,7 @@ import { completenessTier, toTalentMatchViews, TalentMatchView } from '../../cor
 import { findSimilarInPool, searchTalentPool } from '../../core/talent-matching';
 import { ROWS_PAGE, SortSpec, SortState, ariaSort, nextSort, parseSort, rankIn, searchKey, sortDescription, sortRows } from '../../core/table-sort';
 import { InViewDirective } from '../../shared/in-view.directive';
+import { CountUpDirective } from '../../shared/count-up.directive';
 import { charCount, validateName } from '../../core/application-validation';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -59,7 +60,7 @@ function computeSeniorityRank(label: string): number | null {
 @Component({
   selector: 'app-talent-bank',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageTabsComponent, InfoTooltipComponent, ErrorStateComponent, InViewDirective],
+  imports: [CommonModule, RouterLink, PageTabsComponent, InfoTooltipComponent, ErrorStateComponent, InViewDirective, CountUpDirective],
   templateUrl: './talent-bank.component.html',
   styleUrl: './talent-bank.component.scss',
 })

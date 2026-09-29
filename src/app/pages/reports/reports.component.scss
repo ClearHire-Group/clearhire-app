@@ -1,3 +1,6 @@
+/* Os keyframes (fade-rise/bar-grow/fade-in), a curva --ease-out-expo e as travas de impressão e
+   de "menos movimento" são globais, em src/styles.scss. */
+
 .page-header {
   display: flex;
   align-items: flex-end;
@@ -92,6 +95,10 @@
 .metric-card {
   position: relative;
   padding: 22px 24px;
+  animation: fade-rise 520ms var(--ease-out-expo) both;
+
+  &:nth-child(2) { animation-delay: 70ms; }
+  &:nth-child(3) { animation-delay: 140ms; }
 
   &--hero {
     padding-top: 25px;
@@ -151,6 +158,7 @@
 
 .panel {
   padding: 24px;
+  animation: fade-rise 520ms var(--ease-out-expo) 160ms both;
 
   h2 {
     font-size: 18px;
@@ -192,6 +200,12 @@
   min-width: 4px;
   border-radius: 4px;
   background: #B85A3E;
+  transform-origin: left center;
+  animation: bar-grow 880ms var(--ease-out-expo) both;
+  /* O atraso por linha vem inline do template ($index). A transição cobre o OUTRO caso: trocar o
+     período muda a largura de uma barra que já existe, e aí ela desliza até o novo valor em vez
+     de saltar (a animação acima só roda quando o elemento nasce). */
+  transition: width 620ms var(--ease-out-expo);
 }
 .funnel-row__count {
   width: 40px;
@@ -205,12 +219,14 @@
   font-size: 11px;
   color: rgba(21, 26, 34, 0.45);
   padding: 7px 0 7px 144px;
+  animation: fade-in 500ms ease-out both;
 }
 
 /* Campaign performance table */
 .table-card {
   padding: 24px 26px;
   overflow-x: auto;
+  animation: fade-rise 520ms var(--ease-out-expo) 240ms both;
 }
 .table-card__title {
   font-size: 19px;
@@ -294,6 +310,9 @@ tr:last-child td {
   height: 100%;
   border-radius: 3px;
   background: #B85A3E;
+  transform-origin: left center;
+  animation: bar-grow 760ms var(--ease-out-expo) both;
+  transition: width 620ms var(--ease-out-expo);
 }
 
 .empty-row {

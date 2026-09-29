@@ -99,3 +99,13 @@ export function reportPeriodLabel(key: ReportPeriodKey, now = new Date()): strin
       return 'todo o período';
   }
 }
+
+/**
+ * O mesmo período com a preposição embutida, pra frase corrida do cabeçalho do PDF
+ * ("Candidaturas dos últimos 30 dias" / "Candidaturas de agosto de 2026"). Existe separado de
+ * reportPeriodLabel porque a contração muda com o rótulo — "de agosto" mas "dos últimos 30 dias".
+ */
+export function reportPeriodPhrase(key: ReportPeriodKey, now = new Date()): string {
+  const label = reportPeriodLabel(key, now);
+  return key === 'ultimos-30-dias' || key === 'ultimos-90-dias' ? `dos ${label}` : `de ${label}`;
+}

@@ -297,6 +297,10 @@ tr:last-child td {
   border-radius: 6px;
   background: #B85A3E;
   min-width: 4px;
+  transform-origin: left center;
+  /* Keyframes e curva vêm de src/styles.scss. O atraso por linha vem inline do template. */
+  animation: bar-grow 820ms var(--ease-out-expo) both;
+  transition: width 620ms var(--ease-out-expo);
 }
 .coverage-row__count {
   font-size: 12px;

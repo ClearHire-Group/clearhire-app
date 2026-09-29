@@ -11,14 +11,16 @@ import {
   ReportPeriodKey,
   parseReportPeriodKey,
   reportPeriodLabel,
+  reportPeriodPhrase,
   reportRangeFor,
 } from '../../core/report-period';
 import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
+import { CountUpDirective } from '../../shared/count-up.directive';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, RouterLink, ErrorStateComponent],
+  imports: [CommonModule, RouterLink, ErrorStateComponent, CountUpDirective],
   templateUrl: './reports.component.html',
   styleUrl: './reports.component.scss',
 })
@@ -44,6 +46,8 @@ export class ReportsComponent {
   readonly companyState = toLoadable(this.api.getCompanyProfile());
 
   readonly periodLabel = computed(() => reportPeriodLabel(this.periodKey()));
+  /** Com preposição, só pro cabeçalho do PDF — ver reportPeriodPhrase. */
+  readonly periodPhrase = computed(() => reportPeriodPhrase(this.periodKey()));
 
   /** Recalculada a cada impressão (inclusive Ctrl+P, via listener) — uma aba aberta desde ontem
    * geraria um PDF datado de ontem se isto fosse fixado na construção do componente. */

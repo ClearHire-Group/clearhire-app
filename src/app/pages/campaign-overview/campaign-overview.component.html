@@ -2,7 +2,7 @@
   <div class="stat-row">
     <div class="card stat-tile">
       <span class="stat-tile__label">Candidatos no total</span>
-      <span class="serif stat-tile__value">{{ campaign.totalCandidates }}</span>
+      <span class="serif stat-tile__value" [appCountUp]="campaign.totalCandidates"></span>
     </div>
     <div class="card stat-tile">
       <span class="stat-tile__label">Fase atual</span>
@@ -10,7 +10,7 @@
     </div>
     <div class="card stat-tile">
       <span class="stat-tile__label">Taxa de conversão</span>
-      <span class="serif stat-tile__value">{{ conversionPct() }}%</span>
+      <span class="serif stat-tile__value" [appCountUp]="conversionPct()" [countUpDecimals]="1" countUpSuffix="%"></span>
       <span class="stat-tile__hint">selecionados / total</span>
     </div>
     <div class="card stat-tile">
@@ -24,13 +24,13 @@
   <div class="card funnel-card">
     <h2 class="serif funnel-card__title">Funil da campanha</h2>
     <div class="funnel-bars">
-      @for (phase of phaseBars(); track phase.key) {
+      @for (phase of phaseBars(); track phase.key; let i = $index) {
         <div class="funnel-bar-row" [title]="phase.stepConversionPct !== null ? phase.count + ' candidatos · ' + phase.stepConversionPct + '% em relação à fase anterior' : phase.count + ' candidatos'">
           <span class="funnel-bar-row__label">{{ phase.label }}</span>
           <div class="funnel-bar-row__track">
-            <div class="funnel-bar-row__fill" [style.width.%]="phase.widthPct"></div>
+            <div class="funnel-bar-row__fill" [style.width.%]="phase.widthPct" [style.animation-delay.ms]="i * 90"></div>
           </div>
-          <span class="funnel-bar-row__count">{{ phase.count }}</span>
+          <span class="funnel-bar-row__count" [appCountUp]="phase.count" [countUpDurationMs]="900"></span>
           <span class="funnel-bar-row__step">{{ phase.stepConversionPct !== null ? phase.stepConversionPct + '%' : '—' }}</span>
         </div>
       }

@@ -6,6 +6,7 @@ import { map, switchMap } from 'rxjs';
 import { PageTabsComponent, SubTab } from '../../layout/page-tabs/page-tabs.component';
 import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 import { DataApi } from '../../core/data-api';
+import { CountUpDirective } from '../../shared/count-up.directive';
 import { toLoadable } from '../../core/loadable';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CandidateAssessment, CandidateAssessmentHistoryEntry, PHASE_LABELS, REJECTION_REASONS, RejectionReasonKey } from '../../core/models';
@@ -44,7 +45,7 @@ const GLOBAL_STATE_LABELS: Record<GlobalState, string> = {
 @Component({
   selector: 'app-candidate-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageTabsComponent, ErrorStateComponent],
+  imports: [CommonModule, RouterLink, PageTabsComponent, ErrorStateComponent, CountUpDirective],
   templateUrl: './candidate-profile.component.html',
   styleUrl: './candidate-profile.component.scss',
 })
@@ -117,6 +118,10 @@ export class CandidateProfileComponent {
   }
 
   readonly ringDeg = computed(() => Math.round((this.ai()?.matchPct ?? 0) * 3.6));
+  /** O ângulo já com unidade, pra ir inteiro numa custom property — não dependemos de o Angular
+   * aplicar sufixo de unidade em `[style.--x]`, que não é garantido como em `[style.width.px]`.
+   * É o alvo que o keyframe ring-sweep varre (ver o SCSS). */
+  readonly ringTarget = computed(() => `${this.ringDeg()}deg`);
 
   /** Fases ANTERIORES já avaliadas (a atual já vem em `ai`, nunca duplicada aqui — ver comentário
    * de CandidateProfileData.aiHistory). `[]` até o perfil carregar ou se esta é a primeira fase

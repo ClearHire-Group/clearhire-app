@@ -290,6 +290,54 @@ th[aria-sort='ascending'] .th-sort__icon { opacity: 1; transform: rotate(180deg)
 .load-more-row td { text-align: center; padding: 14px 0; border-bottom: none; }
 .load-more-btn { font-size: 12.5px; }
 
+/* ===== Animação de dados (compartilhada pelas telas com estatística) =====
+   Curva "expo out": arranca rápido e assenta devagar, em vez de velocidade constante (que parece
+   mecânica) ou do dado aparecendo pronto. Os keyframes moram aqui porque CSS keyframes são
+   globais — repetir em cada componente seria a mesma definição copiada N vezes.
+   Números são animados pela diretiva [appCountUp] (shared/count-up.directive.ts). */
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Registrar o tipo é o que permite ANIMAR o ângulo do anel de match: sem @property, uma custom
+   property é só texto pro navegador, e ele não interpola texto. Com o registro, o conic-gradient
+   varre suavemente (ver .ring-lg em candidate-profile). Navegador sem suporte simplesmente ignora
+   o bloco e o anel aparece direto no valor final — degrada sem quebrar. */
+@property --ring-deg {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes fade-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* scaleX em vez de animar a largura: a largura final já está no style inline (é o dado), então
+   animar a escala mantém o layout estável e roda na GPU, sem recalcular layout a cada quadro. */
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Quem pede menos movimento no sistema recebe tudo pronto. Vale para o app inteiro, não só para as
+   telas de estatística; a diretiva de contagem faz o equivalente do lado do JavaScript. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ===== Impressão / exportar em PDF =====
    Vale pra qualquer tela, não só Relatórios: quem aperta Ctrl+P não quer a navegação no papel.
    Os `!important` são necessários — as regras de `.shell` moram em app.component.scss, e a
@@ -312,6 +360,16 @@ th[aria-sort='ascending'] .th-sort__icon { opacity: 1; transform: rotate(180deg)
   app-top-bar,
   .screen-only {
     display: none !important;
+  }
+
+  /* Imprimir no meio de uma animação sairia com barra pela metade e card meio transparente no
+     PDF. Nada anima no papel: sempre o estado final. Matar a animação já devolve o elemento ao
+     estado natural (sem transform, opacidade cheia), porque o fill-mode deixa de valer. */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
   }
 
   /* O shell é 100vh com rolagem interna: sem neutralizar, o PDF sai cortado na primeira página. */

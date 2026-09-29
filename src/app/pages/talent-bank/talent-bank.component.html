@@ -163,13 +163,13 @@
           <app-error-state kind="error" message="Não foi possível carregar o mapa de cobertura."></app-error-state>
         } @else {
           <div class="coverage-bars">
-            @for (c of coverageState.data(); track c.skillTerm) {
+            @for (c of coverageState.data(); track c.skillTerm; let i = $index) {
               <div class="coverage-row">
                 <span class="coverage-row__label">{{ c.skillTerm }}</span>
                 <div class="coverage-row__track">
-                  <div class="coverage-row__fill" [style.width.%]="(c.count / maxCoverageCount()) * 100"></div>
+                  <div class="coverage-row__fill" [style.width.%]="(c.count / maxCoverageCount()) * 100" [style.animation-delay.ms]="i * 60"></div>
                 </div>
-                <span class="coverage-row__count">{{ c.count }}</span>
+                <span class="coverage-row__count" [appCountUp]="c.count" [countUpDurationMs]="800"></span>
               </div>
             } @empty {
               <p class="empty-row">Ainda não há dados suficientes para o mapa de cobertura.</p>

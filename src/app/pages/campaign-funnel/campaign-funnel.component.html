@@ -10,7 +10,7 @@
           <span class="funnel__num" [class.funnel__num--active]="phase.key === selectedPhase()">{{ phase.num }}</span>
           <span class="funnel__label">{{ phase.label }}</span>
         </div>
-        <div class="serif funnel__count">{{ phase.count }}</div>
+        <div class="serif funnel__count" [appCountUp]="phase.count" [countUpDurationMs]="900"></div>
       </div>
       @if (!last) {
         <div class="funnel__arrow">
