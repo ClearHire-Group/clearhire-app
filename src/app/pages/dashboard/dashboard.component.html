@@ -8,7 +8,9 @@
           Últimos 30 dias
         </span>
       </div>
-      <a href="javascript:void(0)" class="page-header__link">
+      <!-- Sem `?periodo=`: o padrão de /relatorios (DEFAULT_REPORT_PERIOD) já é
+           `ultimos-30-dias`, o mesmo recorte do chip ao lado do título. -->
+      <a routerLink="/relatorios" class="page-header__link">
         Ver relatório completo
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#B85A3E" stroke-width="2.2"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
       </a>
