@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { delay, map } from 'rxjs/operators';
 import { DataApi } from './data-api';
 import { APP_CONFIG } from './app-config';
 import {
@@ -27,16 +27,21 @@ import {
   PHASE_LABELS,
   PublicApplicationManualInput,
   PublicCampaignInfo,
+  PublicProfileLead,
+  PublicProfileSource,
   REJECTION_REASONS,
   RegisterCompanyInput,
   RegisterCompanyResult,
   RejectionReasonKey,
+  ReferralProspectInput,
+  SourcingProspect,
   Talent,
   TalentMatch,
   TalentRecommendation,
   TeamMember,
   UpdateCampaignInput,
   UserProfile,
+  XRayProspectInput,
 } from './models';
 import { ReportRange } from './report-period';
 import {
@@ -49,6 +54,8 @@ import {
   MOCK_COMPANY_PROFILE,
   MOCK_DASHBOARD_METRICS,
   MOCK_NOTIFICATIONS,
+  MOCK_PUBLIC_PROFILE_LEADS,
+  MOCK_SOURCING_PROSPECTS_BY_CAMPAIGN,
   MOCK_TALENTS,
   MockAuthUser,
 } from './mock-data';
@@ -468,7 +475,8 @@ export class MockApiService extends DataApi {
       languages: [],
       salaryRangeLabel: 'A confirmar',
       availabilityLabel: 'A confirmar',
-      origin: 'cadastro_manual',
+      origin: input.origin ?? 'cadastro_manual',
+      referredBy: input.origin === 'indicacao' ? input.referredBy : undefined,
       legalBasis: 'legitimo_interesse',
       consentState: 'nao_notificado',
       updatedAt: this.today(),
@@ -627,6 +635,100 @@ export class MockApiService extends DataApi {
     return this.simulate(recommendations);
   }
 
+  // --- Sourcing (fase antes de "Recebidos") ---------------------------------------------------
+
+  // Cópia rasa de propósito: as ferramentas abaixo mutam o array armazenado em MOCK_SOURCING_-
+  // PROSPECTS_BY_CAMPAIGN in-place (unshift), então devolver a referência crua faria o Angular
+  // signal (`toLoadable`) achar "o valor não mudou" (Object.is na mesma referência) e nunca
+  // notificar a tela depois de um refresh — um backend de verdade também nunca devolveria a
+  // mesma referência de objeto duas vezes.
+  getSourcingProspects(campaignId: string): Observable<SourcingProspect[]> {
+    return this.simulate([...(MOCK_SOURCING_PROSPECTS_BY_CAMPAIGN[campaignId] ?? [])]);
+  }
+
+  addReferralProspect(campaignId: string, input: ReferralProspectInput): Observable<SourcingProspect> {
+    const list = (MOCK_SOURCING_PROSPECTS_BY_CAMPAIGN[campaignId] ??= []);
+    const prospect: SourcingProspect = {
+      id: this.prospectId(),
+      campaignId,
+      name: input.name,
+      initials: this.initialsFor(input.name),
+      avatarColorIndex: (list.length % 3) as 0 | 1 | 2,
+      tool: 'indicacao',
+      sourceLabel: `Indicado(a) por ${input.referrerName}`,
+      referrerName: input.referrerName,
+      notes: input.contact ? `${input.note}\n\nContato: ${input.contact}` : input.note,
+      addedAt: this.today(),
+      status: 'novo',
+    };
+    list.unshift(prospect);
+    return this.simulate(prospect);
+  }
+
+  // Resposta canônica "modo mock" (ver comentário de assessTalentsForCampaign acima) — em produção
+  // a IA lê a vaga (skills/senioridade/localização) e monta a busca contra a API pública de
+  // verdade; aqui é uma lista fixa por fonte, `campaignId` nem entra na leitura ainda.
+  searchPublicProfiles(campaignId: string, source: PublicProfileSource): Observable<PublicProfileLead[]> {
+    return this.simulate(MOCK_PUBLIC_PROFILE_LEADS[source]);
+  }
+
+  addPublicProfileProspects(campaignId: string, leads: PublicProfileLead[]): Observable<SourcingProspect[]> {
+    const list = (MOCK_SOURCING_PROSPECTS_BY_CAMPAIGN[campaignId] ??= []);
+    const sourceName = (s: PublicProfileSource) => (s === 'github' ? 'GitHub' : 'Stack Overflow');
+    const added: SourcingProspect[] = leads.map((lead, i) => ({
+      id: this.prospectId(),
+      campaignId,
+      name: lead.name,
+      initials: this.initialsFor(lead.name),
+      avatarColorIndex: ((list.length + i) % 3) as 0 | 1 | 2,
+      tool: 'busca_publica',
+      sourceLabel: `Encontrado(a) no ${sourceName(lead.source)}`,
+      profileUrl: lead.profileUrl,
+      notes: lead.bio,
+      addedAt: this.today(),
+      status: 'novo',
+    }));
+    list.unshift(...added);
+    return this.simulate(added);
+  }
+
+  addXRayProspect(campaignId: string, input: XRayProspectInput): Observable<SourcingProspect> {
+    const list = (MOCK_SOURCING_PROSPECTS_BY_CAMPAIGN[campaignId] ??= []);
+    const prospect: SourcingProspect = {
+      id: this.prospectId(),
+      campaignId,
+      name: input.name,
+      initials: this.initialsFor(input.name),
+      avatarColorIndex: (list.length % 3) as 0 | 1 | 2,
+      tool: 'x_ray',
+      sourceLabel: 'Encontrado(a) via busca X-Ray',
+      profileUrl: input.profileUrl || undefined,
+      notes: input.note,
+      addedAt: this.today(),
+      status: 'novo',
+    };
+    list.unshift(prospect);
+    return this.simulate(prospect);
+  }
+
+  // Reaproveita registerManualTalent (mesma construção de Talent que o cadastro manual do Banco de
+  // Talentos já usa) em vez de duplicar a lógica — só soma a atualização do prospect no sucesso.
+  registerSourcingProspectAsTalent(
+    campaignId: string,
+    prospectId: string,
+    input: ManualTalentInput,
+  ): Observable<{ prospect: SourcingProspect; talent: Talent }> {
+    const prospect = (MOCK_SOURCING_PROSPECTS_BY_CAMPAIGN[campaignId] ?? []).find((p) => p.id === prospectId);
+    if (!prospect) return this.simulateError('Prospect não encontrado.');
+    return this.registerManualTalent(input).pipe(
+      map((talent) => {
+        prospect.status = 'cadastrado';
+        prospect.talentId = talent.id;
+        return { prospect, talent };
+      }),
+    );
+  }
+
   private currentUser(): MockAuthUser | undefined {
     return this.authUsers.find((u) => u.email === this.currentUserEmail);
   }
@@ -746,6 +848,10 @@ export class MockApiService extends DataApi {
       .trim()
       .replace(/\s+/g, '-');
     return this.talents.some((t) => t.id === base) ? `${base}-${this.talents.length}` : base;
+  }
+
+  private prospectId(): string {
+    return `prospect-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
   }
 
   private initialsFor(name: string): string {

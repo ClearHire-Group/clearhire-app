@@ -170,6 +170,7 @@ export class CandidateProfileComponent {
     const id = this.campaignId();
     return [
       { label: 'Visão Geral', route: ['/campanhas', id, 'visao-geral'] },
+      { label: 'Sourcing', route: ['/campanhas', id, 'sourcing'] },
       { label: 'Funil', route: ['/campanhas', id, 'funil'] },
       { label: 'Candidatos', route: ['/campanhas', id, 'candidatos'] },
       { label: 'Configurações da Campanha', route: ['/campanhas', id, 'configuracoes'] },
