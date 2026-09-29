@@ -1,19 +1,50 @@
 <div class="page">
   <div class="page-body">
-    <div class="page-header">
-      <div>
-        <span class="page-breadcrumb">Todas as campanhas · últimos 30 dias</span>
-        <h1 class="serif">Relatórios</h1>
+    <!-- Cabeçalho que só existe no PDF: na tela, quem identifica o produto é a sidebar, que a
+         impressão esconde. A marca é o mesmo SVG do sidebar-nav, não uma cópia de imagem. -->
+    <div class="print-letterhead">
+      <div class="print-letterhead__brand">
+        <svg width="26" height="26" viewBox="0 0 360 360">
+          <circle cx="180" cy="180" r="180" fill="#151A22" />
+          <polygon points="180,92 240,152 180,268 120,152" fill="#F0F0E6" />
+          <line x1="120" y1="152" x2="240" y2="152" stroke="#151A22" stroke-width="6" stroke-opacity="0.35" />
+          <line x1="180" y1="92" x2="180" y2="152" stroke="#151A22" stroke-width="6" stroke-opacity="0.35" />
+        </svg>
+        <span class="serif print-letterhead__wordmark">Clearhire</span>
+      </div>
+      <div class="print-letterhead__meta">
+        <p class="serif print-letterhead__title">Relatório de recrutamento</p>
+        <p class="print-letterhead__line">{{ companyState.data()?.name ?? '—' }} · todas as campanhas</p>
+        <p class="print-letterhead__line">Candidaturas {{ periodPhrase() }}</p>
+        <p class="print-letterhead__line">Gerado em {{ generatedAt() }}</p>
       </div>
     </div>
-    <p class="muted intro">Visão consolidada do funil, desempenho por campanha e confiabilidade das recomendações da IA.</p>
+
+    <div class="page-header screen-only">
+      <div>
+        <span class="page-breadcrumb">Todas as campanhas · {{ periodLabel() }}</span>
+        <h1 class="serif">Relatórios</h1>
+      </div>
+      <div class="page-header__actions">
+        <label class="period-picker">
+          <span class="period-picker__label">Período</span>
+          <select class="period-picker__select" [value]="periodKey()" (change)="selectPeriod($any($event.target).value)">
+            @for (p of periods; track p.key) {
+              <option [value]="p.key">{{ p.label }}</option>
+            }
+          </select>
+        </label>
+        <button type="button" class="btn-primary" (click)="downloadPdf()">Baixar PDF</button>
+      </div>
+    </div>
+    <p class="muted intro screen-only">Visão consolidada do funil e desempenho por campanha.</p>
 
     <!-- KPIs -->
     <div class="metrics">
       <div class="card metric-card">
         <span class="metric-kicker">Conversão geral do funil</span>
         <div class="metric-value-row">
-          <p class="serif metric-value">{{ overallConversionPct() }}%</p>
+          <p class="serif metric-value" [appCountUp]="overallConversionPct()" [countUpDecimals]="1" countUpSuffix="%"></p>
         </div>
         <div class="metric-footer">
           <span class="metric-footer-text">Recebidos → Selecionados</span>
@@ -21,33 +52,25 @@
       </div>
 
       <div class="card metric-card">
-        <span class="metric-kicker">Aderência às recomendações da IA</span>
+        <span class="metric-kicker">Candidaturas recebidas</span>
         <div class="metric-value-row">
-          <p class="serif metric-value">{{ trustState.data()?.agreementRatePct ?? '—' }}%</p>
-        </div>
-        <div class="metric-footer">
-          <span class="metric-footer-text">decisões manuais alinhadas à sugestão</span>
-        </div>
-      </div>
-
-      <div class="card metric-card">
-        <span class="metric-kicker">Candidaturas analisadas</span>
-        <div class="metric-value-row">
-          <p class="serif metric-value">{{ receivedCount() ?? '—' }}</p>
+          <p class="serif metric-value" [appCountUp]="receivedCount()"></p>
         </div>
         <div class="metric-footer">
           <span class="metric-footer-text">em todas as campanhas</span>
         </div>
       </div>
 
+      <!-- "Selecionados", não "Contratações": nada no sistema marca contratação ainda, e este
+           número é a contagem da última fase do funil. -->
       <div class="card metric-card metric-card--hero">
         <div class="metric-card__accent-bar"></div>
-        <span class="metric-kicker">Contratações no período</span>
+        <span class="metric-kicker">Chegaram a Selecionados</span>
         <div class="metric-value-row">
-          <p class="serif metric-value metric-value--accent">{{ selectedCount() ?? '—' }}</p>
+          <p class="serif metric-value metric-value--accent" [appCountUp]="selectedCount()"></p>
         </div>
         <div class="metric-footer">
-          <span class="metric-footer-text">candidatos selecionados</span>
+          <span class="metric-footer-text">entre as candidaturas do período</span>
         </div>
       </div>
     </div>
@@ -63,51 +86,24 @@
         } @else if (funnelState.error()) {
           <app-error-state kind="error" message="Não foi possível carregar o funil agregado."></app-error-state>
         } @else {
+          <!-- O atraso cresce por linha: o funil se desenha de cima pra baixo, na ordem em que a
+               pessoa lê, em vez de todas as barras saltarem juntas. -->
           <div class="funnel-chart">
-            @for (p of funnelRows(); track p.key; let first = $first) {
+            @for (p of funnelRows(); track p.key; let first = $first; let i = $index) {
               @if (!first) {
-                <div class="funnel-connector">↓ {{ p.conversionPct }}% avançam para {{ p.label }}</div>
+                <div class="funnel-connector" [style.animation-delay.ms]="i * 90">
+                  ↓ {{ p.conversionPct }}% avançam para {{ p.label }}
+                </div>
               }
               <div class="funnel-row">
                 <span class="funnel-row__name">{{ p.label }}</span>
                 <div class="funnel-row__track">
-                  <div class="funnel-row__fill" [style.width.%]="p.barPct"></div>
+                  <div class="funnel-row__fill" [style.width.%]="p.barPct" [style.animation-delay.ms]="i * 90"></div>
                 </div>
-                <span class="funnel-row__count">{{ p.count }}</span>
+                <span class="funnel-row__count" [appCountUp]="p.count" [countUpDurationMs]="900"></span>
               </div>
             }
           </div>
-        }
-      </div>
-
-      <!-- AI trust -->
-      <div class="card panel">
-        <h2 class="serif">Confiança na IA</h2>
-        <p class="muted panel__subtitle">Com que frequência a decisão manual segue a recomendação da IA.</p>
-
-        @if (trustState.data(); as trust) {
-          <div class="trust-box">
-            <div class="ring-lg" [style.background]="'conic-gradient(#B85A3E 0deg ' + trustRingDeg() + 'deg, rgba(21,26,34,0.1) ' + trustRingDeg() + 'deg 360deg)'">
-              <div class="ring-lg__hole">
-                <span class="serif">{{ trust.agreementRatePct }}%</span>
-              </div>
-            </div>
-            <p class="trust-box__note">Baseado em {{ trust.decisionsAnalyzed }} decisões manuais registradas nos últimos 30 dias.</p>
-          </div>
-          <div class="trust-detail">
-            <div class="trust-detail__row">
-              <span class="trust-detail__dot trust-detail__dot--accent"></span>
-              <span>{{ trust.overriddenApprovals }} candidatos aprovados apesar de match abaixo do recomendado</span>
-            </div>
-            <div class="trust-detail__row">
-              <span class="trust-detail__dot trust-detail__dot--sand"></span>
-              <span>{{ trust.overriddenRejections }} candidato reprovado apesar de match alto</span>
-            </div>
-          </div>
-        } @else if (trustState.loading()) {
-          <p class="state-message"><span class="state-spinner"></span> Carregando…</p>
-        } @else {
-          <p class="state-message state-message--error">Não foi possível carregar esta métrica.</p>
         }
       </div>
     </div>
@@ -133,7 +129,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (row of performanceRows(); track row.campaignId) {
+            @for (row of performanceRows(); track row.campaignId; let i = $index) {
               <tr>
                 <td>
                   <a [routerLink]="['/campanhas', row.campaignId]" class="campaign-link">{{ row.campaignTitle }}</a>
@@ -144,14 +140,14 @@
                   </span>
                 </td>
                 <td><span class="cell-text">{{ row.currentPhaseLabel }}</span></td>
-                <td><span class="cell-text">{{ row.totalCandidates }}</span></td>
-                <td><span class="cell-text">{{ row.selectedCount }}</span></td>
+                <td><span class="cell-text" [appCountUp]="row.totalCandidates" [countUpDurationMs]="800"></span></td>
+                <td><span class="cell-text" [appCountUp]="row.selectedCount" [countUpDurationMs]="800"></span></td>
                 <td>
                   <div class="conversion-cell">
                     <div class="conversion-track">
-                      <div class="conversion-fill" [style.width.%]="row.barPct"></div>
+                      <div class="conversion-fill" [style.width.%]="row.barPct" [style.animation-delay.ms]="i * 55"></div>
                     </div>
-                    <span>{{ row.conversionPct }}%</span>
+                    <span [appCountUp]="row.conversionPct" [countUpDecimals]="1" countUpSuffix="%" [countUpDurationMs]="800"></span>
                   </div>
                 </td>
               </tr>

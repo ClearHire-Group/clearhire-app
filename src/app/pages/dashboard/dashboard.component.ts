@@ -6,6 +6,7 @@ import { ErrorStateComponent } from '../../layout/error-state/error-state.compon
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
 import { Campaign } from '../../core/models';
+import { CountUpDirective } from '../../shared/count-up.directive';
 
 /** Quantas campanhas o resumo do dashboard mostra antes de empurrar o resto para "Ver todas". */
 const DASHBOARD_CAMPAIGN_LIMIT = 4;
@@ -13,7 +14,7 @@ const DASHBOARD_CAMPAIGN_LIMIT = 4;
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, PageTabsComponent, ErrorStateComponent],
+  imports: [CommonModule, RouterLink, PageTabsComponent, ErrorStateComponent, CountUpDirective],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })

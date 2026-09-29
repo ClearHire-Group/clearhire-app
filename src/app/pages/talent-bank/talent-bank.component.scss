@@ -297,6 +297,10 @@ tr:last-child td {
   border-radius: 6px;
   background: #B85A3E;
   min-width: 4px;
+  transform-origin: left center;
+  /* Keyframes e curva vêm de src/styles.scss. O atraso por linha vem inline do template. */
+  animation: bar-grow 820ms var(--ease-out-expo) both;
+  transition: width 620ms var(--ease-out-expo);
 }
 .coverage-row__count {
   font-size: 12px;
@@ -308,4 +312,40 @@ tr:last-child td {
 /* Modal de cadastro manual — shell (.modal-backdrop/.modal-card/.modal-intro/.modal-actions) vem de styles.scss */
 .modal-card .fieldlabel {
   margin-top: 14px;
+}
+
+.req { color: var(--color-accent); font-weight: 700; }
+.field--invalid {
+  border-color: var(--color-accent);
+  background: var(--color-card);
+  &:focus { outline: 2px solid var(--color-accent); outline-offset: -1px; }
+}
+.field-error { display: block; font-size: 12px; line-height: 1.4; color: var(--color-accent); margin-top: 6px; }
+.field-meta {
+  display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px;
+  .field-error { flex: 1; }
+}
+.field-counter { margin-left: auto; margin-top: 6px; font-size: 11.5px; color: var(--color-text-dim); white-space: nowrap; }
+.field-counter--over { color: var(--color-accent); font-weight: 700; }
+.form-error { font-size: 13px; line-height: 1.5; color: var(--color-accent); font-weight: 600; margin: 4px 0 8px; }
+
+.result-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.sort-label {
+  margin: 12px 0 0 auto;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+
+// Cabeçalho ordenável + ícone de ajuda na mesma linha.
+thead th {
+  white-space: nowrap;
 }

@@ -1,12 +1,13 @@
 import { Observable } from 'rxjs';
 import {
   ActivityItem,
+  AddTalentsResult,
   AiSuggestion,
-  AiTrustMetrics,
   AuthSession,
   Campaign,
   CampaignPerformance,
   Candidate,
+  CandidateAssessment,
   CandidateProfileData,
   CompanyProfile,
   CoverageEntry,
@@ -24,10 +25,12 @@ import {
   RejectionReasonKey,
   Talent,
   TalentMatch,
+  TalentRecommendation,
   TeamMember,
   UpdateCampaignInput,
   UserProfile,
 } from './models';
+import { ReportRange } from './report-period';
 
 /**
  * Contract every page depends on. Two implementations exist today:
@@ -135,6 +138,10 @@ export abstract class DataApi {
   ): Observable<void>;
   abstract getCandidates(campaignId: string, phase?: PhaseKey): Observable<Candidate[]>;
   abstract getCandidateProfile(candidateId: string): Observable<CandidateProfileData | undefined>;
+  /** Pede a análise da IA para o candidato na fase atual. Idempotente no servidor: se já existe
+   * uma para esta fase, devolve a existente sem gerar custo. Erra (HttpErrorResponse) quando a IA
+   * não está habilitada, o teto de gasto foi atingido ou o provedor está indisponível. */
+  abstract assessCandidate(candidateId: string): Observable<CandidateAssessment>;
   /** Move o candidato para a próxima fase do funil; no-op se já estiver em "Selecionados". */
   abstract advanceCandidate(candidateId: string): Observable<Candidate | undefined>;
   abstract getCompanyProfile(): Observable<CompanyProfile>;
@@ -143,17 +150,19 @@ export abstract class DataApi {
   abstract updateCompanyProfile(update: Pick<CompanyProfile, 'tone' | 'importance' | 'values'>): Observable<CompanyProfile>;
   abstract getDashboardMetrics(): Observable<DashboardMetrics>;
   abstract getAiSuggestions(): Observable<AiSuggestion[]>;
+  /** Feed da empresa inteira, mais recente primeiro. O servidor limita a janela (ver
+   *  `activity.DefaultLimit` no backend) — é histórico recente, não paginação completa. */
   abstract getActivityFeed(): Observable<ActivityItem[]>;
 
   /** Sino de notificações da top-bar, visível em toda a aplicação. */
   abstract getNotifications(): Observable<Notification[]>;
   abstract markNotificationRead(id: string): Observable<Notification | undefined>;
 
-  /** Aggregate candidate count per funnel phase, across every campaign. */
-  abstract getFunnelSummary(): Observable<Phase[]>;
+  /** Aggregate candidate count per funnel phase, across every campaign.
+   * `range` recorta por data da candidatura; ausente/vazio = todo o período (ver report-period.ts). */
+  abstract getFunnelSummary(range?: ReportRange): Observable<Phase[]>;
   /** One row per campaign: totals, conversion rate, current phase — powers the Relatórios comparison table. */
-  abstract getCampaignPerformance(): Observable<CampaignPerformance[]>;
-  abstract getAiTrustMetrics(): Observable<AiTrustMetrics>;
+  abstract getCampaignPerformance(range?: ReportRange): Observable<CampaignPerformance[]>;
 
   // --- Banco de Talentos ---------------------------------------------------
   /** Full talent roster, no score attached — default view of the bank with no search active. */
@@ -177,10 +186,30 @@ export abstract class DataApi {
   ): Observable<{ talent?: Talent }>;
   /** Primeiro contato real com um talento de origem manual: dispara o aviso de tratamento e promove nao_notificado -> notificado (seção 5.2). */
   abstract markTalentFirstContact(talentId: string): Observable<Talent | undefined>;
-  /** "Match reverso": talents from the bank that fit a campaign still being drafted (título/modalidade/senioridade do step 1). */
+  /**
+   * Puxa talentos do banco pro funil (fase Recebidos) de uma campanha JÁ CRIADA — a ação que
+   * faltava depois de "ver talentos sugeridos"/"pedir leitura da IA" na Visão Geral da campanha.
+   * Talento com exclusão solicitada, ou ainda não notificado sobre o tratamento dos dados, não é
+   * adicionado — volta em `skipped`, nunca falha silenciosamente (ver AddTalentsResult).
+   */
+  abstract addTalentsToCampaign(campaignId: string, talentIds: string[]): Observable<AddTalentsResult>;
+  /**
+   * "Match reverso": talents from the bank that fit a campaign still being drafted
+   * (título/modalidade/senioridade do step 1). `requirements` é opcional mas importante: título
+   * sozinho raramente nomeia skill ("Engenheiro de dados" não menciona nem "Python" nem "SQL"),
+   * requisitos costuma nomear — ver MatchCriteria no backend (talent/reversematch.go).
+   */
   abstract getReverseMatchForNewCampaign(criteria: {
     title: string;
     modality?: string;
     seniority?: string;
+    requirements?: string;
   }): Observable<TalentMatch[]>;
+  /**
+   * Etapa 2 do match reverso: pede à IA uma leitura qualitativa de até 5 talentos já ranqueados
+   * pelo match determinístico, contra a vaga de uma campanha JÁ CRIADA (nunca um rascunho — ver
+   * documentos/banco-de-talentos-recomendacao-plano.md). Sempre uma ação explícita do recrutador
+   * sobre um recorte que ele já escolheu, nunca disparada automaticamente.
+   */
+  abstract assessTalentsForCampaign(campaignId: string, talentIds: string[]): Observable<TalentRecommendation[]>;
 }

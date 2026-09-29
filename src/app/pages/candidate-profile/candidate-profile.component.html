@@ -57,6 +57,10 @@
           <div class="card confirmation-banner">
             @if (result.talentId) {
               <span>Reprovação registrada — <a [routerLink]="['/banco-de-talentos', result.talentId]">talento adicionado ao Banco de Talentos</a>.</span>
+            } @else if (result.sentToBank) {
+              <span>Reprovação registrada. A pessoa não foi adicionada ao Banco de Talentos (ela pediu a exclusão dos dados).</span>
+            } @else if (result.reasonQualifies) {
+              <span>Reprovação registrada. A pessoa não foi enviada ao Banco de Talentos.</span>
             } @else {
               <span>Reprovação registrada. Este motivo não envia o perfil ao Banco de Talentos.</span>
             }
@@ -67,11 +71,23 @@
         @if (advanceResult(); as result) {
           <div class="card confirmation-banner">
             @if (result.nextPhaseLabel) {
-              <span>Candidato aprovado — fase atual: <strong>{{ result.nextPhaseLabel }}</strong>.</span>
+              <span>
+                Candidato aprovado — fase atual: <strong>{{ result.nextPhaseLabel }}</strong>.
+                @if (result.talentId) {
+                  <a [routerLink]="['/banco-de-talentos', result.talentId]">Perfil adicionado ao Banco de Talentos</a> como referência de aprovado.
+                }
+              </span>
             } @else {
               <span>Não foi possível atualizar a fase deste candidato.</span>
             }
             <button type="button" class="dismiss-btn" (click)="advanceResult.set(null)">Fechar</button>
+          </div>
+        }
+
+        @if (decisionError()) {
+          <div class="card confirmation-banner confirmation-banner--error" role="alert">
+            <span>{{ decisionError() }}</span>
+            <button type="button" class="dismiss-btn" (click)="decisionError.set('')">Fechar</button>
           </div>
         }
 
@@ -132,63 +148,179 @@
           </div>
 
           <!-- AI analysis -->
-          <div class="card ai-card" [class.ai-card--sand]="profile.accent === 'sand'">
+          @if (ai(); as analysis) {
+          <div class="card ai-card" [class.ai-card--sand]="profile.accent === 'sand'" [class.ai-card--insufficient]="analysis.confidence === 'insuficiente'">
             <div class="ai-card__header">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" [attr.stroke]="profile.accent === 'sand' ? '#a8674f' : '#B85A3E'" stroke-width="2"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z" /></svg>
               <span class="ai-card__title">Análise da IA · {{ profile.phaseLabel }}</span>
+              @if (analysis.confidence !== 'insuficiente') {
+                <span class="confidence-badge" [class]="'confidence-badge--' + analysis.confidence">{{ confidenceLabel(analysis.confidence) }}</span>
+              }
               <span class="source-tag">GERADO AUTOMATICAMENTE</span>
             </div>
 
-            <div class="match-box">
-              <div class="ring-lg" [style.background]="'conic-gradient(#B85A3E 0deg ' + ringDeg() + 'deg, rgba(21,26,34,0.1) ' + ringDeg() + 'deg 360deg)'">
-                <div class="ring-lg__hole">
-                  <span class="serif">{{ profile.ai.matchPct }}%</span>
+            @if (analysis.confidence === 'insuficiente') {
+              <!-- Ausência de conclusão é um estado de primeira classe, não um erro: texto fixo do
+                   produto (nunca gerado pelo modelo), pra nunca depender do modelo "lembrar" de ser
+                   honesto sobre isso. -->
+              <div class="insufficient-box">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(21,26,34,0.4)" stroke-width="1.8"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+                <div>
+                  <p class="insufficient-box__text">Não há informações suficientes para gerar uma avaliação confiável nesta etapa.</p>
+                  @if (analysis.missingInformation.length) {
+                    <ul class="point-list">
+                      @for (m of analysis.missingInformation; track m) {
+                        <li><span class="point-marker">—</span>{{ m }}</li>
+                      }
+                    </ul>
+                  }
                 </div>
               </div>
-              <div>
-                <div class="match-box__label">{{ profile.ai.matchLabel }}</div>
-                <div class="muted match-box__note">{{ profile.ai.matchNote }}</div>
-              </div>
-            </div>
+            } @else {
+              @if (analysis.stageInsight) {
+                <div class="stage-insight">
+                  <div class="stage-insight__label">
+                    <span>Insight desta fase</span>
+                    @if (showComparisonChip(analysis)) {
+                      <span class="comparison-chip" [class]="'comparison-chip--' + analysis.comparisonFlag">{{ comparisonLabel(analysis.comparisonFlag) }}</span>
+                    }
+                  </div>
+                  <p>{{ analysis.stageInsight }}</p>
+                </div>
+              }
 
-            <section>
-              <div class="list-heading">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3A4A2E" stroke-width="2.4"><path d="M20 6L9 17l-5-5" /></svg>
-                <span>Pontos fortes</span>
+              <div class="match-box">
+                <!-- O ângulo final vai numa custom property (--ring-target) em vez de o gradiente
+                     inteiro vir no style: assim o CSS consegue varrer de 0 até ele. Ver .ring-lg. -->
+                <div class="ring-lg" [style.--ring-target]="ringTarget()">
+                  <div class="ring-lg__hole">
+                    <span class="serif" [appCountUp]="analysis.matchPct" countUpSuffix="%"></span>
+                  </div>
+                </div>
+                <div>
+                  <div class="match-box__label">{{ analysis.matchLabel }}</div>
+                  <div class="muted match-box__note">{{ analysis.matchNote }}</div>
+                </div>
               </div>
-              <ul class="point-list">
-                @for (s of profile.ai.strengths; track s) {
-                  <li><span class="point-marker point-marker--success">—</span>{{ s }}</li>
-                }
-              </ul>
-            </section>
 
-            <section>
-              <div class="list-heading">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a8674f" stroke-width="2.4"><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" /></svg>
-                <span>Pontos de atenção</span>
-              </div>
-              <ul class="point-list">
-                @for (c of profile.ai.concerns; track c) {
-                  <li><span class="point-marker point-marker--sand">—</span>{{ c }}</li>
-                }
-              </ul>
-            </section>
+              <section>
+                <div class="list-heading">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3A4A2E" stroke-width="2.4"><path d="M20 6L9 17l-5-5" /></svg>
+                  <span>Pontos fortes</span>
+                </div>
+                <ul class="point-list">
+                  @for (s of analysis.strengths; track s) {
+                    <li><span class="point-marker point-marker--success">—</span>{{ s }}</li>
+                  }
+                </ul>
+              </section>
 
-            <section class="justification">
-              <div class="justification__label">Justificativa da recomendação</div>
-              <p>{{ profile.ai.justification }}</p>
-            </section>
+              <section>
+                <div class="list-heading">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a8674f" stroke-width="2.4"><path d="M12 9v4M12 17h.01" /><path d="M10.3 3.9L1.8 18a2 2 0 001.7 3h17a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" /></svg>
+                  <span>Pontos de atenção</span>
+                </div>
+                <ul class="point-list">
+                  @for (c of analysis.concerns; track c) {
+                    <li><span class="point-marker point-marker--sand">—</span>{{ c }}</li>
+                  }
+                </ul>
+              </section>
+
+              @if (analysis.missingInformation.length) {
+                <section>
+                  <div class="list-heading">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(21,26,34,0.45)" stroke-width="2.4"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+                    <span>Ainda falta</span>
+                  </div>
+                  <ul class="point-list">
+                    @for (m of analysis.missingInformation; track m) {
+                      <li><span class="point-marker">—</span>{{ m }}</li>
+                    }
+                  </ul>
+                </section>
+              }
+
+              <section class="justification">
+                <div class="justification__label">Justificativa da recomendação</div>
+                <p>{{ analysis.justification }}</p>
+              </section>
+            }
 
             <div class="disclaimer">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(21,26,34,0.4)" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
               <span>Esta análise é uma sugestão da IA com base nos critérios da campanha. A decisão de aprovar ou reprovar é sempre manual, feita por você.</span>
             </div>
           </div>
+          } @else {
+            <div class="card ai-card ai-card--empty" [class.ai-card--sand]="profile.accent === 'sand'">
+              <div class="ai-card__header">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" [attr.stroke]="profile.accent === 'sand' ? '#a8674f' : '#B85A3E'" stroke-width="2"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5 2.3-7.2-6-4.6h7.6z" /></svg>
+                <span class="ai-card__title">Análise da IA · {{ profile.phaseLabel }}</span>
+              </div>
+              <p class="ai-empty__text">Este candidato ainda não foi analisado pela IA nesta fase. A análise compara o perfil com a descrição e os requisitos da vaga e devolve uma sugestão — a decisão continua sendo sua.</p>
+              <button type="button" class="btn-primary ai-empty__button" [disabled]="assessing()" (click)="requestAssessment()">
+                {{ assessing() ? 'Analisando…' : 'Analisar com IA' }}
+              </button>
+              @if (assessError()) {
+                <p class="ai-empty__error" role="alert">{{ assessError() }}</p>
+              }
+              <div class="disclaimer">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(21,26,34,0.4)" stroke-width="2"><circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" /></svg>
+                <span>Sem análise, você ainda pode aprovar ou reprovar manualmente com base nos dados do candidato.</span>
+              </div>
+            </div>
+          }
         </div>
+
+        <!-- Avaliação Global: leitura determinística sobre as avaliações já feitas (ver
+             globalSummary no .ts) — nunca uma nova chamada de IA. -->
+        @if (globalSummary().entries.length > 0) {
+          <div class="card global-summary">
+            <div class="global-summary__header">
+              <span class="global-summary__label">Avaliação global</span>
+              @if (globalSummary().matchPct !== null) {
+                <span class="global-summary__pct"><span [appCountUp]="globalSummary().matchPct" countUpSuffix="%"></span> match</span>
+              }
+            </div>
+            <div class="global-summary__phases">
+              @for (entry of globalSummary().entries; track entry.phaseLabel) {
+                <span class="global-summary__phase" [class]="'global-summary__phase--' + entry.state">{{ entry.phaseLabel }}: {{ entry.stateLabel }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        @if (aiHistory().length > 0) {
+          <details class="card history-card">
+            <summary class="history-card__summary">Histórico de fases anteriores ({{ aiHistory().length }})</summary>
+            <div class="history-card__list">
+              @for (entry of aiHistory(); track entry.phase) {
+                <div class="history-entry">
+                  <div class="history-entry__header">
+                    <span class="history-entry__phase">{{ entry.phaseLabel }}</span>
+                    @if (entry.confidence !== 'insuficiente') {
+                      <span class="confidence-badge" [class]="'confidence-badge--' + entry.confidence">{{ confidenceLabel(entry.confidence) }}</span>
+                      <span class="history-entry__pct" [appCountUp]="entry.matchPct" countUpSuffix="%"></span>
+                    } @else {
+                      <span class="confidence-badge confidence-badge--insuficiente">Sem conclusão</span>
+                    }
+                  </div>
+                  @if (entry.confidence === 'insuficiente') {
+                    <p class="history-entry__text">Não havia informação suficiente para concluir nesta fase.</p>
+                  } @else if (entry.stageInsight) {
+                    <p class="history-entry__text">{{ entry.stageInsight }}</p>
+                  } @else {
+                    <p class="history-entry__text">{{ entry.matchNote }}</p>
+                  }
+                </div>
+              }
+            </div>
+          </details>
+        }
       } @else {
         <div class="card empty-state">
-          <p>Este candidato ainda não tem um perfil detalhado nesta prévia do protótipo. Os exemplos completos, com dados originais e análise da IA lado a lado, estão em Marina Albuquerque e Camila Duarte, na fase Entrevista Estruturada e Fit Cultural.</p>
+          <p>Este candidato ainda não tem um perfil detalhado. O perfil é preenchido quando a candidatura chega pelo link público, com currículo ou pelo formulário manual.</p>
         </div>
       }
 
@@ -218,8 +350,15 @@
               <p class="modal-invite-copy">"Você não seguiu para a próxima etapa desta vaga, mas o seu perfil chamou nossa atenção. Você autoriza que mantenhamos seus dados para futuras oportunidades?"</p>
               <label class="toggle-row">
                 <input type="checkbox" [checked]="sendBankInvite()" (change)="sendBankInvite.set($any($event.target).checked)" />
-                Enviar convite ao Banco de Talentos
+                Adicionar ao Banco de Talentos e enviar o convite
               </label>
+              <p class="muted toggle-hint">
+                @if (sendBankInvite()) {
+                  A pessoa entra no banco com o histórico desta vaga. Se já autorizou o uso dos dados ao se candidatar, entra como <strong>Consentido</strong>; senão, como <strong>Notificado</strong>.
+                } @else {
+                  A pessoa <strong>não</strong> entra no Banco de Talentos.
+                }
+              </p>
               <div class="modal-actions">
                 <button type="button" class="btn-ghost" (click)="rejectStep.set('motivo')">Voltar</button>
                 <button type="button" class="btn-primary" [disabled]="rejectSaving()" (click)="confirmReject()">{{ rejectSaving() ? 'Confirmando…' : 'Confirmar reprovação' }}</button>

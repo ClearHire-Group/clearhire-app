@@ -88,6 +88,7 @@ export class NewCampaignComponent {
         title: this.title(),
         modality: this.modality(),
         seniority: this.seniority(),
+        requirements: serializeJobItems(this.requirements()),
       })
       .subscribe((matches: TalentMatch[]) => {
         this.reverseMatchLoading.set(false);
@@ -131,6 +132,9 @@ export class NewCampaignComponent {
         contractType: this.contractType(),
         seniority: this.seniority(),
         phaseKeys: this.selected,
+        // Talentos que o recrutador reviu e marcou na lista de "Ver talentos sugeridos" (match
+        // reverso) — entram como candidatos desta campanha, fase Recebidos, na mesma criação.
+        talentIds: Array.from(this.selectedTalentIds()),
       })
       .subscribe({
         next: (campaign) => this.router.navigate(['/campanhas', campaign.id]),

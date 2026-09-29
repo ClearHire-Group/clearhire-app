@@ -8,7 +8,7 @@
 
     <p class="muted intro">Histórico de ações da IA e decisões manuais em todas as campanhas.</p>
 
-    @if (activityState.data(); as items) {
+    @if (rows(); as items) {
       <div class="card feed">
         @for (item of items; track item.id; let last = $last) {
           <div class="feed__row" [class.feed__row--last]="last">
@@ -21,9 +21,11 @@
             </div>
             <div class="feed__body">
               <div class="feed__top">
-                <span class="feed__actor" [class.feed__actor--recrutador]="item.actor === 'recrutador'">{{ item.actor === 'ia' ? 'IA' : 'VOCÊ' }}</span>
-                <a [routerLink]="['/campanhas', item.campaignId]" class="feed__campaign">{{ item.campaignTitle }}</a>
-                <span class="dim feed__time">{{ item.timestampLabel }}</span>
+                <span class="feed__actor" [class.feed__actor--recrutador]="item.actor === 'recrutador'">{{ item.actor === 'ia' ? 'IA' : 'EQUIPE' }}</span>
+                @if (item.campaignId) {
+                  <a [routerLink]="['/campanhas', item.campaignId]" class="feed__campaign">{{ item.campaignTitle }}</a>
+                }
+                <span class="dim feed__time">{{ item.timeLabel }}</span>
               </div>
               <p class="feed__message">{{ item.message }}</p>
             </div>

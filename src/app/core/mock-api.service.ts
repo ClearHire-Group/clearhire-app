@@ -5,14 +5,15 @@ import { DataApi } from './data-api';
 import { APP_CONFIG } from './app-config';
 import {
   ActivityItem,
+  AddTalentsResult,
   AiSuggestion,
-  AiTrustMetrics,
   AuthSession,
   CAMPAIGN_CONTRACT_TYPE_LABELS,
   CAMPAIGN_MODALITY_LABELS,
   Campaign,
   CampaignPerformance,
   Candidate,
+  CandidateAssessment,
   CandidateProfileData,
   CompanyProfile,
   CoverageEntry,
@@ -32,14 +33,15 @@ import {
   RejectionReasonKey,
   Talent,
   TalentMatch,
+  TalentRecommendation,
   TeamMember,
   UpdateCampaignInput,
   UserProfile,
 } from './models';
+import { ReportRange } from './report-period';
 import {
   MOCK_ACTIVITY_FEED,
   MOCK_AI_SUGGESTIONS,
-  MOCK_AI_TRUST,
   MOCK_AUTH_USERS,
   MOCK_CAMPAIGNS,
   MOCK_CANDIDATES_BY_CAMPAIGN,
@@ -337,6 +339,24 @@ export class MockApiService extends DataApi {
     return this.simulate(MOCK_CANDIDATE_PROFILES[candidateId]);
   }
 
+  assessCandidate(candidateId: string): Observable<CandidateAssessment> {
+    const existing = MOCK_CANDIDATE_PROFILES[candidateId]?.ai;
+    return this.simulate(
+      existing ?? {
+        matchPct: 72,
+        matchLabel: 'Bom match',
+        matchNote: 'Análise simulada (modo mock)',
+        strengths: ['Perfil alinhado à vaga'],
+        concerns: ['Dados simulados — sem análise real'],
+        justification: 'Resposta de exemplo do modo mock; a análise real vem do backend.',
+        confidence: 'media',
+        stageInsight: '',
+        missingInformation: [],
+        comparisonFlag: '',
+      },
+    );
+  }
+
   advanceCandidate(candidateId: string): Observable<Candidate | undefined> {
     const order: PhaseKey[] = ['recebidos', 'fit', 'tecnica', 'entrevista', 'selecionados'];
     const candidate = Object.values(MOCK_CANDIDATES_BY_CAMPAIGN)
@@ -380,7 +400,10 @@ export class MockApiService extends DataApi {
     return this.simulate(notification);
   }
 
-  getFunnelSummary(): Observable<Phase[]> {
+  /** O mock IGNORA o período: MOCK_CAMPAIGNS guarda contagem por fase, não candidatos com data,
+   * então não há como recortar sem inventar dado. Trocar o período aqui devolve sempre o mesmo
+   * número — o recorte de verdade só existe contra o backend. */
+  getFunnelSummary(_range?: ReportRange): Observable<Phase[]> {
     const keys: PhaseKey[] = ['recebidos', 'fit', 'tecnica', 'entrevista', 'selecionados'];
     const summary: Phase[] = keys.map((key, i) => ({
       key,
@@ -391,7 +414,7 @@ export class MockApiService extends DataApi {
     return this.simulate(summary);
   }
 
-  getCampaignPerformance(): Observable<CampaignPerformance[]> {
+  getCampaignPerformance(_range?: ReportRange): Observable<CampaignPerformance[]> {
     const rows: CampaignPerformance[] = MOCK_CAMPAIGNS.map((c) => {
       const selected = c.phases.find((p) => p.key === 'selecionados')?.count ?? 0;
       return {
@@ -405,10 +428,6 @@ export class MockApiService extends DataApi {
       };
     });
     return this.simulate(rows);
-  }
-
-  getAiTrustMetrics(): Observable<AiTrustMetrics> {
-    return this.simulate(MOCK_AI_TRUST);
   }
 
   getTalents(): Observable<Talent[]> {
@@ -532,8 +551,80 @@ export class MockApiService extends DataApi {
     return this.simulate(talent);
   }
 
-  getReverseMatchForNewCampaign(criteria: { title: string; modality?: string; seniority?: string }): Observable<TalentMatch[]> {
+  // Mesma regra de LGPD do backend real (ver eligibleConsentStatesSQL em campaign/repository.go):
+  // só consentido/notificado viram candidato ativo — nao_notificado precisa de primeiro contato
+  // antes, oposicao_exclusao nunca entra.
+  addTalentsToCampaign(campaignId: string, talentIds: string[]): Observable<AddTalentsResult> {
+    const added: string[] = [];
+    const skipped: AddTalentsResult['skipped'] = [];
+    const list = (MOCK_CANDIDATES_BY_CAMPAIGN[campaignId] ??= []);
+
+    for (const id of talentIds) {
+      const talent = this.talents.find((t) => t.id === id);
+      if (!talent) {
+        skipped.push({ talentId: id, name: '', reason: 'não encontrado no banco desta empresa' });
+        continue;
+      }
+      if (talent.consentState === 'oposicao_exclusao') {
+        skipped.push({ talentId: id, name: talent.name, reason: 'esta pessoa pediu exclusão dos dados — nunca pode virar candidata' });
+        continue;
+      }
+      if (talent.consentState === 'nao_notificado') {
+        skipped.push({
+          talentId: id,
+          name: talent.name,
+          reason: 'ainda não foi notificado(a) sobre o tratamento dos dados — marque "primeiro contato" antes de adicionar',
+        });
+        continue;
+      }
+      list.push({
+        id: `mock-candidate-${talent.id}`,
+        campaignId,
+        phase: 'recebidos',
+        name: talent.name,
+        email: '',
+        experience: talent.seniority,
+        location: talent.location,
+        matchPct: null,
+        yearsExperience: talent.yearsExperience,
+        status: 'Triagem IA',
+        initials: talent.initials,
+        avatarColorIndex: talent.avatarColorIndex,
+        talentId: talent.id,
+      });
+      added.push(id);
+    }
+    return this.simulate({ added, skipped });
+  }
+
+  getReverseMatchForNewCampaign(criteria: { title: string; modality?: string; seniority?: string; requirements?: string }): Observable<TalentMatch[]> {
+    // O motor client-side (talent-matching.ts) ainda só lê título/modalidade/senioridade — ler
+    // requisitos também é uma melhoria só do backend real por ora (ver reversematch.go).
     return this.simulate(reverseMatchForCriteria(criteria, this.talents));
+  }
+
+  // Etapa 2 do match reverso: no backend real chama a IA (Groq), com orçamento/cache; aqui é só
+  // uma resposta canônica "modo mock", mesmo espírito de assessCandidate() acima — o matchPct
+  // reaproveita o score determinístico já calculado, o resto é texto de exemplo.
+  assessTalentsForCampaign(campaignId: string, talentIds: string[]): Observable<TalentRecommendation[]> {
+    const byId = new Map(this.talents.map((t) => [t.id, t]));
+    const recommendations: TalentRecommendation[] = talentIds
+      .map((id) => byId.get(id))
+      .filter((t): t is Talent => !!t)
+      .map((talent) => ({
+        talent,
+        assessment: {
+          matchPct: 72,
+          matchLabel: 'Bom match',
+          matchNote: 'Análise simulada (modo mock)',
+          strengths: ['Perfil alinhado à vaga'],
+          concerns: ['Dados simulados — sem análise real'],
+          justification: 'Resposta de exemplo do modo mock; a leitura real vem do backend.',
+          confidence: 'media',
+          missingInformation: [],
+        },
+      }));
+    return this.simulate(recommendations);
   }
 
   private currentUser(): MockAuthUser | undefined {

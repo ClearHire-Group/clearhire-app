@@ -183,3 +183,41 @@ tr:last-child td {
   font-size: 13.5px;
   color: rgba(21, 26, 34, 0.5);
 }
+
+.table-card__tools {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.table-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 8px;
+  background: #F7F7F1;
+  color: var(--color-text-dim);
+
+  input {
+    border: none;
+    background: transparent;
+    outline: none;
+    font: inherit;
+    font-size: 13px;
+    color: var(--color-text);
+    width: 260px;
+  }
+
+  &:focus-within {
+    border-color: var(--color-accent);
+  }
+}
+
+.view-btn,
+th {
+  white-space: nowrap;
+}

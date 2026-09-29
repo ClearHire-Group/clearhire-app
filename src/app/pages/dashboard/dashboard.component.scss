@@ -42,9 +42,15 @@
   margin-bottom: 36px;
 }
 
+/* Keyframes e curva vêm de src/styles.scss, junto com as travas de impressão e de menos movimento. */
 .metric-card {
   position: relative;
   padding: 22px 24px;
+  animation: fade-rise 520ms var(--ease-out-expo) both;
+
+  &:nth-child(2) { animation-delay: 70ms; }
+  &:nth-child(3) { animation-delay: 140ms; }
+  &:nth-child(4) { animation-delay: 210ms; }
 
   &--hero {
     padding-top: 25px;
@@ -235,6 +241,9 @@
   height: 100%;
   border-radius: 4px;
   background: #B85A3E;
+  transform-origin: left center;
+  animation: bar-grow 880ms var(--ease-out-expo) 220ms both;
+  transition: width 620ms var(--ease-out-expo);
 
   &--sand { background: #C09281; }
 }

@@ -1,4 +1,11 @@
+/* Os keyframes (fade-rise/bar-grow/fade-in), a curva --ease-out-expo e as travas de impressão e
+   de "menos movimento" são globais, em src/styles.scss. */
+
 .page-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 4px;
 
   h1 {
@@ -8,9 +15,79 @@
   }
 }
 
+.page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.period-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.period-picker__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(21, 26, 34, 0.45);
+}
+.period-picker__select {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 1px;
+  }
+}
+
+/* Cabeçalho do PDF: escondido na tela, ver o bloco @media print no fim deste arquivo. */
+.print-letterhead {
+  display: none;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 14px;
+  margin-bottom: 22px;
+  border-bottom: 2px solid var(--color-accent);
+}
+.print-letterhead__brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.print-letterhead__wordmark {
+  font-size: 19px;
+  font-weight: 500;
+  color: #151A22;
+}
+.print-letterhead__meta {
+  text-align: right;
+}
+.print-letterhead__title {
+  font-size: 16px;
+  font-weight: 500;
+  color: #151A22;
+  margin-bottom: 3px;
+}
+.print-letterhead__line {
+  font-size: 11px;
+  color: rgba(21, 26, 34, 0.6);
+  line-height: 1.5;
+}
+
 .metrics {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   margin-bottom: 20px;
 }
@@ -18,6 +95,10 @@
 .metric-card {
   position: relative;
   padding: 22px 24px;
+  animation: fade-rise 520ms var(--ease-out-expo) both;
+
+  &:nth-child(2) { animation-delay: 70ms; }
+  &:nth-child(3) { animation-delay: 140ms; }
 
   &--hero {
     padding-top: 25px;
@@ -69,7 +150,7 @@
 
 .panels {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 1fr;
   gap: 20px;
   align-items: start;
   margin-bottom: 20px;
@@ -77,6 +158,7 @@
 
 .panel {
   padding: 24px;
+  animation: fade-rise 520ms var(--ease-out-expo) 160ms both;
 
   h2 {
     font-size: 18px;
@@ -118,6 +200,12 @@
   min-width: 4px;
   border-radius: 4px;
   background: #B85A3E;
+  transform-origin: left center;
+  animation: bar-grow 880ms var(--ease-out-expo) both;
+  /* O atraso por linha vem inline do template ($index). A transição cobre o OUTRO caso: trocar o
+     período muda a largura de uma barra que já existe, e aí ela desliza até o novo valor em vez
+     de saltar (a animação acima só roda quando o elemento nasce). */
+  transition: width 620ms var(--ease-out-expo);
 }
 .funnel-row__count {
   width: 40px;
@@ -131,75 +219,14 @@
   font-size: 11px;
   color: rgba(21, 26, 34, 0.45);
   padding: 7px 0 7px 144px;
-}
-
-/* AI trust */
-.trust-box {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  margin-bottom: 20px;
-}
-.ring-lg {
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.ring-lg__hole {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  span {
-    font-size: 19px;
-    font-weight: 600;
-    color: #151A22;
-  }
-}
-.trust-box__note {
-  font-size: 12.5px;
-  color: rgba(21, 26, 34, 0.6);
-  line-height: 1.5;
-}
-
-.trust-detail {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  border-top: 1px solid rgba(21, 26, 34, 0.08);
-  padding-top: 16px;
-}
-.trust-detail__row {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  font-size: 12.5px;
-  color: rgba(21, 26, 34, 0.75);
-  line-height: 1.5;
-}
-.trust-detail__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  margin-top: 5px;
-  flex-shrink: 0;
-
-  &--accent { background: #B85A3E; }
-  &--sand { background: #a8674f; }
+  animation: fade-in 500ms ease-out both;
 }
 
 /* Campaign performance table */
 .table-card {
   padding: 24px 26px;
   overflow-x: auto;
+  animation: fade-rise 520ms var(--ease-out-expo) 240ms both;
 }
 .table-card__title {
   font-size: 19px;
@@ -283,6 +310,9 @@ tr:last-child td {
   height: 100%;
   border-radius: 3px;
   background: #B85A3E;
+  transform-origin: left center;
+  animation: bar-grow 760ms var(--ease-out-expo) both;
+  transition: width 620ms var(--ease-out-expo);
 }
 
 .empty-row {
@@ -290,4 +320,72 @@ tr:last-child td {
   padding: 30px 0;
   font-size: 13.5px;
   color: rgba(21, 26, 34, 0.5);
+}
+
+/* ===== PDF =====
+   As regras globais (esconder sidebar/top-bar, folha A4, manter cor de preenchimento) estão em
+   src/styles.scss, porque o shell não é deste componente. Aqui fica só o que é da tela. */
+@media print {
+  .print-letterhead {
+    display: flex;
+  }
+
+  .metrics {
+    /* 3 colunas de 1fr ficam estreitas demais no A4: o número de 36px encosta na borda do card. */
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .metric-card {
+    padding: 14px 16px;
+  }
+  .metric-value {
+    font-size: 26px;
+  }
+  .metric-footer {
+    margin-top: 10px;
+    padding-top: 9px;
+  }
+
+  .panels {
+    margin-bottom: 14px;
+  }
+  .panel {
+    padding: 18px;
+  }
+
+  .table-card {
+    padding: 18px;
+    overflow-x: visible;
+  }
+  /* `fixed` porque no A4 o algoritmo automático espreme a primeira coluna pra caber o conteúdo
+     mínimo das outras seis, e o nome da vaga quebra em 4 linhas. Com layout fixo as larguras
+     declaradas são respeitadas de verdade. */
+  table {
+    min-width: 0;
+    table-layout: fixed;
+  }
+  .col-campaign {
+    width: 30%;
+  }
+  /* Com layout fixo as colunas sem largura dividem o resto em partes iguais, e a de conversão
+     (barra + número) não cabe na sua parte — o "%" era cortado na margem direita. */
+  th:last-child,
+  td:last-child {
+    width: 15%;
+  }
+  .conversion-track {
+    width: 44px;
+  }
+  th,
+  td {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+  /* A tabela é a única parte que pode passar de uma página; se passar, o cabeçalho se repete. */
+  thead {
+    display: table-header-group;
+  }
+  tr {
+    break-inside: avoid;
+  }
 }

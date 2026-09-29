@@ -5,7 +5,7 @@ import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { combineLatest, map, switchMap } from 'rxjs';
 import { DataApi } from '../../core/data-api';
 import { toLoadable } from '../../core/loadable';
-import { TalentMatch } from '../../core/models';
+import { TalentMatch, TALENT_ORIGIN_LABELS } from '../../core/models';
 import { toTalentViews } from '../../core/talent-view';
 import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
 
@@ -40,6 +40,7 @@ export class TalentProfileComponent {
 
   readonly campaignMatch = signal<{ loading: boolean; match: TalentMatch | null }>({ loading: false, match: null });
   readonly firstContactSaving = signal(false);
+  readonly originLabels = TALENT_ORIGIN_LABELS;
 
   constructor() {
     effect(() => {

@@ -252,3 +252,151 @@ textarea.field {
   gap: 10px;
   margin-top: 22px;
 }
+
+/* Cabeçalho de coluna ordenável (core/table-sort.ts). O botão herda a tipografia do <th>; a seta só
+   aparece forte na coluna ativa, e aria-sort no <th> é o que diz a direção a leitores de tela. */
+.th-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { color: var(--color-text); }
+  &:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: 3px; }
+}
+.th-sort__icon {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0.25;
+}
+th[aria-sort='descending'] .th-sort,
+th[aria-sort='ascending'] .th-sort { color: var(--color-accent); }
+th[aria-sort='descending'] .th-sort__icon { opacity: 1; }
+th[aria-sort='ascending'] .th-sort__icon { opacity: 1; transform: rotate(180deg); }
+
+/* Linha "Mostrar mais" da renderização progressiva (ROWS_PAGE em core/table-sort.ts). */
+.load-more-row td { text-align: center; padding: 14px 0; border-bottom: none; }
+.load-more-btn { font-size: 12.5px; }
+
+/* ===== Animação de dados (compartilhada pelas telas com estatística) =====
+   Curva "expo out": arranca rápido e assenta devagar, em vez de velocidade constante (que parece
+   mecânica) ou do dado aparecendo pronto. Os keyframes moram aqui porque CSS keyframes são
+   globais — repetir em cada componente seria a mesma definição copiada N vezes.
+   Números são animados pela diretiva [appCountUp] (shared/count-up.directive.ts). */
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Registrar o tipo é o que permite ANIMAR o ângulo do anel de match: sem @property, uma custom
+   property é só texto pro navegador, e ele não interpola texto. Com o registro, o conic-gradient
+   varre suavemente (ver .ring-lg em candidate-profile). Navegador sem suporte simplesmente ignora
+   o bloco e o anel aparece direto no valor final — degrada sem quebrar. */
+@property --ring-deg {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes fade-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* scaleX em vez de animar a largura: a largura final já está no style inline (é o dado), então
+   animar a escala mantém o layout estável e roda na GPU, sem recalcular layout a cada quadro. */
+@keyframes bar-grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Quem pede menos movimento no sistema recebe tudo pronto. Vale para o app inteiro, não só para as
+   telas de estatística; a diretiva de contagem faz o equivalente do lado do JavaScript. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== Impressão / exportar em PDF =====
+   Vale pra qualquer tela, não só Relatórios: quem aperta Ctrl+P não quer a navegação no papel.
+   Os `!important` são necessários — as regras de `.shell` moram em app.component.scss, e a
+   encapsulação do Angular dá a elas um seletor de atributo, mais específico que um `.classe`
+   global. Use `.screen-only` pra elementos que existem só na tela (botões, dicas de interação). */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+  }
+
+  /* Sem isto, o navegador remove TODO preenchimento de fundo na impressão e os gráficos de barra
+     (funil, conversão) saem invisíveis — é a diferença entre um relatório e uma folha de números. */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  app-sidebar-nav,
+  app-top-bar,
+  .screen-only {
+    display: none !important;
+  }
+
+  /* Imprimir no meio de uma animação sairia com barra pela metade e card meio transparente no
+     PDF. Nada anima no papel: sempre o estado final. Matar a animação já devolve o elemento ao
+     estado natural (sem transform, opacidade cheia), porque o fill-mode deixa de valer. */
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  /* O shell é 100vh com rolagem interna: sem neutralizar, o PDF sai cortado na primeira página. */
+  .shell,
+  .shell__main {
+    display: block !important;
+    height: auto !important;
+  }
+  .shell__content {
+    overflow: visible !important;
+  }
+
+  /* Sem isto o bege da interface (--color-page) vira uma faixa impressa sob o conteúdo — o
+     `print-color-adjust: exact` acima, que existe pras barras dos gráficos, também faz o fundo
+     da tela sobreviver. Papel é branco. */
+  html,
+  body,
+  .page {
+    background: #FFFFFF;
+    min-height: 0;
+  }
+  .page-body {
+    max-width: none;
+    padding: 0;
+  }
+  .card {
+    box-shadow: none;
+    break-inside: avoid;
+  }
+}

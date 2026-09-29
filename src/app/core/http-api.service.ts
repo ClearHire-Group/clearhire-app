@@ -6,12 +6,13 @@ import { DataApi } from './data-api';
 import { APP_CONFIG } from './app-config';
 import {
   ActivityItem,
+  AddTalentsResult,
   AiSuggestion,
-  AiTrustMetrics,
   AuthSession,
   Campaign,
   CampaignPerformance,
   Candidate,
+  CandidateAssessment,
   CandidateProfileData,
   CompanyProfile,
   CoverageEntry,
@@ -29,10 +30,12 @@ import {
   RejectionReasonKey,
   Talent,
   TalentMatch,
+  TalentRecommendation,
   TeamMember,
   UpdateCampaignInput,
   UserProfile,
 } from './models';
+import { ReportRange } from './report-period';
 
 /**
  * Real backend implementation. Endpoints below are the contract the API needs to satisfy —
@@ -61,6 +64,7 @@ import {
  *   POST /campaigns/:id/toggle-pause                   -> Campaign (404 -> undefined)
  *   GET  /campaigns/:id/candidates?phase=:phaseKey    -> Candidate[]  (phase optional)
  *   GET  /candidates/:id                              -> CandidateProfileData (404 -> undefined)
+ *   POST /candidates/:id/assessment                   -> CandidateAssessment  (análise da IA; 503 se a IA não está habilitada)
  *   POST /candidates/:id/decisions                    -> { phase?, talentId? }  (endpoint único; body: { decision: 'avancar'|'reprovar', rejectionReasonKey?, sendBankInvite? })
  *   POST /campaigns/:id/public-application-link       -> Campaign  (liga/desliga o link público; body: { enabled })
  *   GET  /public/campaigns/:id                        -> PublicCampaignInfo  (sem auth; 404 idêntico pra não existe/pausada/link desligado)
@@ -70,12 +74,12 @@ import {
  *   POST /company-profile                              -> CompanyProfile  (body: { tone, importance, values })
  *   GET  /dashboard/metrics                           -> DashboardMetrics
  *   GET  /dashboard/ai-suggestions                    -> AiSuggestion[]
- *   GET  /dashboard/activity                          -> ActivityItem[]
+ *   GET  /dashboard/activity?limit=:n                 -> ActivityItem[]  (limit opcional, default 50, teto 200)
  *   GET  /notifications                               -> Notification[]
  *   POST /notifications/:id/read                       -> Notification (404 -> undefined)
- *   GET  /reports/funnel-summary                      -> Phase[] (aggregate across campaigns)
- *   GET  /reports/campaign-performance                -> CampaignPerformance[]
- *   GET  /reports/ai-trust                            -> AiTrustMetrics
+ *   GET  /reports/funnel-summary?from=&to=            -> Phase[] (aggregate across campaigns)
+ *   GET  /reports/campaign-performance?from=&to=      -> CampaignPerformance[]
+ *        (from/to são instantes RFC3339, from inclusivo e to exclusivo; ausentes = todo o período)
  *
  *   -- Banco de Talentos: LLM na escrita (ingestão/tradução de busca), determinismo na leitura --
  *   GET  /talents                                     -> Talent[]  (full roster, no score)
@@ -86,6 +90,10 @@ import {
  *   POST /talents                                       -> Talent  (manual entry, body: ManualTalentInput)
  *   POST /talents/:id/first-contact                     -> Talent (404 -> undefined)
  *   POST /campaigns/reverse-match                        -> TalentMatch[]  (body: { title, modality?, seniority? })
+ *   POST /campaigns/:id/talent-recommendations/assess    -> TalentRecommendation[]  (etapa 2: leitura de IA sob demanda,
+ *        até 5 talentos por chamada, body: { talentIds }; campanha JÁ CRIADA, nunca um rascunho)
+ *   POST /campaigns/:id/talents                          -> AddTalentsResult  (puxa talentos pro funil, fase Recebidos;
+ *        body: { talentIds }; quem não entra — exclusão solicitada ou ainda não notificado — volta em `skipped` com o motivo)
  */
 @Injectable()
 export class HttpApiService extends DataApi {
@@ -258,6 +266,10 @@ export class HttpApiService extends DataApi {
     );
   }
 
+  assessCandidate(candidateId: string): Observable<CandidateAssessment> {
+    return this.http.post<CandidateAssessment>(`${APP_CONFIG.apiBaseUrl}/candidates/${candidateId}/assessment`, {});
+  }
+
   advanceCandidate(candidateId: string): Observable<Candidate | undefined> {
     // Backend real usa um endpoint único de decisão (POST .../decisions com { decision }), não
     // dois separados — casa com candidate_decisions ter uma coluna decision_kind só, não duas
@@ -269,7 +281,9 @@ export class HttpApiService extends DataApi {
         .post<{ phase: PhaseKey; talentId?: string }>(`${APP_CONFIG.apiBaseUrl}/candidates/${candidateId}/decisions`, {
           decision: 'avancar',
         })
-        .pipe(map((res) => ({ phase: res.phase }) as Candidate)),
+        // talentId vem quando a aprovação levou a pessoa ao Banco de Talentos (chegou a Selecionados
+        // com consentimento) — a tela mostra o link para o perfil.
+        .pipe(map((res) => ({ phase: res.phase, talentId: res.talentId }) as Candidate)),
     );
   }
 
@@ -301,18 +315,27 @@ export class HttpApiService extends DataApi {
     return this.undefinedOnNotFound(this.http.post<Notification>(`${APP_CONFIG.apiBaseUrl}/notifications/${id}/read`, {}));
   }
 
-  getFunnelSummary(): Observable<Phase[]> {
-    return this.emptyOnUnavailable(this.http.get<Phase[]>(`${APP_CONFIG.apiBaseUrl}/reports/funnel-summary`));
+  /** Monta `?from=&to=`; período "todo" não manda parâmetro nenhum, e o backend trata a ausência
+   * como sem limite (ver parseReportPeriod no campaign/handler.go). */
+  private reportParams(range?: ReportRange): HttpParams {
+    let params = new HttpParams();
+    if (range?.from) params = params.set('from', range.from);
+    if (range?.to) params = params.set('to', range.to);
+    return params;
   }
 
-  getCampaignPerformance(): Observable<CampaignPerformance[]> {
+  getFunnelSummary(range?: ReportRange): Observable<Phase[]> {
     return this.emptyOnUnavailable(
-      this.http.get<CampaignPerformance[]>(`${APP_CONFIG.apiBaseUrl}/reports/campaign-performance`),
+      this.http.get<Phase[]>(`${APP_CONFIG.apiBaseUrl}/reports/funnel-summary`, { params: this.reportParams(range) }),
     );
   }
 
-  getAiTrustMetrics(): Observable<AiTrustMetrics> {
-    return this.http.get<AiTrustMetrics>(`${APP_CONFIG.apiBaseUrl}/reports/ai-trust`);
+  getCampaignPerformance(range?: ReportRange): Observable<CampaignPerformance[]> {
+    return this.emptyOnUnavailable(
+      this.http.get<CampaignPerformance[]>(`${APP_CONFIG.apiBaseUrl}/reports/campaign-performance`, {
+        params: this.reportParams(range),
+      }),
+    );
   }
 
   getTalents(): Observable<Talent[]> {
@@ -361,12 +384,24 @@ export class HttpApiService extends DataApi {
     return this.undefinedOnNotFound(this.http.post<Talent>(`${APP_CONFIG.apiBaseUrl}/talents/${talentId}/first-contact`, {}));
   }
 
+  addTalentsToCampaign(campaignId: string, talentIds: string[]): Observable<AddTalentsResult> {
+    return this.http.post<AddTalentsResult>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/talents`, { talentIds });
+  }
+
   getReverseMatchForNewCampaign(criteria: {
     title: string;
     modality?: string;
     seniority?: string;
+    requirements?: string;
   }): Observable<TalentMatch[]> {
     return this.emptyOnUnavailable(this.http.post<TalentMatch[]>(`${APP_CONFIG.apiBaseUrl}/campaigns/reverse-match`, criteria));
+  }
+
+  assessTalentsForCampaign(campaignId: string, talentIds: string[]): Observable<TalentRecommendation[]> {
+    return this.http.post<TalentRecommendation[]>(
+      `${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/talent-recommendations/assess`,
+      { talentIds },
+    );
   }
 
   getMyProfile(): Observable<UserProfile> {

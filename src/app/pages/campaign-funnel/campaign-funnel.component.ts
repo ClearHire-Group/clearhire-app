@@ -9,12 +9,13 @@ import { toLoadable } from '../../core/loadable';
 import { PhaseKey } from '../../core/models';
 import { CandidateView, toCandidateViews } from '../../core/candidate-view';
 import { ErrorStateComponent } from '../../layout/error-state/error-state.component';
+import { CountUpDirective } from '../../shared/count-up.directive';
 
 /** Sub-tela "Funil" — blocos de fase + tabela de candidatos da fase selecionada. */
 @Component({
   selector: 'app-campaign-funnel',
   standalone: true,
-  imports: [CommonModule, RouterLink, ErrorStateComponent],
+  imports: [CommonModule, RouterLink, ErrorStateComponent, CountUpDirective],
   templateUrl: './campaign-funnel.component.html',
   styleUrl: './campaign-funnel.component.scss',
 })

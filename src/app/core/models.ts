@@ -87,6 +87,9 @@ export interface CreateCampaignInput {
   contractType: CampaignContractType;
   seniority: CampaignSeniority;
   phaseKeys: Array<'fit' | 'tecnica' | 'entrevista'>;
+  /** Talentos do Banco de Talentos selecionados na tela de match reverso (seção 8.2 da
+   * especificação) — entram como candidatos desta campanha, fase Recebidos, na mesma criação. */
+  talentIds?: string[];
 }
 
 /** Payload de `PATCH /campaigns/:id` — seção "Dados da campanha" em Configurações da Campanha.
@@ -114,6 +117,10 @@ export interface Candidate {
   experience: string;
   location: string;
   matchPct: number | null;
+  /** Anos de experiência como número — o `experience` acima é rótulo de texto e não ordena. */
+  yearsExperience?: number | null;
+  /** Quando a candidatura chegou (ISO). */
+  appliedAt?: string;
   status: string;
   initials: string;
   avatarColorIndex: 0 | 1 | 2;
@@ -138,7 +145,16 @@ export interface ExperienceEntry {
  */
 export type ConsentState = 'consentido' | 'nao_notificado' | 'notificado' | 'oposicao_exclusao';
 export type LegalBasis = 'consentimento' | 'legitimo_interesse' | 'a_avaliar';
-export type TalentOrigin = 'reprovacao_qualificada' | 'cadastro_manual' | 'importacao';
+/** Por onde a pessoa ENTROU no banco: reprovação com motivo que qualifica, aprovação (chegou a
+ * Selecionados, com consentimento), cadastro manual ou importação. */
+export type TalentOrigin = 'reprovacao_qualificada' | 'aprovacao' | 'cadastro_manual' | 'importacao';
+
+export const TALENT_ORIGIN_LABELS: Record<TalentOrigin, string> = {
+  reprovacao_qualificada: 'Reprovação qualificada',
+  aprovacao: 'Aprovado em vaga',
+  cadastro_manual: 'Cadastro manual',
+  importacao: 'Importação',
+};
 
 export const CONSENT_STATE_LABELS: Record<ConsentState, string> = {
   consentido: 'Consentido',
@@ -264,6 +280,40 @@ export interface TalentMatch {
   breakdown: ScoreBreakdownLine[];
 }
 
+/**
+ * Leitura qualitativa da IA sobre um talento do banco pra uma vaga específica — etapa 2 do match
+ * reverso (documentos/banco-de-talentos-recomendacao-plano.md), sempre pedida explicitamente pelo
+ * recrutador sobre um recorte pequeno da lista de `TalentMatch`, nunca automática. Mesma forma de
+ * `CandidateAssessment`, sem `stageInsight`/`comparisonFlag`: recomendação de banco não tem fase
+ * nem avaliação anterior a comparar.
+ */
+export interface TalentAssessment {
+  matchPct: number;
+  matchLabel: string;
+  matchNote: string;
+  strengths: string[];
+  concerns: string[];
+  justification: string;
+  confidence: 'alta' | 'media' | 'baixa' | 'insuficiente';
+  missingInformation: string[];
+}
+
+export interface TalentRecommendation {
+  talent: Talent;
+  assessment: TalentAssessment;
+}
+
+/**
+ * Resultado de "puxar talentos pro funil" (match reverso pós-criação — documentos/banco-de-
+ * talentos-recomendacao-plano.md). Nunca um sucesso silencioso genérico: todo id pedido volta em
+ * `added` ou em `skipped`, com o motivo — inclusive quando o motivo é LGPD (a pessoa ainda não foi
+ * notificada de que está no banco, ou pediu exclusão).
+ */
+export interface AddTalentsResult {
+  added: string[];
+  skipped: { talentId: string; name: string; reason: string }[];
+}
+
 export interface CoverageEntry {
   skillTerm: string;
   count: number;
@@ -288,14 +338,51 @@ export interface CandidateProfileData {
   experience: ExperienceEntry[];
   education: { degree: string; institution: string; period: string };
   skills: string[];
-  ai: {
-    matchPct: number;
-    matchLabel: string;
-    matchNote: string;
-    strengths: string[];
-    concerns: string[];
-    justification: string;
-  };
+  /** `null` enquanto o candidato não foi avaliado NESTA FASE — antes era um objeto zerado, que a
+   * tela mostrava como "0%", indistinguível de uma avaliação real com nota baixa. */
+  ai: CandidateAssessment | null;
+  /** Avaliação de cada fase ANTERIOR já avaliada (a atual não repete — está em `ai`), mais antiga
+   * primeiro, na ordem do funil desta campanha. `[]` quando esta é a primeira fase avaliada. */
+  aiHistory: CandidateAssessmentHistoryEntry[];
+}
+
+/**
+ * Sugestão da IA para um candidato numa fase. Sempre sugestão: a decisão é do recrutador.
+ *
+ * `confidence` é o único discriminador de quanto confiar nesta avaliação — `'insuficiente'` não é
+ * um erro nem um valor baixo de match: é a IA dizendo explicitamente que não tem evidência pra
+ * concluir nada de novo nesta fase (ver ai-card no candidate-profile.component.html). Nesse caso
+ * `matchPct`/`strengths`/`concerns`/`justification` ainda vêm preenchidos pelo backend (o schema
+ * do modelo exige), mas a tela NÃO os trata como conclusão — mostra `stageInsight`/
+ * `missingInformation` em vez disso.
+ */
+export interface CandidateAssessment {
+  matchPct: number;
+  matchLabel: string;
+  matchNote: string;
+  strengths: string[];
+  concerns: string[];
+  justification: string;
+  confidence: 'alta' | 'media' | 'baixa' | 'insuficiente';
+  /** Insight curto, específico do foco desta fase (fit cultural / aderência técnica / o que a
+   * entrevista revelou) — distinto de `justification`, que é a justificativa geral de sempre.
+   * Vazio nas fases sem foco definido (Recebidos, Selecionados). */
+  stageInsight: string;
+  /** O que faltou para concluir com mais confiança nesta fase — pode vir preenchido mesmo com
+   * `confidence` alta (lacuna menor), não só quando `confidence` é 'insuficiente'. */
+  missingInformation: string[];
+  /** Compara com a fase ANTERIOR avaliada deste candidato (não com a campanha inteira). Vazio
+   * quando não há fase anterior avaliada, ou quando o backend não teve base pra comparar — a tela
+   * só deve renderizar isto quando `aiHistory` também tiver uma fase anterior de verdade. */
+  comparisonFlag: 'reforca_anterior' | 'diverge_anterior' | 'novo' | '';
+}
+
+/** Uma linha do histórico de avaliações do candidato — a mesma forma de `CandidateAssessment`,
+ * com a fase a que pertence. */
+export interface CandidateAssessmentHistoryEntry extends CandidateAssessment {
+  phase: PhaseKey;
+  phaseLabel: string;
+  createdAt: string;
 }
 
 /** Vaga vista pelo candidato anônimo, via link público de campanha — só o subconjunto seguro de
@@ -430,9 +517,19 @@ export interface ActivityItem {
   id: string;
   actor: ActivityActor;
   message: string;
-  campaignId: string;
-  campaignTitle: string;
-  timestampLabel: string;
+  /**
+   * Ausentes quando a ação não pertence a campanha nenhuma (`activity_feed.campaign_id` é nulável —
+   * ação de nível empresa, ex. convidar um RH) ou quando a campanha foi arquivada. Nos dois casos a
+   * linha do feed aparece sem link, nunca com um link que abre em 404.
+   */
+  campaignId?: string;
+  campaignTitle?: string;
+  /**
+   * ISO 8601, não rótulo pronto: o texto relativo ("há 12 minutos") é derivado a cada render em
+   * `core/relative-time.ts`. Rótulo vindo do servidor congelaria — aba aberta por uma hora
+   * continuaria dizendo "há 12 minutos".
+   */
+  createdAt: string;
 }
 
 export interface Notification {
@@ -454,9 +551,3 @@ export interface CampaignPerformance {
   currentPhaseLabel: string;
 }
 
-export interface AiTrustMetrics {
-  agreementRatePct: number;
-  decisionsAnalyzed: number;
-  overriddenApprovals: number;
-  overriddenRejections: number;
-}

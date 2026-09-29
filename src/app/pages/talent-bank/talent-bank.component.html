@@ -40,16 +40,20 @@
           <span class="chip-group-label chip-group-label--gap">Origem</span>
           <button type="button" class="chip-filter" [class.active]="originFilter() === 'todos'" (click)="setOriginFilter('todos')">Todas</button>
           <button type="button" class="chip-filter" [class.active]="originFilter() === 'reprovacao_qualificada'" (click)="setOriginFilter('reprovacao_qualificada')">Reprovação qualificada</button>
+          <button type="button" class="chip-filter" [class.active]="originFilter() === 'aprovacao'" (click)="setOriginFilter('aprovacao')">Aprovados</button>
           <button type="button" class="chip-filter" [class.active]="originFilter() === 'cadastro_manual'" (click)="setOriginFilter('cadastro_manual')">Cadastro manual</button>
         </div>
 
-        @if (hasActiveQuery()) {
-          <p class="result-label">{{ searchState().label }}</p>
-        }
+        <div class="result-row">
+          @if (hasActiveQuery()) {
+            <p class="result-label">{{ resultLabel() }}</p>
+          }
+          <p class="sort-label" aria-live="polite">{{ displayedRows().length }} talentos · ordenado por {{ sortLabel() }}</p>
+        </div>
       </div>
 
       <div class="card table-card">
-        @if (talentsState.loading() || searchState().loading) {
+        @if (talentsState.loading()) {
           <p class="state-message"><span class="state-spinner"></span> Carregando talentos…</p>
         } @else if (talentsState.error()) {
           <app-error-state kind="error" message="Não foi possível carregar o banco de talentos."></app-error-state>
@@ -57,18 +61,19 @@
           <table>
             <thead>
               <tr>
-                <th class="col-talent">Talento</th>
-                <th>Skills</th>
-                <th>Senioridade / Modalidade</th>
-                <th>
-                  Perfil
+                <th class="col-talent" [attr.aria-sort]="ariaSort('nome')"><button type="button" class="th-sort" (click)="sortBy('nome')">Talento<span class="th-sort__icon" aria-hidden="true"></span></button></th>
+                <th [attr.aria-sort]="ariaSort('local')"><button type="button" class="th-sort" (click)="sortBy('local')">Localização<span class="th-sort__icon" aria-hidden="true"></span></button></th>
+                <th [attr.aria-sort]="ariaSort('skills')"><button type="button" class="th-sort" (click)="sortBy('skills')">Skills<span class="th-sort__icon" aria-hidden="true"></span></button></th>
+                <th [attr.aria-sort]="ariaSort('senioridade')"><button type="button" class="th-sort" (click)="sortBy('senioridade')">Senioridade / Modalidade<span class="th-sort__icon" aria-hidden="true"></span></button></th>
+                <th [attr.aria-sort]="ariaSort('perfil')">
+                  <button type="button" class="th-sort" (click)="sortBy('perfil')">Perfil<span class="th-sort__icon" aria-hidden="true"></span></button>
                   <app-info-tooltip label="O que significa a coluna Perfil" heading="Dois selos, dois sinais diferentes">
                     <p><strong>Completude</strong> — quantos campos do cadastro estão de fato preenchidos (skills, pretensão salarial, disponibilidade…). Não diz nada sobre quão bem a pessoa foi avaliada.</p>
                     <p><strong>Atualização</strong> — há quanto tempo os dados foram atualizados. Muito tempo sem revisão, o selo avisa que os dados podem estar desatualizados.</p>
                   </app-info-tooltip>
                 </th>
-                <th>
-                  Consentimento
+                <th [attr.aria-sort]="ariaSort('consentimento')">
+                  <button type="button" class="th-sort" (click)="sortBy('consentimento')">Consentimento<span class="th-sort__icon" aria-hidden="true"></span></button>
                   <app-info-tooltip label="O que significa a coluna Consentimento" heading="Base legal para usar este perfil">
                     <p><strong>Consentido</strong> — a pessoa autorizou explicitamente o uso dos dados.</p>
                     <p><strong>Notificado</strong> — já sabe que está no banco, mas ainda não deu consentimento formal.</p>
@@ -77,23 +82,23 @@
                   </app-info-tooltip>
                 </th>
                 @if (hasActiveQuery()) {
-                  <th>Match</th>
+                  <th [attr.aria-sort]="ariaSort('match')"><button type="button" class="th-sort" (click)="sortBy('match')">Match<span class="th-sort__icon" aria-hidden="true"></span></button></th>
                 }
                 <th class="col-action">Ação</th>
               </tr>
             </thead>
             <tbody>
-              @for (t of displayedRows(); track t.id) {
+              @for (t of visibleRows(); track t.id) {
                 <tr>
                   <td>
                     <div class="talent-cell">
                       <div class="avatar" [style.background]="t.avatarBg" [style.color]="t.avatarColor">{{ t.initials }}</div>
                       <div class="talent-cell__info">
                         <span class="talent-cell__name">{{ t.name }}</span>
-                        <span class="talent-cell__location">{{ t.location }}</span>
                       </div>
                     </div>
                   </td>
+                  <td><span class="cell-text" [class.dim]="t.location === 'A confirmar'">{{ t.location }}</span></td>
                   <td>
                     <div class="skill-tags">
                       @for (s of t.skills.slice(0, 3); track s.term) {
@@ -128,8 +133,17 @@
                 </tr>
               } @empty {
                 <tr>
-                  <td [attr.colspan]="hasActiveQuery() ? 7 : 6">
+                  <td [attr.colspan]="hasActiveQuery() ? 8 : 7">
                     <p class="empty-row">Nenhum talento encontrado com esses filtros.</p>
+                  </td>
+                </tr>
+              }
+              @if (remaining() > 0) {
+                <tr class="load-more-row" appInView (inView)="showMore()">
+                  <td [attr.colspan]="hasActiveQuery() ? 8 : 7">
+                    <button type="button" class="btn-ghost load-more-btn" (click)="showMore()">
+                      Mostrar mais ({{ remaining() }} restantes)
+                    </button>
                   </td>
                 </tr>
               }
@@ -149,13 +163,13 @@
           <app-error-state kind="error" message="Não foi possível carregar o mapa de cobertura."></app-error-state>
         } @else {
           <div class="coverage-bars">
-            @for (c of coverageState.data(); track c.skillTerm) {
+            @for (c of coverageState.data(); track c.skillTerm; let i = $index) {
               <div class="coverage-row">
                 <span class="coverage-row__label">{{ c.skillTerm }}</span>
                 <div class="coverage-row__track">
-                  <div class="coverage-row__fill" [style.width.%]="(c.count / maxCoverageCount()) * 100"></div>
+                  <div class="coverage-row__fill" [style.width.%]="(c.count / maxCoverageCount()) * 100" [style.animation-delay.ms]="i * 60"></div>
                 </div>
-                <span class="coverage-row__count">{{ c.count }}</span>
+                <span class="coverage-row__count" [appCountUp]="c.count" [countUpDurationMs]="800"></span>
               </div>
             } @empty {
               <p class="empty-row">Ainda não há dados suficientes para o mapa de cobertura.</p>
@@ -172,18 +186,43 @@
         <h2 class="serif">Novo talento</h2>
         <p class="muted modal-intro">Cadastro manual, fora de campanha — legítimo interesse até o primeiro contato real com a pessoa.</p>
 
-        <label class="fieldlabel">Nome</label>
-        <input class="field" type="text" maxlength="200" [value]="manualName()" (input)="manualName.set($any($event.target).value)" placeholder="Nome completo" />
+        <label class="fieldlabel" for="mt-name">Nome completo <span class="req" aria-hidden="true">*</span></label>
+        <input
+          class="field" id="mt-name" type="text" maxlength="200" placeholder="Nome e sobrenome"
+          [class.field--invalid]="manualErr('name')" [attr.aria-invalid]="manualErr('name') ? true : null"
+          [value]="manualName()" (input)="setManual('name', manualName, $any($event.target).value)" (blur)="touchManual('name')"
+        />
+        @if (manualErr('name'); as e) { <span class="field-error">{{ e }}</span> }
 
-        <label class="fieldlabel">Currículo ou perfil colado</label>
-        <textarea class="field" rows="4" maxlength="20000" [value]="manualRawText()" (input)="manualRawText.set($any($event.target).value)" placeholder="Cole aqui o currículo ou o perfil do LinkedIn…"></textarea>
+        <label class="fieldlabel" for="mt-raw">Currículo ou perfil colado</label>
+        <textarea
+          class="field" id="mt-raw" rows="4" placeholder="Cole aqui o currículo ou o perfil do LinkedIn — a IA extrai os dados estruturados."
+          [class.field--invalid]="manualErr('rawProfileText')" [attr.aria-invalid]="manualErr('rawProfileText') ? true : null"
+          [value]="manualRawText()" (input)="setManual('rawProfileText', manualRawText, $any($event.target).value)" (blur)="touchManual('rawProfileText')"
+        ></textarea>
+        <div class="field-meta">
+          @if (manualErr('rawProfileText'); as e) { <span class="field-error">{{ e }}</span> }
+          <span class="field-counter" [class.field-counter--over]="manualRawCount() > limits.rawText">{{ manualRawCount() }}/{{ limits.rawText }}</span>
+        </div>
 
-        <label class="fieldlabel">Nota de contexto</label>
-        <textarea class="field" rows="2" maxlength="2000" [value]="manualNote()" (input)="manualNote.set($any($event.target).value)" placeholder="Onde encontrou essa pessoa, por que chamou atenção…"></textarea>
+        <label class="fieldlabel" for="mt-note">Nota de contexto</label>
+        <textarea
+          class="field" id="mt-note" rows="2" placeholder="Onde encontrou essa pessoa, por que chamou atenção…"
+          [class.field--invalid]="manualErr('contextNote')" [attr.aria-invalid]="manualErr('contextNote') ? true : null"
+          [value]="manualNote()" (input)="setManual('contextNote', manualNote, $any($event.target).value)" (blur)="touchManual('contextNote')"
+        ></textarea>
+        <div class="field-meta">
+          @if (manualErr('contextNote'); as e) { <span class="field-error">{{ e }}</span> }
+          <span class="field-counter" [class.field-counter--over]="manualNoteCount() > limits.note">{{ manualNoteCount() }}/{{ limits.note }}</span>
+        </div>
+
+        <div aria-live="polite">
+          @if (manualFormError()) { <p class="form-error">{{ manualFormError() }}</p> }
+        </div>
 
         <div class="modal-actions">
           <button type="button" class="btn-ghost" (click)="closeManualForm()">Cancelar</button>
-          <button type="button" class="btn-primary" [disabled]="manualSaving() || !manualName().trim()" (click)="submitManualTalent()">
+          <button type="button" class="btn-primary" [disabled]="manualSaving()" (click)="submitManualTalent()">
             {{ manualSaving() ? 'Cadastrando…' : 'Cadastrar talento' }}
           </button>
         </div>

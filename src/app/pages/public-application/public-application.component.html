@@ -56,72 +56,152 @@
 
           @if (mode() === 'manual') {
             <p class="muted mode-hint">Caminho mais confiável — você garante que os dados estão certos, sem depender do reconhecimento automático do currículo.</p>
+          } @else {
+            <p class="muted mode-hint">Reconhecimento automático dos dados do seu currículo — mais rápido, mas pode não identificar tudo.</p>
+          }
+          <p class="dim required-note"><span class="req" aria-hidden="true">*</span> Campos obrigatórios</p>
 
-            <div class="field-block">
-              <label class="fieldlabel" for="m-name">Nome completo</label>
-              <input class="field" id="m-name" type="text" maxlength="200" [value]="name()" (input)="name.set($any($event.target).value)" />
-            </div>
-            <div class="field-block">
-              <label class="fieldlabel" for="m-email">E-mail</label>
-              <input class="field" id="m-email" type="email" maxlength="254" [value]="email()" (input)="email.set($any($event.target).value)" />
-            </div>
+          <!-- Nome e e-mail: comuns aos dois modos, então ficam fora dos blocos de cada um. -->
+          <div class="field-block">
+            <label class="fieldlabel" for="f-name">Nome completo <span class="req" aria-hidden="true">*</span></label>
+            <input
+              class="field" id="f-name" type="text" autocomplete="name" maxlength="200"
+              [class.field--invalid]="err('name')" [attr.aria-invalid]="err('name') ? true : null" [attr.aria-describedby]="err('name') ? 'f-name-err' : null"
+              [value]="name()" (input)="set('name', name, $any($event.target).value)" (blur)="blur('name')"
+            />
+            @if (err('name'); as e) { <span class="field-error" id="f-name-err">{{ e }}</span> }
+          </div>
+          <div class="field-block">
+            <label class="fieldlabel" for="f-email">E-mail <span class="req" aria-hidden="true">*</span></label>
+            <input
+              class="field" id="f-email" type="email" autocomplete="email" inputmode="email" maxlength="254" placeholder="nome@provedor.com"
+              [class.field--invalid]="err('email')" [attr.aria-invalid]="err('email') ? true : null" [attr.aria-describedby]="err('email') ? 'f-email-err' : null"
+              [value]="email()" (input)="set('email', email, $any($event.target).value)" (blur)="blur('email')"
+            />
+            @if (err('email'); as e) {
+              <span class="field-error" id="f-email-err">{{ e }}</span>
+            } @else if (emailSuggestion()) {
+              <span class="field-warning">
+                Você quis dizer <strong>{{ emailSuggestion() }}</strong>?
+                <button type="button" class="field-warning__fix" (click)="applyEmailSuggestion()">Corrigir</button>
+              </span>
+            }
+          </div>
+
+          @if (mode() === 'manual') {
             <div class="form-row">
               <div class="field-block">
-                <label class="fieldlabel" for="m-phone">Telefone</label>
-                <input class="field" id="m-phone" type="tel" maxlength="30" [value]="phone()" (input)="phone.set($any($event.target).value)" />
-              </div>
-              <div class="field-block">
-                <label class="fieldlabel" for="m-linkedin">LinkedIn</label>
-                <input class="field" id="m-linkedin" type="text" maxlength="500" [value]="linkedinUrl()" (input)="linkedinUrl.set($any($event.target).value)" />
-              </div>
-            </div>
-            <div class="form-row">
-              <div class="field-block">
-                <label class="fieldlabel" for="m-city">Cidade</label>
-                <input class="field" id="m-city" type="text" maxlength="100" [value]="city()" (input)="city.set($any($event.target).value)" />
-              </div>
-              <div class="field-block">
-                <label class="fieldlabel" for="m-state">Estado</label>
-                <input class="field" id="m-state" type="text" maxlength="100" [value]="state()" (input)="state.set($any($event.target).value)" />
-              </div>
-              <div class="field-block">
-                <label class="fieldlabel" for="m-years">Anos de experiência</label>
+                <label class="fieldlabel" for="f-phone">Telefone</label>
                 <input
-                  class="field"
-                  id="m-years"
-                  type="number"
-                  min="0"
-                  max="60"
-                  [value]="yearsExperience()"
-                  (input)="yearsExperience.set($any($event.target).value ? +$any($event.target).value : null)"
+                  class="field" id="f-phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="30" placeholder="(61) 99999-9999"
+                  [class.field--invalid]="err('phone')" [attr.aria-invalid]="err('phone') ? true : null" [attr.aria-describedby]="err('phone') ? 'f-phone-err' : null"
+                  [value]="phone()" (input)="set('phone', phone, $any($event.target).value)" (blur)="blur('phone')"
                 />
+                @if (err('phone'); as e) { <span class="field-error" id="f-phone-err">{{ e }}</span> }
               </div>
-            </div>
-            <div class="field-block">
-              <label class="fieldlabel" for="m-summary">Resumo profissional</label>
-              <textarea class="field" id="m-summary" rows="3" maxlength="4000" [value]="summary()" (input)="summary.set($any($event.target).value)"></textarea>
+              <div class="field-block">
+                <label class="fieldlabel" for="f-linkedin">LinkedIn</label>
+                <input
+                  class="field" id="f-linkedin" type="url" autocomplete="url" maxlength="500" placeholder="linkedin.com/in/seu-nome"
+                  [class.field--invalid]="err('linkedinUrl')" [attr.aria-invalid]="err('linkedinUrl') ? true : null" [attr.aria-describedby]="err('linkedinUrl') ? 'f-linkedin-err' : null"
+                  [value]="linkedinUrl()" (input)="set('linkedinUrl', linkedinUrl, $any($event.target).value)" (blur)="blur('linkedinUrl')"
+                />
+                @if (err('linkedinUrl'); as e) { <span class="field-error" id="f-linkedin-err">{{ e }}</span> }
+              </div>
             </div>
             <div class="form-row">
               <div class="field-block">
-                <label class="fieldlabel" for="m-degree">Formação</label>
-                <input class="field" id="m-degree" type="text" maxlength="200" [value]="educationDegree()" (input)="educationDegree.set($any($event.target).value)" />
+                <label class="fieldlabel" for="f-city">Cidade</label>
+                <input
+                  class="field" id="f-city" type="text" autocomplete="address-level2" maxlength="100"
+                  [class.field--invalid]="err('city')" [attr.aria-invalid]="err('city') ? true : null" [attr.aria-describedby]="err('city') ? 'f-city-err' : null"
+                  [value]="city()" (input)="set('city', city, $any($event.target).value)" (blur)="blur('city')"
+                />
+                @if (err('city'); as e) { <span class="field-error" id="f-city-err">{{ e }}</span> }
               </div>
               <div class="field-block">
-                <label class="fieldlabel" for="m-institution">Instituição</label>
-                <input class="field" id="m-institution" type="text" maxlength="200" [value]="educationInstitution()" (input)="educationInstitution.set($any($event.target).value)" />
+                <label class="fieldlabel" for="f-state">Estado</label>
+                <select
+                  class="field" id="f-state" autocomplete="address-level1"
+                  [class.field--invalid]="err('state')" [attr.aria-invalid]="err('state') ? true : null" [attr.aria-describedby]="err('state') ? 'f-state-err' : null"
+                  [value]="state()" (change)="set('state', state, $any($event.target).value)" (blur)="blur('state')"
+                >
+                  <option value="">Selecione</option>
+                  @for (s of states; track s.uf) {
+                    <option [value]="s.uf" [selected]="state() === s.uf">{{ s.uf }} — {{ s.name }}</option>
+                  }
+                </select>
+                @if (err('state'); as e) { <span class="field-error" id="f-state-err">{{ e }}</span> }
               </div>
-              <div class="field-block">
-                <label class="fieldlabel" for="m-period">Período</label>
-                <input class="field" id="m-period" type="text" maxlength="100" [value]="educationPeriod()" (input)="educationPeriod.set($any($event.target).value)" />
+              <div class="field-block field-block--narrow">
+                <label class="fieldlabel" for="f-years">Anos de experiência</label>
+                <input
+                  class="field" id="f-years" type="text" inputmode="numeric" maxlength="3" placeholder="Ex.: 4"
+                  [class.field--invalid]="err('yearsExperience')" [attr.aria-invalid]="err('yearsExperience') ? true : null" [attr.aria-describedby]="err('yearsExperience') ? 'f-years-err' : null"
+                  [value]="yearsExperience()" (input)="set('yearsExperience', yearsExperience, $any($event.target).value)" (blur)="blur('yearsExperience')"
+                />
+                @if (err('yearsExperience'); as e) { <span class="field-error" id="f-years-err">{{ e }}</span> }
               </div>
             </div>
             <div class="field-block">
-              <label class="fieldlabel" for="m-skills">Principais skills (separadas por vírgula)</label>
-              <input class="field" id="m-skills" type="text" [value]="skillsText()" (input)="skillsText.set($any($event.target).value)" placeholder="Ex.: Python, SAP FI, Inglês avançado" />
+              <label class="fieldlabel" for="f-summary">Resumo profissional</label>
+              <textarea
+                class="field" id="f-summary" rows="3"
+                [class.field--invalid]="err('summary')" [attr.aria-invalid]="err('summary') ? true : null" [attr.aria-describedby]="err('summary') ? 'f-summary-err' : null"
+                [value]="summary()" (input)="set('summary', summary, $any($event.target).value)" (blur)="blur('summary')"
+              ></textarea>
+              <div class="field-meta">
+                @if (err('summary'); as e) { <span class="field-error" id="f-summary-err">{{ e }}</span> }
+                <span class="field-counter" [class.field-counter--over]="summaryCount() > limits.summaryChars">{{ summaryCount() }}/{{ limits.summaryChars }}</span>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="field-block">
+                <label class="fieldlabel" for="f-degree">Formação</label>
+                <input
+                  class="field" id="f-degree" type="text" maxlength="200" placeholder="Ex.: Ciência da Computação"
+                  [class.field--invalid]="err('educationDegree')" [attr.aria-invalid]="err('educationDegree') ? true : null" [attr.aria-describedby]="err('educationDegree') ? 'f-degree-err' : null"
+                  [value]="educationDegree()" (input)="set('educationDegree', educationDegree, $any($event.target).value)" (blur)="blur('educationDegree')"
+                />
+                @if (err('educationDegree'); as e) { <span class="field-error" id="f-degree-err">{{ e }}</span> }
+              </div>
+              <div class="field-block">
+                <label class="fieldlabel" for="f-institution">Instituição</label>
+                <input
+                  class="field" id="f-institution" type="text" maxlength="200"
+                  [class.field--invalid]="err('educationInstitution')" [attr.aria-invalid]="err('educationInstitution') ? true : null" [attr.aria-describedby]="err('educationInstitution') ? 'f-institution-err' : null"
+                  [value]="educationInstitution()" (input)="set('educationInstitution', educationInstitution, $any($event.target).value)" (blur)="blur('educationInstitution')"
+                />
+                @if (err('educationInstitution'); as e) { <span class="field-error" id="f-institution-err">{{ e }}</span> }
+              </div>
+              <div class="field-block">
+                <label class="fieldlabel" for="f-period">Período</label>
+                <input
+                  class="field" id="f-period" type="text" maxlength="100" placeholder="Ex.: 2015 – 2019"
+                  [class.field--invalid]="err('educationPeriod')" [attr.aria-invalid]="err('educationPeriod') ? true : null" [attr.aria-describedby]="err('educationPeriod') ? 'f-period-err' : null"
+                  [value]="educationPeriod()" (input)="set('educationPeriod', educationPeriod, $any($event.target).value)" (blur)="blur('educationPeriod')"
+                />
+                @if (err('educationPeriod'); as e) { <span class="field-error" id="f-period-err">{{ e }}</span> }
+              </div>
+            </div>
+            <div class="field-block">
+              <label class="fieldlabel" for="f-skills">Principais skills (separadas por vírgula)</label>
+              <input
+                class="field" id="f-skills" type="text" placeholder="Ex.: Python, SAP FI, Inglês avançado"
+                [class.field--invalid]="err('skills')" [attr.aria-invalid]="err('skills') ? true : null" [attr.aria-describedby]="err('skills') ? 'f-skills-err' : null"
+                [value]="skillsText()" (input)="set('skills', skillsText, $any($event.target).value)" (blur)="blur('skills')"
+              />
+              @if (err('skills'); as e) { <span class="field-error" id="f-skills-err">{{ e }}</span> }
+              @if (parsedSkills().length > 0) {
+                <div class="skills-preview">
+                  <span class="dim skills-preview__count" [class.field-counter--over]="parsedSkills().length > limits.skills">{{ parsedSkills().length }}/{{ limits.skills }}</span>
+                  @for (skill of parsedSkills(); track skill) {
+                    <span class="skills-preview__chip">{{ skill }}</span>
+                  }
+                </div>
+              }
             </div>
           } @else {
-            <p class="muted mode-hint">Reconhecimento automático de e-mail, telefone, LinkedIn e skills já cadastradas — mais rápido, mas pode não identificar tudo. Confira os dados antes de enviar.</p>
-
             <div class="mode-switch mode-switch--sub">
               <button type="button" class="mode-switch__btn" [class.mode-switch__btn--active]="resumeSubMode() === 'text'" (click)="setResumeSubMode('text')">
                 Colar texto
@@ -131,33 +211,50 @@
               </button>
             </div>
 
-            <div class="field-block">
-              <label class="fieldlabel" for="r-name">Nome completo</label>
-              <input class="field" id="r-name" type="text" maxlength="200" [value]="resumeName()" (input)="resumeName.set($any($event.target).value)" />
-            </div>
-            <div class="field-block">
-              <label class="fieldlabel" for="r-email">Seu e-mail</label>
-              <input class="field" id="r-email" type="email" maxlength="254" [value]="resumeEmail()" (input)="resumeEmail.set($any($event.target).value)" />
-            </div>
-
             @if (resumeSubMode() === 'text') {
               <div class="field-block">
-                <label class="fieldlabel" for="r-text">Cole aqui o texto do seu currículo</label>
-                <textarea class="field" id="r-text" rows="10" maxlength="20000" [value]="resumeText()" (input)="resumeText.set($any($event.target).value)"></textarea>
+                <label class="fieldlabel" for="f-resume-text">Cole aqui o texto do seu currículo <span class="req" aria-hidden="true">*</span></label>
+                <textarea
+                  class="field" id="f-resume-text" rows="10"
+                  [class.field--invalid]="err('resumeText')" [attr.aria-invalid]="err('resumeText') ? true : null" [attr.aria-describedby]="err('resumeText') ? 'f-resume-text-err' : null"
+                  [value]="resumeText()" (input)="set('resumeText', resumeText, $any($event.target).value)" (blur)="blur('resumeText')"
+                ></textarea>
+                <div class="field-meta">
+                  @if (err('resumeText'); as e) { <span class="field-error" id="f-resume-text-err">{{ e }}</span> }
+                  <span class="field-counter" [class.field-counter--over]="resumeTextCount() > limits.resumeTextMax">
+                    {{ resumeTextCount() }}/{{ limits.resumeTextMax }}
+                  </span>
+                </div>
               </div>
             } @else {
               <div class="field-block">
-                <label class="fieldlabel" for="r-file">Currículo em PDF</label>
-                <input class="field" id="r-file" type="file" accept="application/pdf" (change)="onFileSelected($event)" />
-                <span class="dim file-hint">O arquivo nunca é armazenado — a IA lê e descarta, só os dados extraídos ficam salvos.</span>
+                <label class="fieldlabel" for="f-file">Currículo em PDF <span class="req" aria-hidden="true">*</span></label>
+                <input
+                  class="field" id="f-file" type="file" accept="application/pdf,.pdf"
+                  [class.field--invalid]="err('file')" [attr.aria-invalid]="err('file') ? true : null" [attr.aria-describedby]="err('file') ? 'f-file-err' : 'f-file-hint'"
+                  (change)="onFileSelected($event)"
+                />
+                @if (err('file'); as e) { <span class="field-error" id="f-file-err">{{ e }}</span> }
+                <span class="dim file-hint" id="f-file-hint">PDF com texto selecionável, até 5 MB. O arquivo nunca é armazenado — a IA lê e descarta, só os dados extraídos ficam salvos.</span>
               </div>
             }
           }
 
-          <label class="consent-row">
-            <input type="checkbox" [checked]="consent()" (change)="consent.set($any($event.target).checked)" />
-            Autorizo o uso dos meus dados para esta candidatura e para futuras oportunidades nesta empresa.
+          <label class="consent-row" [class.consent-row--invalid]="err('consent')">
+            <input
+              type="checkbox" id="f-consent"
+              [attr.aria-invalid]="err('consent') ? true : null" [attr.aria-describedby]="err('consent') ? 'f-consent-err' : null"
+              [checked]="consent()" (change)="toggleConsent($any($event.target).checked)"
+            />
+            <span>
+              Autorizo o uso dos meus dados para esta candidatura e para futuras oportunidades nesta empresa.
+              Estou ciente de que meu currículo e meus dados podem ser analisados por inteligência artificial,
+              processados por um provedor de IA sediado nos Estados Unidos, e de que a decisão sobre a minha
+              candidatura é sempre tomada por uma pessoa, que pode rever a sugestão da IA.
+              <span class="req" aria-hidden="true">*</span>
+            </span>
           </label>
+          @if (err('consent'); as e) { <span class="field-error field-error--consent" id="f-consent-err">{{ e }}</span> }
 
           <!-- Honeypot: nunca visível a uma pessoa real, só um bot preenche automaticamente. -->
           <input
@@ -170,12 +267,14 @@
             (input)="honeypot.set($any($event.target).value)"
           />
 
-          @if (errorMessage()) {
-            <p class="state-message state-message--error">{{ errorMessage() }}</p>
-          }
+          <div aria-live="polite">
+            @if (formError()) {
+              <p class="form-error">{{ formError() }}</p>
+            }
+          </div>
 
-          <button class="btn-primary submit-btn" type="button" [disabled]="!canSubmit" (click)="submit()">
-            {{ submitting() ? 'Enviando…' : 'Enviar candidatura' }}
+          <button class="btn-primary submit-btn" type="button" [disabled]="submitting() || fileChecking()" (click)="submit()">
+            {{ submitting() ? 'Enviando…' : fileChecking() ? 'Verificando arquivo…' : 'Enviar candidatura' }}
           </button>
         </div>
         }
