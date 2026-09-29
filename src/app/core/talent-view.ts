@@ -92,7 +92,10 @@ export function completenessTier(talent: Talent): CompletenessTier {
 }
 
 function decorate(talent: Talent): TalentView {
-  const avatar = AVATAR_STYLES[talent.avatarColorIndex];
+  // O `% length` não é redundante: o tipo `0 | 1 | 2` só existe em tempo de compilação, e este
+  // valor vem do servidor. Um índice fora da faixa deixaria `avatar` indefinido e o acesso a
+  // `avatar.bg` derrubaria a tela inteira no GlobalErrorHandler — mesmo padrão de candidate-view.
+  const avatar = AVATAR_STYLES[talent.avatarColorIndex % AVATAR_STYLES.length];
   const consent = CONSENT_STYLES[talent.consentState];
   const completeness = COMPLETENESS_STYLES[completenessTier(talent)];
 

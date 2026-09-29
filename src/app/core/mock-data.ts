@@ -36,7 +36,7 @@ export const MOCK_AUTH_USERS: MockAuthUser[] = [
   {
     id: 'user-pedro-soterio',
     name: 'Pedro Soterio',
-    email: 'pedro@aurora.com',
+    email: 'pedro@aurora.example',
     password: 'senha12345',
     companyName: 'Aurora Tech',
     companyId: 'aurora-tech',
