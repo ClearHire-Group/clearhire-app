@@ -5,6 +5,7 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+    types: [opened, synchronize, reopened, edited]
 
 permissions:
   contents: read
@@ -14,34 +15,61 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # Fluxo: feature → develop → main. Só roda em PR — em push não há branch de origem para validar.
   branch:
     name: Branch Validation
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - name: Nome do branch e destino da PR
+      - name: Validate PR target branch
         env:
-          # Via env, nunca interpolado direto no script: o nome do branch é escolhido por quem abre a PR.
           HEAD: ${{ github.head_ref }}
           BASE: ${{ github.base_ref }}
         run: |
+          echo "Validating PR target branch..."
+          echo "Source branch: $HEAD"
+          echo "Target branch: $BASE"
+
           pattern='^(feat|fix|hotfix|chore|docs|refactor|test|ci|perf|style|build|release)/[a-z0-9._-]+$'
 
           if [[ "$BASE" == "main" ]]; then
             if [[ "$HEAD" != "develop" && ! "$HEAD" =~ ^(hotfix|release)/ ]]; then
-              echo "::error::PR para main só pode vir de develop, hotfix/* ou release/* (veio de '$HEAD')."
+              echo "::error::❌ PRs para 'main' só são aceitos de 'develop', 'hotfix/*' ou 'release/*' (veio de '$HEAD')."
               exit 1
             fi
+            echo "✅ PRs para 'main' são aceitos de 'develop', 'hotfix/*' e 'release/*'"
+          else
+            if [[ ! "$HEAD" =~ $pattern ]]; then
+              echo "::error::❌ Branch '$HEAD' fora do padrão <tipo>/<descricao-em-kebab-case>."
+              echo "Tipos aceitos: feat, fix, hotfix, chore, docs, refactor, test, ci, perf, style, build, release."
+              exit 1
+            fi
+            echo "✅ PRs para '$BASE' são aceitos de qualquer branch de feature"
           fi
 
-          if [[ "$HEAD" != "develop" && ! "$HEAD" =~ $pattern ]]; then
-            echo "::error::Branch '$HEAD' fora do padrão <tipo>/<descricao-em-kebab-case>."
-            echo "Tipos aceitos: feat, fix, hotfix, chore, docs, refactor, test, ci, perf, style, build, release."
+          echo "✅ Validação de branch aprovada"
+
+      - name: Check PR title format
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          echo "Checking PR title format..."
+
+          # PR de promoção (develop → main) não segue o padrão de título de feature.
+          if [[ "$BASE" == "main" ]]; then
+            echo "✅ PR para 'main': formato de título livre — $TITLE"
+            exit 0
+          fi
+
+          # Conventional Commits: <tipo>(escopo opcional)!: descrição
+          pattern='^(feat|fix|chore|docs|refactor|test|ci|perf|style|build|revert)(\([a-z0-9._-]+\))?!?: .+'
+          if [[ ! "$TITLE" =~ $pattern ]]; then
+            echo "::error::❌ PR title fora do padrão '<tipo>: descrição' (ex.: 'fix: popup atualizar cadastro'). Recebido: $TITLE"
+            echo "Tipos aceitos: feat, fix, chore, docs, refactor, test, ci, perf, style, build, revert."
             exit 1
           fi
 
-          echo "Branch '$HEAD' → '$BASE' ok."
+          echo "✅ PR title format is valid: $TITLE"
 
   quality:
     name: Code Quality Checks
@@ -50,7 +78,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
         with:
-          node-version: 22   # mesma do Dockerfile
+          node-version: 22
           cache: npm
 
       - run: npm ci
@@ -84,12 +112,9 @@ jobs:
             }
           '
 
-      # Trava só em critical: hoje as high vêm do próprio Angular 19 e só somem com upgrade major.
-      # Subir para --audit-level=high depois desse upgrade.
       - name: Bloqueia vulnerabilidade critical
         run: npm audit --omit=dev --audit-level=critical
 
-  # Único check a marcar como obrigatório no ruleset: agrega os outros e falha se qualquer um falhou.
   summary:
     name: Validation Summary
     if: always()
