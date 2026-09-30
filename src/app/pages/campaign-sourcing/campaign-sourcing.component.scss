@@ -1,0 +1,262 @@
+/* .funnel-card__title/.step__hint espelham exatamente campaign-overview.component.scss — SCSS de
+   componente é encapsulado (ViewEncapsulation.Emulated), então não dá pra reaproveitar a regra de
+   outro componente sem duplicar. */
+.funnel-card__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #151A22;
+  margin-bottom: 20px;
+}
+.step__hint {
+  font-size: 13px;
+  margin-bottom: 0;
+  color: rgba(21, 26, 34, 0.55);
+}
+
+.intro-card,
+.prospects-card,
+.tool-panel {
+  padding: 26px;
+  margin-bottom: 20px;
+}
+
+/* Seletor de ferramentas — mesma linguagem visual de .modules/.module em
+   new-campaign.component.scss (ícone em badge + rótulo + descrição, borda terracota quando ativo),
+   só que como navegação (?tool=) em vez de seleção múltipla local. */
+.tool-switcher {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.tool-card {
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border: 1px solid rgba(21, 26, 34, 0.1);
+  background: #FFFFFF;
+  text-decoration: none;
+  transition: border-color 0.12s ease, background 0.12s ease;
+
+  &:hover {
+    border-color: rgba(184, 90, 62, 0.4);
+  }
+
+  &--active {
+    border: 1.5px solid #B85A3E;
+    background: rgba(184, 90, 62, 0.06);
+
+    .tool-card__icon {
+      background: rgba(184, 90, 62, 0.16);
+      color: #B85A3E;
+    }
+  }
+}
+.tool-card__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(21, 26, 34, 0.05);
+  color: #151A22;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.tool-card__label {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #151A22;
+  line-height: 1.3;
+}
+.tool-card__desc {
+  font-size: 11.5px;
+  color: rgba(21, 26, 34, 0.55);
+  line-height: 1.4;
+}
+
+.prospect-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.prospect-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 8px;
+  border-radius: 8px;
+}
+.prospect-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11.5px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.prospect-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.prospect-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #151A22;
+}
+.prospect-meta {
+  font-size: 12px;
+  color: rgba(21, 26, 34, 0.55);
+
+  a {
+    color: #B85A3E;
+  }
+}
+/* Ícone de ferramenta (14px) prefixando a proveniência de cada linha — mesmos 3 glifos do
+   seletor acima, só menores, pra dar pra escanear "quem veio de onde" sem ler texto. */
+.row-icon {
+  display: inline-flex;
+  width: 13px;
+  height: 13px;
+  vertical-align: -2px;
+  margin-right: 3px;
+  color: rgba(21, 26, 34, 0.4);
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+.prospect-status {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.prospect-row__action {
+  white-space: nowrap;
+}
+
+/* Seletor de fonte (GitHub/Stack Overflow) dentro do painel de busca pública — logos reais das
+   marcas (fill fixo no próprio path, não currentColor: são cores de marca, não do tema do app). */
+.source-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.source-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border-strong);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+  font-family: var(--font-sans);
+
+  &:hover {
+    border-color: rgba(21, 26, 34, 0.3);
+  }
+
+  &--active {
+    border-color: #B85A3E;
+    background: rgba(184, 90, 62, 0.06);
+  }
+}
+.source-search-btn {
+  margin-left: auto;
+}
+
+/* Modal — shell (.modal-backdrop/.modal-card/.modal-intro/.modal-actions) vem de styles.scss;
+   campos de texto (.fieldlabel/.field vêm de lá também; .field-error/.req etc. são locais, mesmo
+   bloco de talent-bank.component.scss — ver core/manual-talent-validation.ts pra regra em si). Só
+   "Cadastrar no Banco de Talentos" continua modal — as 3 ferramentas viraram painéis inline. */
+.modal-card .fieldlabel {
+  margin-top: 14px;
+}
+.req { color: var(--color-accent); font-weight: 700; }
+.field-error { display: block; font-size: 12px; line-height: 1.4; color: var(--color-accent); margin-top: 6px; }
+.field--invalid {
+  border-color: var(--color-accent);
+  background: var(--color-card);
+  &:focus { outline: 2px solid var(--color-accent); outline-offset: -1px; }
+}
+.form-error { font-size: 13px; line-height: 1.5; color: var(--color-accent); font-weight: 600; margin: 4px 0 8px; }
+
+.mock-tag {
+  font-size: 12px;
+  margin: 0 0 10px;
+}
+.lead-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.lead-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover { background: rgba(21, 26, 34, 0.03); }
+  &--selected { background: rgba(184, 90, 62, 0.06); }
+
+  input[type='checkbox'] { margin-top: 3px; }
+}
+.lead-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.xray-query {
+  background: rgba(21, 26, 34, 0.04);
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-family: monospace;
+  font-size: 12.5px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 4px 0 14px;
+}
+.xray-open-btn {
+  display: inline-block;
+  text-decoration: none;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.xray-subtitle {
+  font-size: 14px;
+  font-weight: 700;
+  margin: 4px 0 10px;
+  color: #151A22;
+}
+.xray-added {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #3A4A2E;
+  margin: 4px 0;
+}

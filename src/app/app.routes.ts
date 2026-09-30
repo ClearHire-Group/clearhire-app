@@ -10,6 +10,7 @@ import { CampaignDetailComponent } from './pages/campaign-detail/campaign-detail
 import { CampaignFunnelComponent } from './pages/campaign-funnel/campaign-funnel.component';
 import { CampaignCandidatesComponent } from './pages/campaign-candidates/campaign-candidates.component';
 import { CampaignOverviewComponent } from './pages/campaign-overview/campaign-overview.component';
+import { CampaignSourcingComponent } from './pages/campaign-sourcing/campaign-sourcing.component';
 import { CampaignSettingsComponent } from './pages/campaign-settings/campaign-settings.component';
 import { CandidateProfileComponent } from './pages/candidate-profile/candidate-profile.component';
 import { SettingsComponent } from './pages/settings/settings.component';
@@ -62,6 +63,7 @@ export const routes: Routes = [
         children: [
           { path: '', redirectTo: 'funil', pathMatch: 'full' },
           { path: 'visao-geral', component: CampaignOverviewComponent },
+          { path: 'sourcing', component: CampaignSourcingComponent },
           { path: 'funil', component: CampaignFunnelComponent },
           { path: 'candidatos', component: CampaignCandidatesComponent },
           { path: 'configuracoes', component: CampaignSettingsComponent },

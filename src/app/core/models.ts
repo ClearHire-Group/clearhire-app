@@ -146,14 +146,15 @@ export interface ExperienceEntry {
 export type ConsentState = 'consentido' | 'nao_notificado' | 'notificado' | 'oposicao_exclusao';
 export type LegalBasis = 'consentimento' | 'legitimo_interesse' | 'a_avaliar';
 /** Por onde a pessoa ENTROU no banco: reprovação com motivo que qualifica, aprovação (chegou a
- * Selecionados, com consentimento), cadastro manual ou importação. */
-export type TalentOrigin = 'reprovacao_qualificada' | 'aprovacao' | 'cadastro_manual' | 'importacao';
+ * Selecionados, com consentimento), cadastro manual, indicação (Sourcing) ou importação. */
+export type TalentOrigin = 'reprovacao_qualificada' | 'aprovacao' | 'cadastro_manual' | 'importacao' | 'indicacao';
 
 export const TALENT_ORIGIN_LABELS: Record<TalentOrigin, string> = {
   reprovacao_qualificada: 'Reprovação qualificada',
   aprovacao: 'Aprovado em vaga',
   cadastro_manual: 'Cadastro manual',
   importacao: 'Importação',
+  indicacao: 'Indicação',
 };
 
 export const CONSENT_STATE_LABELS: Record<ConsentState, string> = {
@@ -255,6 +256,8 @@ export interface Talent {
   salaryRangeLabel: string;
   availabilityLabel: string;
   origin: TalentOrigin;
+  /** Quem indicou esta pessoa — só preenchido quando `origin === 'indicacao'` (ver Sourcing). */
+  referredBy?: string;
   legalBasis: LegalBasis;
   consentState: ConsentState;
   consentDateLabel?: string;
@@ -323,6 +326,78 @@ export interface ManualTalentInput {
   name: string;
   rawProfileText: string;
   contextNote: string;
+  /** Origem específica quando o cadastro vem de uma ferramenta de Sourcing — ausente no formulário
+   * direto do Banco de Talentos, que sempre implica `'cadastro_manual'`. */
+  origin?: TalentOrigin;
+  /** Quem indicou — só relevante quando `origin === 'indicacao'`. */
+  referredBy?: string;
+}
+
+// --- Sourcing (fase antes de "Recebidos") -------------------------------------------------
+//
+// Um SourcingProspect é alguém que o recrutador está buscando ativamente para UMA campanha, que
+// nunca se candidatou. Vive fora do funil real (PhaseKey) e fora do Banco de Talentos — só vira
+// Talent de verdade quando o recrutador cadastra manualmente a partir do card do prospect (ver
+// DataApi.registerSourcingProspectAsTalent). Nunca é promovido direto a Candidate nem a Talent
+// sozinho.
+
+export type SourcingToolKey = 'indicacao' | 'busca_publica' | 'x_ray';
+
+export const SOURCING_TOOL_LABELS: Record<SourcingToolKey, string> = {
+  indicacao: 'Indicação',
+  busca_publica: 'Busca em fontes públicas',
+  x_ray: 'Busca X-Ray',
+};
+
+export type SourcingProspectStatus = 'novo' | 'cadastrado';
+
+export interface SourcingProspect {
+  id: string;
+  campaignId: string;
+  name: string;
+  initials: string;
+  avatarColorIndex: 0 | 1 | 2;
+  tool: SourcingToolKey;
+  /** Rótulo curto de proveniência — "Indicado(a) por Ana Souza", "Encontrado(a) no GitHub". */
+  sourceLabel: string;
+  /** Link de perfil público, quando a ferramenta trouxe um (busca pública, ou colado no X-Ray). */
+  profileUrl?: string;
+  /** Quem indicou — só preenchido quando `tool === 'indicacao'`. Guardado estruturado (não só
+   * embutido em `sourceLabel`) porque vira `Talent.referredBy` ao cadastrar no banco. */
+  referrerName?: string;
+  /** Texto livre já coletado (bio pública, nota de indicação, nota do recrutador no X-Ray) — vira
+   * `rawProfileText` do cadastro manual quando o prospect é registrado como Talent. */
+  notes: string;
+  addedAt: string;
+  status: SourcingProspectStatus;
+  /** Set quando o prospect virou Talent de verdade — link pro Banco de Talentos. */
+  talentId?: string;
+}
+
+export interface ReferralProspectInput {
+  name: string;
+  contact: string;
+  referrerName: string;
+  note: string;
+}
+
+export type PublicProfileSource = 'github' | 'stackoverflow';
+
+/** Resultado efêmero de busca em fonte pública — nunca persistido até o recrutador escolher
+ * adicionar como prospect (ver DataApi.addPublicProfileProspects). */
+export interface PublicProfileLead {
+  id: string;
+  name: string;
+  source: PublicProfileSource;
+  bio: string;
+  profileUrl: string;
+  meta: string;
+}
+
+export interface XRayProspectInput {
+  name: string;
+  profileUrl: string;
+  note: string;
 }
 
 export interface CandidateProfileData {

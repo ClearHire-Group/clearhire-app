@@ -20,15 +20,20 @@ import {
   PhaseKey,
   PublicApplicationManualInput,
   PublicCampaignInfo,
+  PublicProfileLead,
+  PublicProfileSource,
   RegisterCompanyInput,
   RegisterCompanyResult,
   RejectionReasonKey,
+  ReferralProspectInput,
+  SourcingProspect,
   Talent,
   TalentMatch,
   TalentRecommendation,
   TeamMember,
   UpdateCampaignInput,
   UserProfile,
+  XRayProspectInput,
 } from './models';
 import { ReportRange } from './report-period';
 
@@ -212,4 +217,29 @@ export abstract class DataApi {
    * sobre um recorte que ele já escolheu, nunca disparada automaticamente.
    */
   abstract assessTalentsForCampaign(campaignId: string, talentIds: string[]): Observable<TalentRecommendation[]>;
+
+  // --- Sourcing (fase antes de "Recebidos") ---------------------------------------------------
+  /** Prospects já adicionados a esta campanha pelas 3 ferramentas de Sourcing — nunca candidatos
+   * de verdade, nem talentos do banco, até serem explicitamente cadastrados (ver abaixo). */
+  abstract getSourcingProspects(campaignId: string): Observable<SourcingProspect[]>;
+  /** Ferramenta 1 — indicação formalizada: um funcionário indica alguém pra vaga. Sem busca, sem
+   * IA; cria o prospect direto. */
+  abstract addReferralProspect(campaignId: string, input: ReferralProspectInput): Observable<SourcingProspect>;
+  /** Ferramenta 2, passo 1 — a IA lê a vaga e monta uma busca contra a API pública da fonte
+   * escolhida; devolve perfis pro recrutador revisar. Resultado efêmero, nunca persistido até o
+   * recrutador escolher adicionar (próximo método). */
+  abstract searchPublicProfiles(campaignId: string, source: PublicProfileSource): Observable<PublicProfileLead[]>;
+  /** Ferramenta 2, passo 2 — recebe os leads inteiros (não só ids): são resultado de busca
+   * efêmero, não algo já persistido do lado do servidor pra buscar de novo por id. */
+  abstract addPublicProfileProspects(campaignId: string, leads: PublicProfileLead[]): Observable<SourcingProspect[]>;
+  /** Ferramenta 3 — gerador de busca X-Ray: o recrutador navega no LinkedIn por conta própria (ver
+   * `core/xray-search.ts`, que monta a busca sem chamar o backend) e cola aqui quem encontrou. */
+  abstract addXRayProspect(campaignId: string, input: XRayProspectInput): Observable<SourcingProspect>;
+  /** Ponto de saída das 3 ferramentas: promove um prospect a Talent de verdade via o mesmo cadastro
+   * manual que o Banco de Talentos já usa, e marca o prospect como `cadastrado`. */
+  abstract registerSourcingProspectAsTalent(
+    campaignId: string,
+    prospectId: string,
+    input: ManualTalentInput,
+  ): Observable<{ prospect: SourcingProspect; talent: Talent }>;
 }
