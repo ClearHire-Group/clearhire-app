@@ -227,7 +227,7 @@ export function validateCity(raw: string): Checked {
   return { value, error: '' };
 }
 
-export const BRAZILIAN_STATES: ReadonlyArray<{ uf: string; name: string }> = [
+export const BRAZILIAN_STATES: readonly { uf: string; name: string }[] = [
   { uf: 'AC', name: 'Acre' }, { uf: 'AL', name: 'Alagoas' }, { uf: 'AP', name: 'Amapá' }, { uf: 'AM', name: 'Amazonas' },
   { uf: 'BA', name: 'Bahia' }, { uf: 'CE', name: 'Ceará' }, { uf: 'DF', name: 'Distrito Federal' },
   { uf: 'ES', name: 'Espírito Santo' }, { uf: 'GO', name: 'Goiás' }, { uf: 'MA', name: 'Maranhão' },

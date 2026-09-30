@@ -325,8 +325,8 @@
       }
 
       @if (rejectModalOpen()) {
-        <div class="modal-backdrop" (click)="closeRejectModal()">
-          <div class="card modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-backdrop" tabindex="-1" (click)="$event.target === $event.currentTarget && closeRejectModal()" (keydown.escape)="closeRejectModal()">
+          <div class="card modal-card">
             @if (rejectStep() === 'motivo') {
               <h2 class="serif">Reprovar candidatura</h2>
               <p class="muted modal-intro">Escolha o motivo. Ele decide se a pessoa é oferecida para entrar no Banco de Talentos.</p>

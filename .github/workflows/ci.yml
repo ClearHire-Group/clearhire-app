@@ -14,8 +14,37 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  build:
-    name: build
+  # Fluxo: feature → develop → main. Só roda em PR — em push não há branch de origem para validar.
+  branch:
+    name: Branch Validation
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Nome do branch e destino da PR
+        env:
+          # Via env, nunca interpolado direto no script: o nome do branch é escolhido por quem abre a PR.
+          HEAD: ${{ github.head_ref }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          pattern='^(feat|fix|hotfix|chore|docs|refactor|test|ci|perf|style|build|release)/[a-z0-9._-]+$'
+
+          if [[ "$BASE" == "main" ]]; then
+            if [[ "$HEAD" != "develop" && ! "$HEAD" =~ ^(hotfix|release)/ ]]; then
+              echo "::error::PR para main só pode vir de develop, hotfix/* ou release/* (veio de '$HEAD')."
+              exit 1
+            fi
+          fi
+
+          if [[ "$HEAD" != "develop" && ! "$HEAD" =~ $pattern ]]; then
+            echo "::error::Branch '$HEAD' fora do padrão <tipo>/<descricao-em-kebab-case>."
+            echo "Tipos aceitos: feat, fix, hotfix, chore, docs, refactor, test, ci, perf, style, build, release."
+            exit 1
+          fi
+
+          echo "Branch '$HEAD' → '$BASE' ok."
+
+  quality:
+    name: Code Quality Checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -25,5 +54,67 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm run test:ci
-      - run: npm run build
+      - name: Lint (ESLint + acessibilidade de templates)
+        run: npm run lint
+      - name: Testes unitários
+        run: npm run test:ci
+      - name: Build de produção (type-check + budgets)
+        run: npm run build
+
+  dependencies:
+    name: Dependency Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Relatório de vulnerabilidades (dependências de produção)
+        run: |
+          npm audit --omit=dev --json > audit.json || true
+          node -e '
+            const fs = require("fs");
+            const v = JSON.parse(fs.readFileSync("audit.json", "utf8")).metadata?.vulnerabilities ?? {};
+            const rows = ["critical", "high", "moderate", "low"].map(s => `| ${s} | ${v[s] ?? 0} |`);
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+              ["### npm audit (produção)", "| Severidade | Qtde |", "|---|---|", ...rows, ""].join("\n"));
+            if ((v.high ?? 0) > 0) {
+              console.log(`::warning::${v.high} vulnerabilidade(s) high em dependências de produção — rode "npm audit --omit=dev".`);
+            }
+          '
+
+      # Trava só em critical: hoje as high vêm do próprio Angular 19 e só somem com upgrade major.
+      # Subir para --audit-level=high depois desse upgrade.
+      - name: Bloqueia vulnerabilidade critical
+        run: npm audit --omit=dev --audit-level=critical
+
+  # Único check a marcar como obrigatório no ruleset: agrega os outros e falha se qualquer um falhou.
+  summary:
+    name: Validation Summary
+    if: always()
+    needs: [branch, quality, dependencies]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resultado
+        env:
+          BRANCH: ${{ needs.branch.result }}
+          QUALITY: ${{ needs.quality.result }}
+          DEPENDENCIES: ${{ needs.dependencies.result }}
+        run: |
+          icon() { case "$1" in success) echo "✅";; skipped) echo "⏭️";; *) echo "❌";; esac; }
+          {
+            echo "## Validation Summary"
+            echo "| Etapa | Resultado |"
+            echo "|---|---|"
+            echo "| Branch Validation | $(icon "$BRANCH") $BRANCH |"
+            echo "| Code Quality Checks | $(icon "$QUALITY") $QUALITY |"
+            echo "| Dependency Analysis | $(icon "$DEPENDENCIES") $DEPENDENCIES |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          for result in "$BRANCH" "$QUALITY" "$DEPENDENCIES"; do
+            if [[ "$result" != "success" && "$result" != "skipped" ]]; then
+              echo "::error::Uma ou mais validações falharam."
+              exit 1
+            fi
+          done

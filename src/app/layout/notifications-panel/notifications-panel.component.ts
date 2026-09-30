@@ -15,5 +15,5 @@ export class NotificationsPanelComponent {
   @Input() notifications: Notification[] = [];
   @Input() loading = false;
   @Input() error = false;
-  @Output() select = new EventEmitter<Notification>();
+  @Output() notificationSelect = new EventEmitter<Notification>();
 }

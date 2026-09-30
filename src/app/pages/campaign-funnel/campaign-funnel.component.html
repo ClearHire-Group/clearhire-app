@@ -4,7 +4,12 @@
       <div
         class="funnel__block"
         [class.funnel__block--active]="phase.key === selectedPhase()"
+        role="button"
+        tabindex="0"
+        [attr.aria-pressed]="phase.key === selectedPhase()"
         (click)="selectPhase(phase.key)"
+        (keydown.enter)="selectPhase(phase.key)"
+        (keydown.space)="$event.preventDefault(); selectPhase(phase.key)"
       >
         <div class="funnel__block-top">
           <span class="funnel__num" [class.funnel__num--active]="phase.key === selectedPhase()">{{ phase.num }}</span>
