@@ -22,5 +22,22 @@
       "destination": "https://clearhire-server-production.up.railway.app/api/:path*"
     },
     { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "develop": false,
+      "feat/**": false,
+      "fix/**": false,
+      "hotfix/**": false,
+      "chore/**": false,
+      "docs/**": false,
+      "refactor/**": false,
+      "test/**": false,
+      "ci/**": false,
+      "perf/**": false,
+      "style/**": false,
+      "build/**": false,
+      "release/**": false
+    }
+  }
 }
