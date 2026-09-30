@@ -255,7 +255,7 @@ export class MockApiService extends DataApi {
     return this.simulate(campaign);
   }
 
-  updateCampaignPhases(campaignId: string, phaseKeys: Array<'fit' | 'tecnica' | 'entrevista'>): Observable<Campaign | undefined> {
+  updateCampaignPhases(campaignId: string, phaseKeys: ('fit' | 'tecnica' | 'entrevista')[]): Observable<Campaign | undefined> {
     const campaign = MOCK_CAMPAIGNS.find((c) => c.id === campaignId);
     if (!campaign) return this.simulate(undefined);
 

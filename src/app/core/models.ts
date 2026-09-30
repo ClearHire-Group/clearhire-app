@@ -86,7 +86,7 @@ export interface CreateCampaignInput {
   modality: CampaignModality;
   contractType: CampaignContractType;
   seniority: CampaignSeniority;
-  phaseKeys: Array<'fit' | 'tecnica' | 'entrevista'>;
+  phaseKeys: ('fit' | 'tecnica' | 'entrevista')[];
   /** Talentos do Banco de Talentos selecionados na tela de match reverso (seção 8.2 da
    * especificação) — entram como candidatos desta campanha, fase Recebidos, na mesma criação. */
   talentIds?: string[];

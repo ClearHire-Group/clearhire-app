@@ -228,8 +228,8 @@
 
   <!-- Modal: Cadastrar no Banco de Talentos — ação sobre UM prospect específico, continua modal -->
   @if (registerModalOpen()) {
-    <div class="modal-backdrop" (click)="closeRegisterModal()">
-      <div class="card modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-backdrop" tabindex="-1" (click)="$event.target === $event.currentTarget && closeRegisterModal()" (keydown.escape)="closeRegisterModal()">
+      <div class="card modal-card">
         <h2 class="serif">Cadastrar no Banco de Talentos</h2>
         <p class="muted modal-intro">Confirme os dados antes de cadastrar. A partir daqui, a pessoa passa a existir como talento no banco, fora desta campanha.</p>
 

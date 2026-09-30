@@ -182,8 +182,8 @@
   </div>
 
   @if (showManualForm()) {
-    <div class="modal-backdrop" (click)="closeManualForm()">
-      <div class="card modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-backdrop" tabindex="-1" (click)="$event.target === $event.currentTarget && closeManualForm()" (keydown.escape)="closeManualForm()">
+      <div class="card modal-card">
         <h2 class="serif">Novo talento</h2>
         <p class="muted modal-intro">Cadastro manual, fora de campanha — legítimo interesse até o primeiro contato real com a pessoa.</p>
 

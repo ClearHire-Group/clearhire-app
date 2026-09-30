@@ -25,7 +25,7 @@
           [notifications]="notificationsState.data() ?? []"
           [loading]="notificationsState.loading()"
           [error]="notificationsState.error()"
-          (select)="onNotificationSelected($event)"
+          (notificationSelect)="onNotificationSelected($event)"
         />
       }
     </div>

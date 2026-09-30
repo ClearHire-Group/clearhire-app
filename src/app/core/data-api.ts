@@ -103,7 +103,7 @@ export abstract class DataApi {
    * tem candidato nela. */
   abstract updateCampaignPhases(
     campaignId: string,
-    phaseKeys: Array<'fit' | 'tecnica' | 'entrevista'>,
+    phaseKeys: ('fit' | 'tecnica' | 'entrevista')[],
   ): Observable<Campaign | undefined>;
   /** Alterna entre 'ativa' e 'pausada'; não afeta campanhas já encerradas. */
   abstract toggleCampaignPause(campaignId: string): Observable<Campaign | undefined>;

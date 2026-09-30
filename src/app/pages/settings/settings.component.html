@@ -19,7 +19,7 @@
         </div>
 
         <div class="field-block">
-          <label class="fieldlabel">Valores organizacionais</label>
+          <label class="fieldlabel" for="company-new-value">Valores organizacionais</label>
           <div class="values">
             @for (v of valuesDraft(); track v; let i = $index) {
               <span class="value-chip">
@@ -32,6 +32,7 @@
           </div>
           <div class="values__add">
             <input
+              id="company-new-value"
               class="field"
               type="text"
               placeholder="Ex.: Transparência radical"
@@ -48,13 +49,13 @@
         </div>
 
         <div class="field-block">
-          <label class="fieldlabel">Tom de comunicação</label>
-          <textarea class="field" rows="2" maxlength="2000" [value]="toneDraft()" (input)="toneDraft.set($any($event.target).value)"></textarea>
+          <label class="fieldlabel" for="company-tone">Tom de comunicação</label>
+          <textarea id="company-tone" class="field" rows="2" maxlength="2000" [value]="toneDraft()" (input)="toneDraft.set($any($event.target).value)"></textarea>
         </div>
 
         <div class="field-block field-block--last">
-          <label class="fieldlabel">O que a empresa considera importante</label>
-          <textarea class="field" rows="3" maxlength="2000" [value]="importanceDraft()" (input)="importanceDraft.set($any($event.target).value)"></textarea>
+          <label class="fieldlabel" for="company-importance">O que a empresa considera importante</label>
+          <textarea id="company-importance" class="field" rows="3" maxlength="2000" [value]="importanceDraft()" (input)="importanceDraft.set($any($event.target).value)"></textarea>
         </div>
       </div>
 

@@ -118,8 +118,8 @@
       </div>
 
       @if (confirmTarget(); as target) {
-        <div class="modal-backdrop" (click)="closeDeactivateModal()">
-          <div class="card modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-backdrop" tabindex="-1" (click)="$event.target === $event.currentTarget && closeDeactivateModal()" (keydown.escape)="closeDeactivateModal()">
+          <div class="card modal-card">
             <h2 class="serif">Desativar assento</h2>
             <p class="muted modal-intro">
               {{ target.name || 'Este RH' }} perde acesso imediatamente. Digite sua senha para confirmar.
@@ -159,8 +159,8 @@
       }
 
       @if (cancelInviteTarget(); as invite) {
-        <div class="modal-backdrop" (click)="closeCancelInviteModal()">
-          <div class="card modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-backdrop" tabindex="-1" (click)="$event.target === $event.currentTarget && closeCancelInviteModal()" (keydown.escape)="closeCancelInviteModal()">
+          <div class="card modal-card">
             <h2 class="serif">Cancelar convite</h2>
             <p class="muted modal-intro">
               O convite para {{ invite.email }} será invalidado — o link já enviado deixa de funcionar.

@@ -31,8 +31,8 @@
   </div>
 
   @if (publicLinkModalOpen()) {
-    <div class="modal-backdrop" (click)="closePublicLinkModal()">
-      <div class="card modal-card" (click)="$event.stopPropagation()">
+    <div class="modal-backdrop" tabindex="-1" (click)="$event.target === $event.currentTarget && closePublicLinkModal()" (keydown.escape)="closePublicLinkModal()">
+      <div class="card modal-card">
         <h2 class="serif">Link de candidatura pública</h2>
         <p class="muted modal-intro">
           Qualquer pessoa com este link pode se candidatar a esta vaga — sem precisar de conta. Divulgue no LinkedIn ou onde quiser.

@@ -199,7 +199,7 @@ export class HttpApiService extends DataApi {
 
   updateCampaignPhases(
     campaignId: string,
-    phaseKeys: Array<'fit' | 'tecnica' | 'entrevista'>,
+    phaseKeys: ('fit' | 'tecnica' | 'entrevista')[],
   ): Observable<Campaign | undefined> {
     return this.undefinedOnNotFound(
       this.http.patch<Campaign>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/phases`, { phaseKeys }),
