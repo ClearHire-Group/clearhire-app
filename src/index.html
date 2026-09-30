@@ -6,12 +6,11 @@
     Defesa em profundidade contra XSS — a sanitização de template do Angular já é a defesa
     primária (nenhum innerHTML/bypassSecurityTrust* no app). style-src precisa de 'unsafe-inline'
     porque o encapsulamento emulado do Angular injeta <style> em runtime sem suporte a nonce (fora
-    de escopo aqui). connect-src inclui https://api.clearhire.example porque produção é cross-origin
-    (front em app.clearhire.example, API em api.clearhire.example) — 'self' sozinho cobriria só o dev local
-    via proxy do ng serve. CSP é aplicada pelo browser e é independente do CORS do backend: os dois
-    precisam estar corretos, um não substitui o outro. Trocar o domínio se/quando o real mudar.
+    de escopo aqui). connect-src é só 'self' porque a API é sempre mesma origem para o browser:
+    proxy do ng serve em dev, rewrite /api/* do vercel.json em produção. Se um dia a API passar a ser
+    chamada direto em outro domínio, ele precisa entrar aqui E no vercel.json.
   -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://api.clearhire.example; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'">
   <title>Clearhire</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
