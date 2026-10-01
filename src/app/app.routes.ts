@@ -10,6 +10,7 @@ import { CampaignDetailComponent } from './pages/campaign-detail/campaign-detail
 import { CampaignFunnelComponent } from './pages/campaign-funnel/campaign-funnel.component';
 import { CampaignCandidatesComponent } from './pages/campaign-candidates/campaign-candidates.component';
 import { CampaignOverviewComponent } from './pages/campaign-overview/campaign-overview.component';
+import { CampaignSourcingComponent } from './pages/campaign-sourcing/campaign-sourcing.component';
 import { CampaignSettingsComponent } from './pages/campaign-settings/campaign-settings.component';
 import { CandidateProfileComponent } from './pages/candidate-profile/candidate-profile.component';
 import { SettingsComponent } from './pages/settings/settings.component';
@@ -28,11 +29,11 @@ import { apexHostGuard } from './core/apex-host.guard';
 export const routes: Routes = [
   // Domínio raiz (apexHostGuard) mostra a landing pública em vez do dashboard/login —
   // precisa vir ANTES do bloco `path: ''` protegido: canMatch=false faz o Router pular
-  // esta entrada e tentar a próxima com o mesmo path. Em app.clearhire.example (e em dev
+  // esta entrada e tentar a próxima com o mesmo path. Em clearhire.b2byte.com (e em dev
   // local) o guard nunca casa, então o bloco protegido abaixo continua sendo o dono de `/`.
   { path: '', canMatch: [apexHostGuard], component: LandingComponent },
-  // Alias estável, sem guard de host — útil pra pré-visualizar a landing em qualquer
-  // ambiente (dev local, app.clearhire.example/landing, preview deploy).
+  // Alias estável, sem guard de host — é por aqui que a landing é acessada hoje
+  // (clearhire.b2byte.com/landing), além de dev local e preview deploy.
   { path: 'landing', component: LandingComponent },
   { path: 'login', component: LoginComponent, canActivate: [guestGuard] },
   { path: 'registro', component: RegisterComponent, canActivate: [guestGuard] },
@@ -62,6 +63,7 @@ export const routes: Routes = [
         children: [
           { path: '', redirectTo: 'funil', pathMatch: 'full' },
           { path: 'visao-geral', component: CampaignOverviewComponent },
+          { path: 'sourcing', component: CampaignSourcingComponent },
           { path: 'funil', component: CampaignFunnelComponent },
           { path: 'candidatos', component: CampaignCandidatesComponent },
           { path: 'configuracoes', component: CampaignSettingsComponent },

@@ -1,0 +1,145 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  branch:
+    name: Branch Validation
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR target branch
+        env:
+          HEAD: ${{ github.head_ref }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          echo "Validating PR target branch..."
+          echo "Source branch: $HEAD"
+          echo "Target branch: $BASE"
+
+          pattern='^(feat|fix|hotfix|chore|docs|refactor|test|ci|perf|style|build|release)/[a-z0-9._-]+$'
+
+          if [[ "$BASE" == "main" ]]; then
+            if [[ "$HEAD" != "develop" && ! "$HEAD" =~ ^(hotfix|release)/ ]]; then
+              echo "::error::❌ PRs para 'main' só são aceitos de 'develop', 'hotfix/*' ou 'release/*' (veio de '$HEAD')."
+              exit 1
+            fi
+            echo "✅ PRs para 'main' são aceitos de 'develop', 'hotfix/*' e 'release/*'"
+          else
+            if [[ ! "$HEAD" =~ $pattern ]]; then
+              echo "::error::❌ Branch '$HEAD' fora do padrão <tipo>/<descricao-em-kebab-case>."
+              echo "Tipos aceitos: feat, fix, hotfix, chore, docs, refactor, test, ci, perf, style, build, release."
+              exit 1
+            fi
+            echo "✅ PRs para '$BASE' são aceitos de qualquer branch de feature"
+          fi
+
+          echo "✅ Validação de branch aprovada"
+
+      - name: Check PR title format
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          echo "Checking PR title format..."
+
+          # PR de promoção (develop → main) não segue o padrão de título de feature.
+          if [[ "$BASE" == "main" ]]; then
+            echo "✅ PR para 'main': formato de título livre — $TITLE"
+            exit 0
+          fi
+
+          # Conventional Commits: <tipo>(escopo opcional)!: descrição
+          pattern='^(feat|fix|chore|docs|refactor|test|ci|perf|style|build|revert)(\([a-z0-9._-]+\))?!?: .+'
+          if [[ ! "$TITLE" =~ $pattern ]]; then
+            echo "::error::❌ PR title fora do padrão '<tipo>: descrição' (ex.: 'fix: popup atualizar cadastro'). Recebido: $TITLE"
+            echo "Tipos aceitos: feat, fix, chore, docs, refactor, test, ci, perf, style, build, revert."
+            exit 1
+          fi
+
+          echo "✅ PR title format is valid: $TITLE"
+
+  quality:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - name: Lint (ESLint + acessibilidade de templates)
+        run: npm run lint
+      - name: Testes unitários
+        run: npm run test:ci
+      - name: Build de produção (type-check + budgets)
+        run: npm run build
+
+  dependencies:
+    name: Dependency Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+
+      - name: Relatório de vulnerabilidades (dependências de produção)
+        run: |
+          npm audit --omit=dev --json > audit.json || true
+          node -e '
+            const fs = require("fs");
+            const v = JSON.parse(fs.readFileSync("audit.json", "utf8")).metadata?.vulnerabilities ?? {};
+            const rows = ["critical", "high", "moderate", "low"].map(s => `| ${s} | ${v[s] ?? 0} |`);
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,
+              ["### npm audit (produção)", "| Severidade | Qtde |", "|---|---|", ...rows, ""].join("\n"));
+            if ((v.high ?? 0) > 0) {
+              console.log(`::warning::${v.high} vulnerabilidade(s) high em dependências de produção — rode "npm audit --omit=dev".`);
+            }
+          '
+
+      - name: Bloqueia vulnerabilidade critical
+        run: npm audit --omit=dev --audit-level=critical
+
+  summary:
+    name: Validation Summary
+    if: always()
+    needs: [branch, quality, dependencies]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resultado
+        env:
+          BRANCH: ${{ needs.branch.result }}
+          QUALITY: ${{ needs.quality.result }}
+          DEPENDENCIES: ${{ needs.dependencies.result }}
+        run: |
+          icon() { case "$1" in success) echo "✅";; skipped) echo "⏭️";; *) echo "❌";; esac; }
+          {
+            echo "## Validation Summary"
+            echo "| Etapa | Resultado |"
+            echo "|---|---|"
+            echo "| Branch Validation | $(icon "$BRANCH") $BRANCH |"
+            echo "| Code Quality Checks | $(icon "$QUALITY") $QUALITY |"
+            echo "| Dependency Analysis | $(icon "$DEPENDENCIES") $DEPENDENCIES |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          for result in "$BRANCH" "$QUALITY" "$DEPENDENCIES"; do
+            if [[ "$result" != "success" && "$result" != "skipped" ]]; then
+              echo "::error::Uma ou mais validações falharam."
+              exit 1
+            fi
+          done

@@ -110,11 +110,14 @@
             <div class="fact-grid">
               <div><span class="fact-label">Base legal</span><span class="fact-value">{{ t.legalBasis === 'consentimento' ? 'Consentimento' : t.legalBasis === 'legitimo_interesse' ? 'Legítimo interesse' : 'A avaliar' }}</span></div>
               <div><span class="fact-label">Origem</span><span class="fact-value">{{ originLabels[t.origin] }}</span></div>
+              @if (t.referredBy) {
+                <div><span class="fact-label">Indicado por</span><span class="fact-value">{{ t.referredBy }}</span></div>
+              }
               @if (t.consentDateLabel) {
                 <div><span class="fact-label">Consentimento</span><span class="fact-value">{{ t.consentDateLabel }}</span></div>
               }
             </div>
-            @if (t.origin === 'cadastro_manual' && t.consentState === 'nao_notificado') {
+            @if ((t.origin === 'cadastro_manual' || t.origin === 'indicacao') && t.consentState === 'nao_notificado') {
               <button type="button" class="btn-primary first-contact-btn" [disabled]="firstContactSaving()" (click)="markFirstContact()">
                 {{ firstContactSaving() ? 'Registrando…' : 'Registrar primeiro contato e notificar' }}
               </button>
@@ -137,7 +140,7 @@
               }
             </ul>
           } @else {
-            <p class="muted">Ainda não participou de nenhuma campanha — entrou pelo cadastro manual.</p>
+            <p class="muted">Ainda não participou de nenhuma campanha.</p>
           }
         </div>
       </div>

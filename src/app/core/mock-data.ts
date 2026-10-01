@@ -8,6 +8,9 @@ import {
   DashboardMetrics,
   Notification,
   Phase,
+  PublicProfileLead,
+  PublicProfileSource,
+  SourcingProspect,
   Talent,
   UserRole,
 } from './models';
@@ -500,7 +503,133 @@ export const MOCK_TALENTS: Talent[] = [
       },
     ],
   },
+  // --- Entrada por indicação, já cadastrado via Sourcing (ver MOCK_SOURCING_PROSPECTS_BY_CAMPAIGN) ---
+  {
+    id: 'gustavo-almeida',
+    name: 'Gustavo Almeida',
+    initials: 'GA',
+    avatarColorIndex: 1,
+    location: 'A confirmar',
+    modality: 'A confirmar',
+    seniority: 'A confirmar',
+    yearsExperience: 0,
+    sectors: [],
+    skills: [],
+    languages: [],
+    salaryRangeLabel: 'A confirmar',
+    availabilityLabel: 'A confirmar',
+    origin: 'cadastro_manual',
+    legalBasis: 'legitimo_interesse',
+    consentState: 'nao_notificado',
+    updatedAt: '2026-09-24',
+    summary: 'Perfil de infraestrutura/backend encontrado via busca X-Ray no LinkedIn — recrutador ainda não completou os dados estruturados.',
+    experience: [],
+    education: { degree: '', institution: '', period: '' },
+    recruiterNotes: 'Origem: Sourcing — Busca X-Ray (campanha: Engenheiro(a) de Software Sênior — Backend).',
+    history: [],
+  },
 ];
+
+export const MOCK_SOURCING_PROSPECTS_BY_CAMPAIGN: Record<string, SourcingProspect[]> = {
+  'eng-software-senior-backend': [
+    {
+      id: 'prospect-rodrigo-farias',
+      campaignId: 'eng-software-senior-backend',
+      name: 'Rodrigo Farias',
+      initials: 'RF',
+      avatarColorIndex: 0,
+      tool: 'indicacao',
+      sourceLabel: 'Indicado(a) por Bruno Kishi',
+      referrerName: 'Bruno Kishi',
+      notes: 'Trabalhamos juntos na Nubank por 2 anos. Muito forte em sistemas distribuídos e Go, ótimo em debugging de produção.',
+      addedAt: '2026-09-27',
+      status: 'novo',
+    },
+    {
+      id: 'prospect-yasmin-prado',
+      campaignId: 'eng-software-senior-backend',
+      name: 'Yasmin Prado',
+      initials: 'YP',
+      avatarColorIndex: 2,
+      tool: 'busca_publica',
+      sourceLabel: 'Encontrado(a) no GitHub',
+      profileUrl: 'https://github.com/yasmin-prado-dev',
+      notes: 'Engenheira de software backend, Go e Kubernetes. Contribuidora ativa em projetos de observabilidade open source.',
+      addedAt: '2026-09-26',
+      status: 'novo',
+    },
+    {
+      id: 'prospect-gustavo-almeida',
+      campaignId: 'eng-software-senior-backend',
+      name: 'Gustavo Almeida',
+      initials: 'GA',
+      avatarColorIndex: 1,
+      tool: 'x_ray',
+      sourceLabel: 'Encontrado(a) via busca X-Ray',
+      notes: 'Perfil de infraestrutura/backend encontrado via busca X-Ray no LinkedIn.',
+      addedAt: '2026-09-24',
+      status: 'cadastrado',
+      talentId: 'gustavo-almeida',
+    },
+  ],
+};
+
+/** Resposta canônica "modo mock" — mesmo espírito de `assessTalentsForCampaign`: em produção a IA
+ * lê a vaga e monta a busca contra a API pública de verdade; aqui é uma lista fixa por fonte. */
+export const MOCK_PUBLIC_PROFILE_LEADS: Record<PublicProfileSource, PublicProfileLead[]> = {
+  github: [
+    {
+      id: 'lead-gh-yasmin-prado',
+      name: 'Yasmin Prado',
+      source: 'github',
+      bio: 'Engenheira de software backend, Go e Kubernetes. Contribuidora ativa em projetos de observabilidade open source.',
+      profileUrl: 'https://github.com/yasmin-prado-dev',
+      meta: '34 repositórios públicos · Go, Kubernetes, Postgres',
+    },
+    {
+      id: 'lead-gh-felipe-anjos',
+      name: 'Felipe Anjos',
+      source: 'github',
+      bio: 'Desenvolvedor Python/Go, foco em sistemas distribuídos e filas de mensageria.',
+      profileUrl: 'https://github.com/felipe-anjos',
+      meta: '21 repositórios públicos · Python, Go, Kafka',
+    },
+    {
+      id: 'lead-gh-carolina-reis',
+      name: 'Carolina Reis',
+      source: 'github',
+      bio: 'Backend engineer, ênfase em bancos de dados relacionais e performance de queries.',
+      profileUrl: 'https://github.com/carolina-reis-dev',
+      meta: '18 repositórios públicos · Postgres, Go, SQL',
+    },
+  ],
+  stackoverflow: [
+    {
+      id: 'lead-so-marcelo-tavares',
+      name: 'Marcelo Tavares',
+      source: 'stackoverflow',
+      bio: 'Respostas frequentes em Go, concorrência e Postgres.',
+      profileUrl: 'https://stackoverflow.com/users/1122334/marcelo-tavares',
+      meta: '8.400 de reputação · tags: go, postgresql, concurrency',
+    },
+    {
+      id: 'lead-so-renata-cunha',
+      name: 'Renata Cunha',
+      source: 'stackoverflow',
+      bio: 'Especialista em arquitetura de sistemas distribuídos, respostas bem avaliadas em Kubernetes.',
+      profileUrl: 'https://stackoverflow.com/users/2233445/renata-cunha',
+      meta: '12.100 de reputação · tags: kubernetes, distributed-systems, go',
+    },
+    {
+      id: 'lead-so-diego-farias',
+      name: 'Diego Farias',
+      source: 'stackoverflow',
+      bio: 'Contribuições em bancos de dados relacionais e otimização de queries SQL.',
+      profileUrl: 'https://stackoverflow.com/users/3344556/diego-farias',
+      meta: '5.600 de reputação · tags: postgresql, sql, database-design',
+    },
+  ],
+};
 
 export const MOCK_DASHBOARD_METRICS: DashboardMetrics = {
   activeCampaigns: 2,

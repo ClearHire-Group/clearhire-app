@@ -25,15 +25,20 @@ import {
   PhaseKey,
   PublicApplicationManualInput,
   PublicCampaignInfo,
+  PublicProfileLead,
+  PublicProfileSource,
   RegisterCompanyInput,
   RegisterCompanyResult,
   RejectionReasonKey,
+  ReferralProspectInput,
+  SourcingProspect,
   Talent,
   TalentMatch,
   TalentRecommendation,
   TeamMember,
   UpdateCampaignInput,
   UserProfile,
+  XRayProspectInput,
 } from './models';
 import { ReportRange } from './report-period';
 
@@ -94,6 +99,16 @@ import { ReportRange } from './report-period';
  *        até 5 talentos por chamada, body: { talentIds }; campanha JÁ CRIADA, nunca um rascunho)
  *   POST /campaigns/:id/talents                          -> AddTalentsResult  (puxa talentos pro funil, fase Recebidos;
  *        body: { talentIds }; quem não entra — exclusão solicitada ou ainda não notificado — volta em `skipped` com o motivo)
+ *
+ *   -- Sourcing (fase antes de "Recebidos") — NENHUM destes endpoints existe no backend ainda. --
+ *   -- Protótipo frontend/mock desta sessão (documentos/sourcing-fase-funil-plano.md); contrato   --
+ *   -- pretendido abaixo, pra quando o backend real for desenhado.                                --
+ *   GET  /campaigns/:id/sourcing/prospects                -> SourcingProspect[]
+ *   POST /campaigns/:id/sourcing/prospects/referral        -> SourcingProspect  (body: ReferralProspectInput)
+ *   GET  /campaigns/:id/sourcing/public-search?source=     -> PublicProfileLead[]  (source: 'github'|'stackoverflow')
+ *   POST /campaigns/:id/sourcing/prospects/public-search    -> SourcingProspect[]  (body: { leads: PublicProfileLead[] })
+ *   POST /campaigns/:id/sourcing/prospects/x-ray            -> SourcingProspect  (body: XRayProspectInput)
+ *   POST /campaigns/:id/sourcing/prospects/:prospectId/register -> { prospect, talent }  (body: ManualTalentInput)
  */
 @Injectable()
 export class HttpApiService extends DataApi {
@@ -184,7 +199,7 @@ export class HttpApiService extends DataApi {
 
   updateCampaignPhases(
     campaignId: string,
-    phaseKeys: Array<'fit' | 'tecnica' | 'entrevista'>,
+    phaseKeys: ('fit' | 'tecnica' | 'entrevista')[],
   ): Observable<Campaign | undefined> {
     return this.undefinedOnNotFound(
       this.http.patch<Campaign>(`${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/phases`, { phaseKeys }),
@@ -402,6 +417,47 @@ export class HttpApiService extends DataApi {
       `${APP_CONFIG.apiBaseUrl}/campaigns/${campaignId}/talent-recommendations/assess`,
       { talentIds },
     );
+  }
+
+  // --- Sourcing (fase antes de "Recebidos") ---------------------------------------------------
+  //
+  // Protótipo frontend/mock desta sessão: nenhum endpoint existe no backend ainda (ver contrato
+  // pretendido no bloco de comentários no topo deste arquivo). Erra explícito em vez de tentar uma
+  // rota que não existe — a tela de Sourcing só funciona com `APP_CONFIG.useMockApi = true` por
+  // ora.
+
+  private sourcingNotImplemented<T>(): Observable<T> {
+    return throwError(
+      () => new Error('Sourcing ainda não tem backend implementado — disponível só em modo mock (APP_CONFIG.useMockApi = true).'),
+    );
+  }
+
+  getSourcingProspects(_campaignId: string): Observable<SourcingProspect[]> {
+    return this.sourcingNotImplemented();
+  }
+
+  addReferralProspect(_campaignId: string, _input: ReferralProspectInput): Observable<SourcingProspect> {
+    return this.sourcingNotImplemented();
+  }
+
+  searchPublicProfiles(_campaignId: string, _source: PublicProfileSource): Observable<PublicProfileLead[]> {
+    return this.sourcingNotImplemented();
+  }
+
+  addPublicProfileProspects(_campaignId: string, _leads: PublicProfileLead[]): Observable<SourcingProspect[]> {
+    return this.sourcingNotImplemented();
+  }
+
+  addXRayProspect(_campaignId: string, _input: XRayProspectInput): Observable<SourcingProspect> {
+    return this.sourcingNotImplemented();
+  }
+
+  registerSourcingProspectAsTalent(
+    _campaignId: string,
+    _prospectId: string,
+    _input: ManualTalentInput,
+  ): Observable<{ prospect: SourcingProspect; talent: Talent }> {
+    return this.sourcingNotImplemented();
   }
 
   getMyProfile(): Observable<UserProfile> {

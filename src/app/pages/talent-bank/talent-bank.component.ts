@@ -15,10 +15,8 @@ import { ROWS_PAGE, SortSpec, SortState, ariaSort, nextSort, parseSort, rankIn, 
 import { InViewDirective } from '../../shared/in-view.directive';
 import { CountUpDirective } from '../../shared/count-up.directive';
 import { charCount, validateName } from '../../core/application-validation';
+import { ManualTalentField as ManualField, MANUAL_TALENT_LIMITS as MANUAL_LIMITS, validateManualTalentInput } from '../../core/manual-talent-validation';
 import { HttpErrorResponse } from '@angular/common/http';
-
-type ManualField = 'name' | 'rawProfileText' | 'contextNote';
-const MANUAL_LIMITS = { rawText: 14000, note: 2000 } as const;
 
 type ConsentFilter = 'todos' | ConsentState;
 type OriginFilter = 'todos' | TalentOrigin;
@@ -107,18 +105,9 @@ export class TalentBankComponent {
   readonly manualNoteCount = computed(() => charCount(this.manualNote().trim()));
 
   /** Mesmas regras do backend (candidate/manual_talent.go): nome e sobrenome, tamanhos máximos. */
-  private readonly manualErrors = computed<Partial<Record<ManualField, string>>>(() => {
-    const errors: Partial<Record<ManualField, string>> = {};
-    const name = validateName(this.manualName());
-    if (name.error) errors.name = name.error;
-    if (this.manualRawCount() > MANUAL_LIMITS.rawText) {
-      errors.rawProfileText = `O perfil pode ter no máximo ${MANUAL_LIMITS.rawText} caracteres (você usou ${this.manualRawCount()}).`;
-    }
-    if (this.manualNoteCount() > MANUAL_LIMITS.note) {
-      errors.contextNote = `A nota pode ter no máximo ${MANUAL_LIMITS.note} caracteres (você usou ${this.manualNoteCount()}).`;
-    }
-    return errors;
-  });
+  private readonly manualErrors = computed<Partial<Record<ManualField, string>>>(() =>
+    validateManualTalentInput(this.manualName(), this.manualRawText(), this.manualNote()),
+  );
 
   readonly hasActiveQuery = computed(() => this.activeQuery() !== null);
 
